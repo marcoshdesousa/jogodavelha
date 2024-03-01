@@ -1,0 +1,82 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #2f3640, #1e272e);
+    color: #fff;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.logo {
+    width: 175px; 
+    height: auto;
+    margin-bottom: 01pt;
+}
+
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 10px;
+    margin-bottom: 20px;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #0fb9b1, #20e3b2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    cursor: pointer;
+    border-radius: 15px;
+    transition: background 0.3s ease;
+    box-shadow: 0 0 10px rgba(15, 185, 177, 0.8);
+}
+
+.cell:hover {
+    background: linear-gradient(135deg, #0fb9b1, #20e3b2);
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.05);
+    }
+}
+
+.status {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.restart-button {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #0fb9b1;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.restart-button:hover {
+    background-color: #1abc9c;
+}
+
+/* Siga @marcoshdesousa no instagran */
