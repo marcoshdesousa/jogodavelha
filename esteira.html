@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini Esteira Transportadora – Stone Box + Defletores</title>
+<meta name="description" content="Simulador visual de correia transportadora de minério: desalinhamento por queda fora do centro e a inovação Funil + Stone Box + Defletores ajustáveis em V.">
+<style>
+:root{
+  --bg:#16191d; --panel:#1f242a; --panel2:#262c33; --line:#333b44;
+  --text:#e8ebee; --muted:#9aa4ae;
+  --orange:#ff7a00; --ok:#2ecc71; --warn:#ffb020; --alert:#ff3b30;
+  --funil:#5a616b; --box:#d32f2f; --aleta:#ffc400; --sup:#1e88e5; --wood:#a0703f;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.55;-webkit-text-size-adjust:100%}
+a{color:var(--orange)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+header.hero{background:
+  linear-gradient(180deg,rgba(22,25,29,.2),var(--bg)),
+  repeating-linear-gradient(135deg,#1d2126 0 22px,#1a1d22 22px 44px);
+  border-bottom:4px solid var(--orange);padding:42px 0 30px;position:relative}
+header.hero::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:4px;
+  background:repeating-linear-gradient(90deg,var(--orange) 0 24px,#111 24px 48px)}
+.kicker{display:inline-block;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:#111;background:var(--orange);padding:3px 10px;border-radius:4px;font-weight:700}
+h1{font-size:clamp(1.6rem,4.6vw,2.7rem);line-height:1.15;margin:14px 0 10px}
+h1 span{color:var(--orange)}
+.lead{color:#c8ced4;max-width:760px;font-size:1.05rem;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);padding:5px 11px;border-radius:999px;font-size:.85rem}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block;flex:none}
+nav.top{position:sticky;top:0;z-index:20;background:rgba(22,25,29,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav.top .wrap::-webkit-scrollbar{display:none}
+nav.top a{color:var(--muted);text-decoration:none;white-space:nowrap;padding:12px 10px;font-size:.9rem;font-weight:600;border-bottom:2px solid transparent}
+nav.top a:hover{color:var(--text);border-color:var(--orange)}
+section{padding:46px 0 10px}
+h2{font-size:clamp(1.3rem,3.4vw,1.9rem);margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2 .num{background:var(--orange);color:#111;font-size:.95rem;width:32px;height:32px;border-radius:6px;display:inline-grid;place-items:center;flex:none}
+h3{margin:22px 0 10px;font-size:1.12rem}
+p{margin:.4em 0 .9em}
+.muted{color:var(--muted)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card h4{margin:0 0 4px;font-size:1rem;display:flex;align-items:center;gap:8px}
+.card p{margin:0;color:#c3cad1;font-size:.93rem}
+.card .n{background:var(--panel2);border:1px solid var(--line);border-radius:50%;width:24px;height:24px;display:inline-grid;place-items:center;font-size:.8rem;color:var(--orange);flex:none}
+.card.prob{border-left:4px solid var(--alert)}
+.card.piece{border-top:4px solid var(--c)}
+.card.piece .dims{font-size:.84rem;color:var(--text);background:var(--panel2);border-radius:6px;padding:6px 8px;margin:8px 0}
+.figure{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin:14px 0}
+.figure svg{display:block;width:100%;height:auto}
+.sim-wrap{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#1a1e23;margin-top:14px}
+.sim-wrap canvas{display:block;width:100%;touch-action:pan-y;cursor:crosshair}
+.sim-title{position:absolute;left:10px;top:8px;font-size:.8rem;font-weight:700;letter-spacing:.06em;pointer-events:none}
+.tip{position:absolute;z-index:5;pointer-events:none;max-width:260px;background:rgba(14,16,19,.96);border:1px solid var(--orange);border-radius:10px;padding:9px 11px;font-size:.84rem;box-shadow:0 6px 24px rgba(0,0,0,.5);opacity:0;transition:opacity .12s}
+.tip.on{opacity:1}
+.tip b{display:block;font-size:.95rem;margin-bottom:3px}
+.tip .dims{color:#fff;background:#252b32;border-radius:6px;padding:4px 6px;margin:4px 0;font-size:.8rem}
+.tip .fn{color:#c3cad1}
+.controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-weight:700;font-size:.9rem;padding:9px 14px;border-radius:9px;cursor:pointer;min-height:40px}
+.btn:hover{border-color:var(--orange)}
+.btn.primary{background:var(--orange);color:#111;border-color:var(--orange)}
+.btn.tog.on{background:var(--ok);color:#06210f;border-color:var(--ok)}
+.btn.tog.off{background:#3a1d1b;border-color:var(--alert);color:#ffd2cf}
+.rng{display:flex;flex-direction:column;gap:2px;font-size:.82rem;color:var(--muted);flex:1 1 180px;min-width:160px}
+.rng span{display:flex;justify-content:space-between;gap:8px}
+.rng output{color:var(--text);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--orange);height:28px}
+.ind-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));margin-top:10px}
+.ind{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;border-left:4px solid var(--muted);transition:border-color .3s}
+.ind .lbl{display:block;font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.ind .val{display:block;font-size:1.3rem;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}
+.ind .sub{display:block;font-size:.78rem;color:var(--muted)}
+.bar{height:6px;background:#2c333b;border-radius:4px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--muted);transition:width .2s,background .3s}
+.ind.ok{border-left-color:var(--ok)} .ind.ok .bar i{background:var(--ok)} .ind.ok .val{color:#bff3d3}
+.ind.warn{border-left-color:var(--warn)} .ind.warn .bar i{background:var(--warn)} .ind.warn .val{color:#ffe1a6}
+.ind.alert{border-left-color:var(--alert)} .ind.alert .bar i{background:var(--alert)} .ind.alert .val{color:#ffc0bb}
+.pill{display:inline-block;margin-top:4px;padding:4px 10px;border-radius:999px;font-weight:800;font-size:.85rem;background:#2c333b}
+.ind.ok .pill{background:var(--ok);color:#06210f}
+.ind.warn .pill{background:var(--warn);color:#2a1c00}
+.ind.alert .pill{background:var(--alert);color:#fff;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.45}}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.observe{margin:14px 0 0;padding-left:20px;color:#c3cad1}
+.observe li{margin:4px 0}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.split .sim-wrap{margin-top:0}
+.side-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 6px;font-weight:800}
+.tag{font-size:.75rem;padding:3px 9px;border-radius:999px;font-weight:800;letter-spacing:.04em}
+.tag.bad{background:var(--alert);color:#fff}
+.tag.good{background:var(--ok);color:#06210f}
+.cmp{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:14px}
+.cmp .card h4{font-size:.92rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.cmp .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:6px;font-variant-numeric:tabular-nums}
+.cmp .row small{color:var(--muted)}
+.cmp .bad{color:#ff8a80;font-weight:800;font-size:1.1rem}
+.cmp .good{color:#7ee0a1;font-weight:800;font-size:1.1rem}
+.cmp .red{margin-top:8px;font-size:.82rem;background:rgba(46,204,113,.12);color:#9ff0bf;border-radius:6px;padding:4px 8px;display:inline-block}
+.notice{margin-top:12px;font-size:.85rem;color:#ffd9a8;background:rgba(255,122,0,.1);border:1px dashed rgba(255,122,0,.6);border-radius:10px;padding:10px 12px}
+.proto{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:start}
+.spec{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.spec li{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;display:flex;justify-content:space-between;gap:10px;font-size:.93rem}
+.spec li b{color:var(--orange);white-space:nowrap}
+.ex-legend{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}
+.ex-legend li{display:flex;gap:10px;align-items:flex-start;font-size:.9rem}
+.ex-legend .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#111;flex:none}
+footer{margin-top:50px;padding:24px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+@media (max-width:760px){
+  .split,.proto{grid-template-columns:1fr}
+  section{padding-top:36px}
+  .ind .val{font-size:1.12rem}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="kicker">Simulador visual · Mineração</span>
+    <h1>Mini Esteira Transportadora – <span>Stone Box + Defletores</span></h1>
+    <p class="lead">Veja como a queda de minério fora do centro desalinha a correia transportadora e como o nosso conjunto <b>Funil + Stone Box + Defletores ajustáveis em V</b> centraliza a carga, reduz o impacto e mantém a correia alinhada.</p>
+    <div class="chips">
+      <span class="chip"><i class="sw" style="background:var(--funil)"></i>Funil</span>
+      <span class="chip"><i class="sw" style="background:var(--box)"></i>Stone Box</span>
+      <span class="chip"><i class="sw" style="background:var(--aleta)"></i>Defletores (aletas)</span>
+      <span class="chip"><i class="sw" style="background:var(--sup)"></i>Suporte</span>
+      <span class="chip"><i class="sw" style="background:var(--wood)"></i>Estrutura de madeira</span>
+      <span class="chip"><i class="sw" style="background:#0d0d0d;border:1px solid #555"></i>Correia</span>
+    </div>
+  </div>
+</header>
+
+<nav class="top"><div class="wrap">
+  <a href="#intro">1. Introdução</a>
+  <a href="#hoje">2. Como funciona hoje</a>
+  <a href="#inovacao">3. Com a inovação</a>
+  <a href="#comparacao">4. Antes x Depois</a>
+  <a href="#prototipo">5. O protótipo</a>
+</div></nav>
+
+<main class="wrap">
+
+<!-- 1. INTRODUÇÃO -->
+<section id="intro">
+  <h2><span class="num">1</span>O que é uma correia transportadora?</h2>
+  <p>É um sistema que leva grandes quantidades de minério de um ponto a outro de forma contínua. Uma correia de borracha, fechada em laço, passa por dois tambores e se apoia em vários roletes. O minério é despejado sobre ela por um <b>chute de transferência</b> e levado até a descarga.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 800 310" role="img" aria-label="Desenho de uma correia transportadora com as partes numeradas">
+      <rect x="0" y="0" width="800" height="310" fill="#1a1e23"/>
+      <line x1="0" y1="300" x2="800" y2="300" stroke="#2d343c" stroke-width="4"/>
+      <!-- estrutura -->
+      <rect x="60" y="222" width="680" height="12" fill="#a0703f"/>
+      <rect x="95" y="234" width="10" height="66" fill="#a0703f"/>
+      <rect x="395" y="234" width="10" height="66" fill="#a0703f"/>
+      <rect x="695" y="234" width="10" height="66" fill="#a0703f"/>
+      <!-- roletes -->
+      <g fill="#7b8490" stroke="#4b525b">
+        <circle cx="140" cy="155" r="6"/><circle cx="205" cy="155" r="6"/><circle cx="270" cy="155" r="6"/><circle cx="335" cy="155" r="6"/><circle cx="400" cy="155" r="6"/><circle cx="465" cy="155" r="6"/><circle cx="530" cy="155" r="6"/><circle cx="595" cy="155" r="6"/><circle cx="660" cy="155" r="6"/>
+        <circle cx="250" cy="205" r="5"/><circle cx="550" cy="205" r="5"/>
+      </g>
+      <!-- correia -->
+      <path d="M90,145 L710,145 A25,25 0 0 1 710,195 L90,195 A25,25 0 0 1 90,145 Z" fill="none" stroke="#0b0b0b" stroke-width="7"/>
+      <circle cx="90" cy="170" r="21" fill="#3b4149" stroke="#59616b" stroke-width="2"/>
+      <circle cx="710" cy="170" r="21" fill="#3b4149" stroke="#59616b" stroke-width="2"/>
+      <circle cx="90" cy="170" r="5" fill="#8a929c"/><circle cx="710" cy="170" r="5" fill="#8a929c"/>
+      <rect x="742" y="155" width="42" height="30" rx="4" fill="#4a4f57"/><rect x="742" y="155" width="42" height="6" fill="#ff7a00"/>
+      <line x1="710" y1="170" x2="742" y2="170" stroke="#8a929c" stroke-width="4"/>
+      <!-- minério -->
+      <path d="M215,142 Q240,128 270,138 T330,134 T400,137 T470,133 T540,137 T610,134 T690,141 Z" fill="#8a6447"/>
+      <!-- chute -->
+      <path d="M95,20 L205,20 L185,52 L120,52 Z" fill="#3d434b" stroke="#59616b"/>
+      <path d="M110,22 Q150,10 190,22 Z" fill="#8a6447"/>
+      <line x1="140" y1="52" x2="235" y2="112" stroke="#6d757f" stroke-width="7" stroke-linecap="round"/>
+      <g fill="#8a6447"><circle cx="246" cy="122" r="3"/><circle cx="252" cy="131" r="3"/><circle cx="243" cy="136" r="3"/></g>
+      <!-- números -->
+      <g font-family="system-ui,Arial" font-weight="800" font-size="16" text-anchor="middle">
+        <line x1="440" y1="143" x2="440" y2="88" stroke="#ff7a00" stroke-dasharray="3 3"/>
+        <circle cx="440" cy="76" r="13" fill="#ff7a00"/><text x="440" y="82" fill="#111">1</text>
+        <line x1="716" y1="160" x2="740" y2="100" stroke="#ff7a00" stroke-dasharray="3 3"/>
+        <circle cx="742" cy="88" r="13" fill="#ff7a00"/><text x="742" y="94" fill="#111">2</text>
+        <line x1="84" y1="178" x2="52" y2="252" stroke="#ff7a00" stroke-dasharray="3 3"/>
+        <circle cx="48" cy="262" r="13" fill="#ff7a00"/><text x="48" y="268" fill="#111">3</text>
+        <line x1="335" y1="161" x2="300" y2="262" stroke="#ff7a00" stroke-dasharray="3 3"/>
+        <circle cx="298" cy="270" r="13" fill="#ff7a00"/><text x="298" y="276" fill="#111">4</text>
+        <line x1="210" y1="90" x2="268" y2="52" stroke="#ff7a00" stroke-dasharray="3 3"/>
+        <circle cx="280" cy="44" r="13" fill="#ff7a00"/><text x="280" y="50" fill="#111">5</text>
+        <line x1="560" y1="234" x2="590" y2="262" stroke="#ff7a00" stroke-dasharray="3 3"/>
+        <circle cx="598" cy="270" r="13" fill="#ff7a00"/><text x="598" y="276" fill="#111">6</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="grid">
+    <div class="card"><h4><span class="n">1</span>Correia</h4><p>Faixa de borracha em laço fechado que carrega o minério. É a peça mais cara e a que mais sofre com impacto e desalinhamento.</p></div>
+    <div class="card"><h4><span class="n">2</span>Tambor de acionamento</h4><p>Ligado ao motor, puxa a correia e gera o movimento. Fica normalmente na ponta de descarga.</p></div>
+    <div class="card"><h4><span class="n">3</span>Tambor de retorno</h4><p>Na outra ponta, faz a correia voltar por baixo e ajuda a manter a tensão.</p></div>
+    <div class="card"><h4><span class="n">4</span>Roletes</h4><p>Rolos de apoio que sustentam a correia carregada (em cima) e o lado de retorno (embaixo).</p></div>
+    <div class="card"><h4><span class="n">5</span>Chute de transferência</h4><p>Rampa ou calha que despeja o minério sobre a correia. Se a queda for forte ou fora do centro, começam os problemas.</p></div>
+    <div class="card"><h4><span class="n">6</span>Estrutura</h4><p>Base que sustenta tambores, roletes e chute. No nosso protótipo, é feita de madeira.</p></div>
+  </div>
+
+  <h3>Por que o desalinhamento é um problema?</h3>
+  <p class="muted">Quando a carga cai de um lado só, a correia "foge" para o lado e começa a trabalhar fora do eixo da estrutura.</p>
+  <div class="grid">
+    <div class="card prob"><h4>Desgaste da borda</h4><p>A borda da correia raspa na estrutura e nas guias, desfiando e encurtando a vida útil.</p></div>
+    <div class="card prob"><h4>Derramamento de minério</h4><p>O material cai pelas bordas, suja a área e exige limpeza constante.</p></div>
+    <div class="card prob"><h4>Paradas para manutenção</h4><p>Ajustes, limpeza e troca de correia param a produção.</p></div>
+    <div class="card prob"><h4>Risco à segurança</h4><p>Limpeza perto de partes móveis e material acumulado aumentam o risco de acidentes.</p></div>
+    <div class="card prob"><h4>Custo</h4><p>Correia nova, mão de obra, perda de material e produção parada pesam no orçamento.</p></div>
+  </div>
+</section>
+
+<!-- 2. COMO FUNCIONA HOJE -->
+<section id="hoje">
+  <h2><span class="num">2</span>Parte 1 – Como funciona hoje</h2>
+  <p>Sem a inovação, o minério desce por um chute comum e cai <b>direto na correia</b>, de uma altura grande e <b>deslocado para um lado</b>. A carga fica desigual e a correia começa a desviar aos poucos, derramando material pela borda.</p>
+  <div class="sim-wrap" id="simA"><canvas></canvas><div class="tip"></div></div>
+  <div class="legend">
+    <span><i class="sw" style="background:#6d757f"></i>Chute comum</span>
+    <span><i class="sw" style="background:#0d0d0d;border:1px solid #555"></i>Correia</span>
+    <span><i class="sw" style="background:var(--wood)"></i>Estrutura</span>
+    <span><i class="sw" style="background:#93603a"></i>Minério</span>
+    <span><i class="sw" style="background:var(--orange)"></i>Eixo da estrutura (linha tracejada)</span>
+  </div>
+  <div class="controls" id="ctlA"></div>
+  <div class="ind-grid" id="indA"></div>
+  <ul class="observe">
+    <li><b>Vista lateral:</b> o minério ganha velocidade na rampa e bate forte na correia (flashes vermelhos).</li>
+    <li><b>Vista de cima:</b> a carga cai à direita do centro; a correia foge para a esquerda e a carga vai parar na borda.</li>
+    <li>Aumente a <b>vazão</b> para ver o desvio crescer e o derramamento disparar. Toque em <b>"Ativar inovação"</b> para ver a correia voltar ao centro.</li>
+  </ul>
+</section>
+
+<!-- 3. COM A INOVAÇÃO -->
+<section id="inovacao">
+  <h2><span class="num">3</span>Parte 2 – Com a nossa inovação</h2>
+  <p>Mesma correia, agora com o nosso conjunto de 4 peças. O minério é concentrado pelo funil, amortecido no colchão da stone box e guiado para o <b>centro</b> pelas aletas em V.</p>
+  <div class="grid">
+    <div class="card piece" style="--c:var(--funil)"><h4><i class="sw" style="background:var(--funil)"></i>a) Funil de alimentação</h4>
+      <div class="dims">Tronco de pirâmide · topo 70 × 70 mm · saída 30 × 30 mm · altura 50 mm</div>
+      <p>Concentra o minério e direciona a queda.</p></div>
+    <div class="card piece" style="--c:var(--box)"><h4><i class="sw" style="background:var(--box)"></i>b) Stone Box (caixa de pedra)</h4>
+      <div class="dims">70 × 50 mm externo · bordas de 15 mm · altura 30 mm · encaixe inferior 30 × 30 mm</div>
+      <p>O minério se acumula e forma um "colchão": o minério novo bate em minério, e não na correia.</p></div>
+    <div class="card piece" style="--c:var(--aleta)"><h4><i class="sw" style="background:var(--aleta)"></i>c) Defletores ajustáveis (2 aletas)</h4>
+      <div class="dims">60 × 35 × 8 mm · eixo cilíndrico Ø10 mm · montagem em V</div>
+      <p>Giram livremente no eixo, se autoajustam ao fluxo e guiam o material para o centro.</p></div>
+    <div class="card piece" style="--c:var(--sup)"><h4><i class="sw" style="background:var(--sup)"></i>d) Suporte de fixação</h4>
+      <div class="dims">Peça em U · 40 × 50 × 10 mm · parafuso M10</div>
+      <p>Prende o conjunto na estrutura de madeira.</p></div>
+  </div>
+  <div class="sim-wrap" id="simB"><canvas></canvas><div class="tip"></div></div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--funil)"></i>1 Funil</span>
+    <span><i class="sw" style="background:var(--box)"></i>2 Stone Box</span>
+    <span><i class="sw" style="background:var(--aleta)"></i>3 Aletas em V</span>
+    <span><i class="sw" style="background:var(--sup)"></i>4 Suporte em U</span>
+    <span>👆 Passe o mouse ou toque nas peças para ver medidas e função</span>
+  </div>
+  <div class="controls" id="ctlB"></div>
+  <div class="ind-grid" id="indB"></div>
+  <ul class="observe">
+    <li>No início a stone box enche e forma o <b>colchão</b>; depois disso, o minério novo bate no próprio minério (brilho verde).</li>
+    <li>As <b>aletas amarelas</b> giram sozinhas quando o fluxo muda (mexa na vazão), estreitando ou abrindo o V.</li>
+    <li>A carga chega centralizada, o desvio fica perto de zero e os indicadores ficam verdes.</li>
+  </ul>
+</section>
+
+<!-- 4. COMPARAÇÃO -->
+<section id="comparacao">
+  <h2><span class="num">4</span>Antes x Depois</h2>
+  <p>As duas correias rodando ao mesmo tempo, com a mesma velocidade e a mesma vazão.</p>
+  <div class="split">
+    <div>
+      <div class="side-head">Antes <span class="tag bad">SEM INOVAÇÃO</span></div>
+      <div class="sim-wrap" id="simC1"><canvas></canvas><div class="tip"></div></div>
+    </div>
+    <div>
+      <div class="side-head">Depois <span class="tag good">COM INOVAÇÃO</span></div>
+      <div class="sim-wrap" id="simC2"><canvas></canvas><div class="tip"></div></div>
+    </div>
+  </div>
+  <div class="controls" id="ctlC"></div>
+  <div class="cmp" id="cmp"></div>
+  <div class="notice"><b>Atenção:</b> todos os valores são <b>simulados e ilustrativos</b>, gerados por um modelo simplificado para fins didáticos. Eles não representam medições reais de campo.</div>
+</section>
+
+<!-- 5. PROTÓTIPO -->
+<section id="prototipo">
+  <h2><span class="num">5</span>Sobre o protótipo</h2>
+  <div class="proto">
+    <div>
+      <p>O protótipo é uma <b>mini esteira em escala</b>, construída para testar a ideia de forma simples e barata. A estrutura é de <b>madeira</b>, as 4 peças do conjunto são <b>impressas em 3D</b> e a <b>areia</b> faz o papel do minério.</p>
+      <ul class="spec">
+        <li><span>Estrutura</span><b>Madeira</b></li>
+        <li><span>Material das peças</span><b>PLA ou PETG</b></li>
+        <li><span>Espessura de parede</span><b>2 a 3 mm</b></li>
+        <li><span>Preenchimento (infill)</span><b>15% a 20%</b></li>
+        <li><span>Material simulado</span><b>Areia</b></li>
+        <li><span>Eixo das aletas</span><b>Cilíndrico Ø10 mm</b></li>
+        <li><span>Fixação</span><b>Parafuso M10</b></li>
+      </ul>
+      <p class="muted" style="margin-top:14px">No simulador, as medidas de desvio e derramamento seguem a escala do protótipo (correia de cerca de 120 mm de largura).</p>
+    </div>
+    <div class="figure">
+      <svg viewBox="0 0 420 520" role="img" aria-label="Vista explodida das 4 peças">
+        <rect width="420" height="520" fill="#1a1e23"/>
+        <line x1="150" y1="14" x2="150" y2="505" stroke="#ff7a00" stroke-dasharray="5 6" opacity=".5"/>
+        <!-- 1 funil -->
+        <polygon points="100,62 130,45 230,45 200,62" fill="#2a2e33" stroke="#8a929c"/>
+        <polygon points="113,58 135,48 218,48 196,58" fill="#1b1e22"/>
+        <polygon points="100,62 200,62 172,122 128,122" fill="#5a616b" stroke="#8a929c"/>
+        <polygon points="200,62 230,45 186,113 172,122" fill="#454b53" stroke="#8a929c"/>
+        <!-- 2 stone box -->
+        <polygon points="96,186 122,172 226,172 200,186" fill="#e57373" stroke="#ffb4b4"/>
+        <polygon points="118,183 132,176 206,176 192,183" fill="#4a1717"/>
+        <rect x="96" y="186" width="104" height="40" fill="#d32f2f" stroke="#ffb4b4"/>
+        <polygon points="200,186 226,172 226,212 200,226" fill="#a82424" stroke="#ffb4b4"/>
+        <rect x="134" y="226" width="32" height="10" fill="#a82424" stroke="#ffb4b4"/>
+        <!-- 3 defletores -->
+        <rect x="88" y="262" width="12" height="74" rx="6" fill="#9aa3ad"/>
+        <ellipse cx="94" cy="262" rx="6" ry="3" fill="#c7ced6"/>
+        <rect x="200" y="262" width="12" height="74" rx="6" fill="#9aa3ad"/>
+        <ellipse cx="206" cy="262" rx="6" ry="3" fill="#c7ced6"/>
+        <polygon points="100,276 145,302 145,332 100,306" fill="#ffc400" stroke="#7a5d00"/>
+        <polygon points="200,276 155,302 155,332 200,306" fill="#e0ac00" stroke="#7a5d00"/>
+        <!-- 4 suporte U -->
+        <polygon points="190,392 206,384 206,444 190,452" fill="#1565c0"/>
+        <polygon points="110,392 126,392 126,436 174,436 174,392 190,392 190,452 110,452" fill="#1e88e5" stroke="#90caf9"/>
+        <rect x="145" y="452" width="10" height="34" fill="#9aa3ad"/>
+        <polygon points="138,486 162,486 166,494 134,494" fill="#c7ced6"/>
+        <!-- chamadas -->
+        <g font-family="system-ui,Arial" font-size="15" font-weight="700">
+          <line x1="232" y1="80" x2="268" y2="80" stroke="#8a929c"/>
+          <circle cx="282" cy="80" r="13" fill="#5a616b"/><text x="282" y="85" text-anchor="middle" fill="#fff">1</text>
+          <text x="302" y="85" fill="#e8ebee">Funil</text>
+          <line x1="228" y1="200" x2="268" y2="200" stroke="#8a929c"/>
+          <circle cx="282" cy="200" r="13" fill="#d32f2f"/><text x="282" y="205" text-anchor="middle" fill="#fff">2</text>
+          <text x="302" y="205" fill="#e8ebee">Stone Box</text>
+          <line x1="214" y1="300" x2="268" y2="300" stroke="#8a929c"/>
+          <circle cx="282" cy="300" r="13" fill="#ffc400"/><text x="282" y="305" text-anchor="middle" fill="#111">3</text>
+          <text x="302" y="305" fill="#e8ebee">Aletas ×2</text>
+          <line x1="208" y1="420" x2="268" y2="420" stroke="#8a929c"/>
+          <circle cx="282" cy="420" r="13" fill="#1e88e5"/><text x="282" y="425" text-anchor="middle" fill="#fff">4</text>
+          <text x="302" y="425" fill="#e8ebee">Suporte U</text>
+          <text x="302" y="495" fill="#9aa4ae" font-size="13" font-weight="600">parafuso M10</text>
+          <line x1="168" y1="490" x2="296" y2="490" stroke="#555" stroke-dasharray="3 3"/>
+        </g>
+      </svg>
+      <ul class="ex-legend">
+        <li><span class="n" style="background:var(--funil);color:#fff">1</span><span><b>Funil de alimentação</b> — topo 70 × 70 mm, saída 30 × 30 mm, altura 50 mm.</span></li>
+        <li><span class="n" style="background:var(--box);color:#fff">2</span><span><b>Stone Box</b> — 70 × 50 mm externo, bordas de 15 mm, altura 30 mm, encaixe inferior 30 × 30 mm.</span></li>
+        <li><span class="n" style="background:var(--aleta)">3</span><span><b>Defletores (2 aletas)</b> — 60 × 35 × 8 mm, eixo Ø10 mm, montados em V.</span></li>
+        <li><span class="n" style="background:var(--sup);color:#fff">4</span><span><b>Suporte em U</b> — 40 × 50 × 10 mm, preso com parafuso M10 na madeira.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">
+  <b>Mini Esteira Transportadora – Stone Box + Defletores</b><br>
+  Simulador didático. Valores, animações e indicadores são ilustrativos e simulados; não representam dados reais de operação.
+</div></footer>
+
+<script>
+(function(){
+'use strict';
+/* ---------- Constantes do mundo virtual (1000 x 730) ---------- */
+const VW=1000, VH=730, SPLIT=402;
+const PCY=275, BR=27.5, BT=PCY-BR-3.5, TAILX=110, HEADX=890;
+const CY=572, S=1.6, HALF=60, RAIL=74;           // vista de cima: mm -> px
+const FX=300, X0=362, G=900, DEG=Math.PI/180;
+const IDLERS=[]; for(let x=170;x<=830;x+=60) IDLERS.push(x);
+const ORE=['#7a5a44','#93603a','#5e4a3d','#a8774d','#6b4a35','#8c6a52'];
+const CH0={x:100,y:44}, CH1={x:272,y:130};
+const CHL=Math.hypot(CH1.x-CH0.x,CH1.y-CH0.y), CHDX=(CH1.x-CH0.x)/CHL, CHDY=(CH1.y-CH0.y)/CHL;
+const rnd=(a=0,b=1)=>a+Math.random()*(b-a);
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const zy=z=>CY+z*S;
+const fmt=(v,d=1)=>v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const G_PER=1.5; // gramas de areia por partícula (ilustrativo)
+
+const PARTS={
+  funil:{name:'Funil de alimentação',col:'#9aa3ad',dims:'Tronco de pirâmide · topo 70 × 70 mm · saída 30 × 30 mm · altura 50 mm',fn:'Concentra o minério e direciona a queda para o centro.'},
+  stonebox:{name:'Stone Box (caixa de pedra)',col:'#ff6b6b',dims:'70 × 50 mm externo · bordas de 15 mm · altura 30 mm · encaixe inferior 30 × 30 mm',fn:'O minério se acumula e forma um colchão: o minério novo bate em minério, não na correia.'},
+  defletores:{name:'Defletores ajustáveis (aletas) ×2',col:'#ffc400',dims:'60 × 35 × 8 mm · eixo cilíndrico Ø10 mm · montagem em V',fn:'Giram livremente no eixo, se autoajustam ao fluxo e guiam o material para o centro da correia.'},
+  suporte:{name:'Suporte de fixação',col:'#64b5f6',dims:'Peça em U · 40 × 50 × 10 mm · parafuso M10',fn:'Prende o conjunto na estrutura de madeira.'},
+  correia:{name:'Correia',col:'#e8ebee',dims:'Borracha preta · ~120 mm de largura no protótipo',fn:'Carrega o minério do ponto de carga até a descarga.'},
+  acion:{name:'Tambor de acionamento',col:'#e8ebee',dims:'Ligado ao motor (M)',fn:'Puxa a correia e gera o movimento.'},
+  retorno:{name:'Tambor de retorno',col:'#e8ebee',dims:'Ponta de carga',fn:'Faz a correia voltar por baixo e mantém a tensão.'},
+  roletes:{name:'Roletes',col:'#e8ebee',dims:'Rolos de apoio (carga e retorno)',fn:'Sustentam a correia carregada e o lado de retorno.'},
+  chute:{name:'Chute de transferência (comum)',col:'#ff8a80',dims:'Rampa inclinada sem controle de queda',fn:'Despeja o minério de cima e fora do centro: impacto forte e carga desigual.'},
+  estrutura:{name:'Estrutura',col:'#d7a46c',dims:'Madeira (protótipo)',fn:'Sustenta tambores, roletes e o conjunto da inovação. A linha laranja tracejada é o eixo dela.'}
+};
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function wood(c,x,y,w,h){
+  c.fillStyle='#a0703f';c.fillRect(x,y,w,h);
+  c.strokeStyle='rgba(70,40,15,.45)';c.lineWidth=1;c.beginPath();
+  if(w>=h){for(let i=y+3;i<y+h;i+=4){c.moveTo(x,i);c.lineTo(x+w,i);}}
+  else{for(let i=x+3;i<x+w;i+=4){c.moveTo(i,y);c.lineTo(i,y+h);}}
+  c.stroke();
+}
+function inRect(x,y,r){return x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3];}
+
+/* ---------- Simulador ---------- */
+class Sim{
+  constructor(wrap,params,innov){
+    this.wrap=wrap; this.canvas=wrap.querySelector('canvas'); this.ctx=this.canvas.getContext('2d');
+    this.tip=wrap.querySelector('.tip'); this.params=params; this.innov=innov;
+    this.visible=true; this.hover=null; this.onMode=null;
+    this.reset(); this.resize();
+    new ResizeObserver(()=>this.resize()).observe(wrap);
+    const move=e=>this.pointer(e);
+    this.canvas.addEventListener('pointermove',move);
+    this.canvas.addEventListener('pointerdown',move);
+    this.canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')this.setHover(null);});
+    document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))this.setHover(null);});
+    new IntersectionObserver(es=>{this.visible=es[0].isIntersecting;},{rootMargin:'100px'}).observe(wrap);
+  }
+  reset(){
+    this.ps=[]; this.drift=0; this.spilled=0; this.impE=0; this.impact=0; this.bed=0; this.acc=0;
+    this.t=0; this.ground=[]; this.fx=[]; this.sparks=[]; this.phase=0; this.rot=0;
+    this.zEMA=0; this.d={aL:19*DEG,wL:0,aR:19*DEG,wR:0}; this.fi=1; this.spillRate=0; this._sp=0;
+  }
+  setMode(innov){
+    this.innov=innov;
+    // remove material em queda / dentro do chute; a correia e o desvio continuam
+    this.ps=this.ps.filter(p=>p.st==='belt'||p.st==='disch'||p.st==='spill');
+    this.bed=0; this.zEMA=0;
+    if(this.onMode) this.onMode(innov);
+  }
+  resize(){
+    const w=this.wrap.clientWidth; if(!w) return;
+    const dpr=Math.min(2,window.devicePixelRatio||1);
+    this.canvas.style.height=(w*VH/VW)+'px';
+    this.canvas.width=Math.round(w*dpr); this.canvas.height=Math.round(w*VH/VW*dpr);
+    this.k=this.canvas.width/VW;
+  }
+  /* ----- simulação ----- */
+  spawn(){
+    if(this.ps.length>900) return;
+    const c=ORE[(Math.random()*ORE.length)|0], r=rnd(2.6,3.8);
+    if(this.innov) this.ps.push({st:'fall',x:FX+rnd(-48,48),y:rnd(-10,0),vx:rnd(-10,10),vy:rnd(60,120),z:22+rnd(-14,14),c,r});
+    else this.ps.push({st:'chute',s:rnd(0,30),v:rnd(20,60),z:28+rnd(-14,14),c,r,x:CH0.x,y:CH0.y});
+  }
+  spill(p){
+    p.st='spill'; p.zs=p.zb+this.drift; p.sg=Math.sign(p.zb)||1; p.zt=rnd(87,99);
+    p.vy=rnd(-40,0); p.y=BT-3; this.spilled++; this._sp++;
+  }
+  update(dt){
+    const P=this.params, sp=120*P.speed;
+    this.t+=dt; this.phase+=sp*dt; this.rot+=sp*dt/BR;
+    const fi=P.flow*(1+0.28*Math.sin(this.t*0.9)+0.12*Math.sin(this.t*2.3+1)); this.fi=fi;
+    this.acc+=22*Math.max(0,fi)*dt;
+    while(this.acc>=1){this.acc-=1;this.spawn();}
+
+    // aletas: sistema mola-amortecedor que segue o fluxo (autoajuste)
+    const d=this.d;
+    if(this.innov){
+      const n=1.3*DEG*Math.sin(this.t*3.1)+0.8*DEG*Math.sin(this.t*5.3+2);
+      const base=19*DEG+(fi-1)*6*DEG;
+      const tL=clamp(base-this.zEMA*0.35*DEG+n,12*DEG,27*DEG);
+      const tR=clamp(base+this.zEMA*0.35*DEG-n*0.7,12*DEG,27*DEG);
+      d.wL+=(55*(tL-d.aL)-7*d.wL)*dt; d.aL+=d.wL*dt;
+      d.wR+=(55*(tR-d.aR)-7*d.wR)*dt; d.aR+=d.wR*dt;
+    }
+    const bedY=150-this.bed*36;
+    let N=0,sumZ=0,E=0; const out=[]; const ps=this.ps;
+    for(let i=ps.length-1;i>=0;i--){
+      const p=ps[i]; let del=false;
+      if(p.st==='chute'){
+        p.v+=G*0.42*dt; p.s+=p.v*dt;
+        if(p.s>=CHL){p.st='fall';p.vx=p.v*CHDX;p.vy=p.v*CHDY;p.x=CH1.x;p.y=CH1.y-4;}
+        else{p.x=CH0.x+CHDX*p.s+CHDY*4;p.y=CH0.y+CHDY*p.s-CHDX*4;}
+      }
+      if(p.st==='fall'){
+        p.vy+=G*dt; p.x+=p.vx*dt; p.y+=p.vy*dt;
+        if(this.innov&&!p.out){
+          if(p.y>30&&p.y<112){
+            const f=(p.y-30)/80, hw=56-32*f;
+            if(Math.abs(p.x-FX)>hw-3){p.x=FX+Math.sign(p.x-FX)*(hw-3);p.vx*=-0.2;}
+            const hz=hw/S-2; if(Math.abs(p.z)>hz)p.z=Math.sign(p.z)*hz;
+            p.vy*=1-1.5*dt;
+          }
+          if(p.y>=bedY-2){
+            del=true;
+            if(this.bed<0.8){this.bed=Math.min(0.8,this.bed+1/70); if(Math.random()<0.3)this.fx.push({x:p.x,y:bedY,z:p.z,life:1,e:0.5,col:'#ff8a65',box:1});}
+            else{
+              if(Math.random()<0.35)this.fx.push({x:p.x,y:bedY,z:p.z,life:1,e:0.6,col:'#7ee0a1',box:1});
+              const o={st:'fall',out:true,x:FX+rnd(-20,20),y:rnd(158,163),vx:rnd(5,25),vy:rnd(20,50),z:rnd(-13,13)+p.z*0.25,c:p.c,r:p.r};
+              this.zEMA+=(o.z-this.zEMA)*0.05; out.push(o);
+            }
+          }
+        }
+        if(!del&&p.y>=BT-2){
+          const e=(p.vy*p.vy)/228000*(p.out?0.32:1); E+=e;
+          const zb=p.z-this.drift+(this.innov?rnd(-1.5,1.5):rnd(-10,10)+Math.sign(p.z)*rnd(0,7));
+          p.st='belt'; p.zb=zb; p.y=BT-2; p.h=Math.random()*(1-Math.min(1,Math.abs(zb)/60))*7+0.5;
+          if(Math.random()<0.25)this.fx.push({x:p.x,y:BT,z:p.z,life:1,e,col:p.out?'#7ee0a1':'#ff4b3a'});
+          if(Math.abs(zb)>HALF-1)this.spill(p);
+        }
+      }
+      else if(p.st==='belt'){
+        p.x+=sp*dt;
+        if(this.innov&&p.x>=X0&&p.x<=X0+60*S){
+          const u=(p.x-X0)/S; let zs=p.zb+this.drift;
+          const wR=30-u*Math.tan(d.aR), wL=30-u*Math.tan(d.aL);
+          if(u<=60*Math.cos(d.aR)&&zs>wR-2.5) zs=Math.max(0,wR-2.5);
+          if(u<=60*Math.cos(d.aL)&&zs<-(wL-2.5)) zs=-Math.max(0,wL-2.5);
+          p.zb=zs-this.drift;
+        }
+        if(Math.abs(p.zb)>HALF-8&&Math.random()<0.35*dt) this.spill(p);
+        else if(p.x>HEADX-2){p.st='disch';p.vx=sp*1.05+20;p.vy=-25;p.y=BT-2-p.h;}
+        else{N++;sumZ+=p.zb;}
+      }
+      else if(p.st==='disch'){
+        p.vy+=G*dt; p.x+=p.vx*dt; p.y+=p.vy*dt;
+        if(p.y>396||p.x>1010) del=true;
+      }
+      else if(p.st==='spill'){
+        p.vy+=G*dt; p.y+=p.vy*dt; p.zs+=p.sg*70*dt;
+        if(Math.abs(p.zs)>p.zt) p.zs=p.sg*p.zt;
+        if(p.y>=388){this.ground.push({x:p.x,zs:p.zs,yo:rnd(0,4),c:p.c}); if(this.ground.length>700)this.ground.shift(); del=true;}
+      }
+      if(del){ps[i]=ps[ps.length-1];ps.pop();}
+    }
+    for(const o of out) ps.push(o);
+
+    // desvio lateral da correia: carga fora do centro empurra a correia para o lado menos carregado
+    let target=0;
+    if(N>3){const LF=clamp(N/110,0.15,1.6); target=clamp(-0.42*(sumZ/N)*LF,-30,30);}
+    this.drift+=(target-this.drift)*Math.min(1,dt*0.2*P.speed);
+
+    const a=1-Math.exp(-dt/0.8);
+    this.impE+=(E/dt-this.impE)*a;
+    this.impact=clamp(this.impE/22*80,0,100);
+    this.spillRate+=(this._sp/dt-this.spillRate)*(1-Math.exp(-dt/2)); this._sp=0;
+
+    const ad=Math.abs(this.drift);
+    if(ad>12&&Math.random()<dt*25*(ad-11)/5) this.sparks.push({x:rnd(TAILX+40,HEADX-40),life:1,s:Math.sign(this.drift)});
+    for(const f of this.fx) f.life-=dt*2.2;
+    for(const s of this.sparks) s.life-=dt*3;
+    this.fx=this.fx.filter(f=>f.life>0); this.sparks=this.sparks.filter(s=>s.life>0);
+  }
+  get wearIdx(){return clamp(0.55*this.impact+0.45*clamp(Math.abs(this.drift)/15,0,1)*100,0,100);}
+  status(){const a=Math.abs(this.drift); return a<3?'ok':a<8?'warn':'alert';}
+
+  /* ----- interação ----- */
+  pointer(e){
+    const r=this.canvas.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width*VW, y=(e.clientY-r.top)/r.height*VH;
+    const key=this.hit(x,y); this.setHover(key);
+    if(key){
+      const wr=this.wrap.getBoundingClientRect(), tw=this.tip.offsetWidth, th=this.tip.offsetHeight;
+      let tx=e.clientX-wr.left+14, ty=e.clientY-wr.top+14;
+      if(tx+tw>wr.width-6) tx=Math.max(6,e.clientX-wr.left-tw-14);
+      if(ty+th>wr.height-6) ty=Math.max(6,e.clientY-wr.top-th-14);
+      this.tip.style.left=tx+'px'; this.tip.style.top=ty+'px';
+    }
+  }
+  setHover(key){
+    if(key===this.hover) return; this.hover=key;
+    if(!key){this.tip.classList.remove('on');return;}
+    const p=PARTS[key];
+    this.tip.innerHTML=`<b style="color:${p.col}">${p.name}</b><div class="dims">${p.dims}</div><div class="fn">${p.fn}</div>`;
+    this.tip.classList.add('on');
+  }
+  hit(x,y){
+    const I=this.innov;
+    if(y<SPLIT){
+      if(I){
+        if(inRect(x,y,[436,110,56,56])||inRect(x,y,[356,128,84,16])) return 'suporte';
+        if(inRect(x,y,[X0-6,142,106,106])) return 'defletores';
+        if(inRect(x,y,[244,112,112,50])) return 'stonebox';
+        if(inRect(x,y,[240,26,120,86])) return 'funil';
+      }else if(inRect(x,y,[60,4,220,130])) return 'chute';
+      if(Math.hypot(x-HEADX,y-PCY)<36||inRect(x,y,[HEADX+30,PCY-18,52,36])) return 'acion';
+      if(Math.hypot(x-TAILX,y-PCY)<36) return 'retorno';
+      if(inRect(x,y,[TAILX,BT-14,HEADX-TAILX,20])) return 'correia';
+      if(inRect(x,y,[150,251,700,16])||inRect(x,y,[TAILX,296,HEADX-TAILX,26])) return 'roletes';
+      if(inRect(x,y,[80,318,860,80])||(I&&inRect(x,y,[452,60,24,262]))) return 'estrutura';
+    }else{
+      if(I){
+        if(Math.hypot(x-464,y-zy(-96))<24||inRect(x,y,[356,zy(-96),100,zy(-25)-zy(-96)])&&Math.abs((y-zy(-25))-(x-356)*(zy(-96)-zy(-25))/(464-356))<14) return 'suporte';
+        if(inRect(x,y,[X0-10,zy(-30)-12,108,60*S+24])) return 'defletores';
+        if(inRect(x,y,[268,zy(-10),64,20*S])) return 'stonebox';
+        if(inRect(x,y,[244,zy(-35),112,70*S])) return 'funil';
+      }else if(inRect(x,y,[60,zy(2),215,zy(54)-zy(2)])) return 'chute';
+      if(inRect(x,y,[HEADX-28,zy(-68),56,136*S])||inRect(x,y,[HEADX-18,zy(66),36,zy(100)-zy(66)])) return 'acion';
+      if(inRect(x,y,[TAILX-28,zy(-68),56,136*S])) return 'retorno';
+      if(y>=zy(this.drift-HALF)&&y<=zy(this.drift+HALF)&&x>=TAILX&&x<=HEADX) return 'correia';
+      const az=Math.abs((y-CY)/S);
+      if(az>=RAIL&&az<=RAIL+12&&x>80&&x<920) return 'estrutura';
+      if(az<RAIL&&IDLERS.some(ix=>Math.abs(ix-x)<8)) return 'roletes';
+    }
+    return null;
+  }
+  hl(key,fn){
+    const c=this.ctx,on=this.hover===key;
+    if(on){c.save();c.shadowColor='#ffb347';c.shadowBlur=24;}
+    fn(on);
+    if(on)c.restore();
+  }
+
+  /* ----- desenho ----- */
+  draw(){
+    const c=this.ctx; c.setTransform(this.k,0,0,this.k,0,0);
+    this.drawSide(c); this.drawTop(c);
+    c.fillStyle='#2b3138'; c.fillRect(0,SPLIT-2,VW,4);
+    if(this.status()==='alert'){
+      c.strokeStyle=`rgba(255,59,48,${0.45+0.4*Math.sin(this.t*7)})`; c.lineWidth=8; c.strokeRect(4,4,VW-8,VH-8);
+    }
+  }
+  drawParticle(c,x,y,p){c.fillStyle=p.c;c.fillRect(x-p.r,y-p.r,p.r*2,p.r*2);}
+  drawSide(c){
+    const I=this.innov;
+    c.save(); c.beginPath(); c.rect(0,0,VW,SPLIT); c.clip();
+    const g=c.createLinearGradient(0,0,0,SPLIT); g.addColorStop(0,'#1c2127'); g.addColorStop(1,'#171a1e');
+    c.fillStyle=g; c.fillRect(0,0,VW,SPLIT);
+    c.fillStyle='#262c33'; c.fillRect(0,392,VW,10);
+    // badge
+    const txt=I?'COM INOVAÇÃO':'SEM INOVAÇÃO'; c.font='800 19px system-ui,Arial';
+    const tw=c.measureText(txt).width+28; rr(c,VW-tw-14,10,tw,32,16); c.fillStyle=I?'#2ecc71':'#ff3b30'; c.fill();
+    c.fillStyle=I?'#06210f':'#fff'; c.textAlign='center'; c.fillText(txt,VW-14-tw/2,33);
+
+    // poste de madeira (atrás) – inovação
+    this.hl('estrutura',on=>{
+      if(I) wood(c,452,60,24,262);
+      wood(c,80,322,860,14);
+      for(const x of [150,500,850]) wood(c,x-7,336,14,56);
+    });
+    // roletes
+    this.hl('roletes',()=>{
+      c.strokeStyle='#4b525b'; c.lineWidth=3;
+      for(const x of IDLERS){c.beginPath();c.moveTo(x,264);c.lineTo(x,322);c.stroke();}
+      for(const x of IDLERS) this.roller(c,x,258,7);
+      for(const x of [300,700]) this.roller(c,x,312,6);
+    });
+    // correia
+    this.hl('correia',()=>{
+      c.beginPath(); c.moveTo(TAILX,PCY-BR); c.lineTo(HEADX,PCY-BR); c.arc(HEADX,PCY,BR,-Math.PI/2,Math.PI/2);
+      c.lineTo(TAILX,PCY+BR); c.arc(TAILX,PCY,BR,Math.PI/2,Math.PI*1.5);
+      c.strokeStyle='#0b0b0b'; c.lineWidth=7; c.stroke();
+      c.setLineDash([6,34]); c.lineDashOffset=-this.phase; c.strokeStyle='#3c3c3c'; c.lineWidth=3; c.stroke(); c.setLineDash([]);
+    });
+    this.hl('retorno',()=>this.pulley(c,TAILX));
+    this.hl('acion',()=>{
+      this.pulley(c,HEADX);
+      c.strokeStyle='#8a929c'; c.lineWidth=5; c.beginPath(); c.moveTo(HEADX,PCY); c.lineTo(HEADX+32,PCY); c.stroke();
+      c.fillStyle='#4a4f57'; rr(c,HEADX+30,PCY-17,50,34,5); c.fill(); c.fillStyle='#ff7a00'; c.fillRect(HEADX+30,PCY-17,50,6);
+      c.fillStyle='#e8ebee'; c.font='800 16px system-ui'; c.textAlign='center'; c.fillText('M',HEADX+55,PCY+12);
+    });
+
+    if(!I){
+      this.hl('chute',()=>{
+        c.fillStyle='#3d434b'; c.strokeStyle='#59616b'; c.lineWidth=2;
+        c.beginPath(); c.moveTo(56,6); c.lineTo(184,6); c.lineTo(160,46); c.lineTo(82,46); c.closePath(); c.fill(); c.stroke();
+        c.fillStyle='#8a6447'; c.beginPath(); c.moveTo(68,10); c.quadraticCurveTo(120,-6,172,10); c.closePath(); c.fill();
+        c.strokeStyle='#6d757f'; c.lineWidth=8; c.lineCap='round'; c.beginPath(); c.moveTo(CH0.x,CH0.y+4); c.lineTo(CH1.x,CH1.y+4); c.stroke();
+        c.strokeStyle='#4b525b'; c.lineWidth=3; c.beginPath(); c.moveTo(CH0.x,CH0.y-6); c.lineTo(CH1.x,CH1.y-6); c.stroke(); c.lineCap='butt';
+      });
+    }else{
+      // funil (corte) – parede traseira
+      this.hl('funil',on=>{
+        c.fillStyle='rgba(90,97,107,.28)';
+        c.beginPath(); c.moveTo(244,30); c.lineTo(356,30); c.lineTo(324,110); c.lineTo(276,110); c.closePath(); c.fill();
+        c.strokeStyle=on?'#c9d0d8':'#5a616b'; c.lineWidth=7; c.lineCap='round';
+        c.beginPath(); c.moveTo(244,30); c.lineTo(276,110); c.moveTo(356,30); c.lineTo(324,110); c.stroke(); c.lineCap='butt';
+      });
+      // stone box
+      this.hl('stonebox',()=>{
+        c.fillStyle='#d32f2f'; c.fillRect(244,112,112,48);
+        c.fillStyle='#3a1414'; c.fillRect(268,112,64,38); c.fillRect(276,150,48,10);
+        const by=150-this.bed*36;
+        if(this.bed>0){
+          c.fillStyle='#7a5a44'; c.fillRect(268,by,64,150-by);
+          c.fillStyle='#a8774d'; for(let i=0;i<24;i++){const px=270+((i*37)%60), py=by+2+((i*23)%Math.max(1,(150-by-3)));c.fillRect(px,py,3,3);}
+        }
+        c.strokeStyle='#ff8a80'; c.lineWidth=1.5; c.strokeRect(244,112,112,48);
+      });
+    }
+
+    // partículas
+    for(const p of this.ps){
+      if(p.st==='belt') this.drawParticle(c,p.x,BT-2-p.h,p);
+      else this.drawParticle(c,p.x,p.y,p);
+    }
+    for(const gp of this.ground){c.fillStyle=gp.c;c.fillRect(gp.x-2.5,388-gp.yo,5,4);}
+    // impactos
+    for(const f of this.fx){
+      c.strokeStyle=f.col; c.globalAlpha=f.life*Math.min(1,0.35+f.e); c.lineWidth=2.5;
+      c.beginPath(); c.arc(f.x,f.y,(1-f.life)*26*Math.min(1.4,0.4+f.e)+3,0,Math.PI*2); c.stroke();
+    }
+    c.globalAlpha=1;
+    for(const s of this.sparks){c.fillStyle=`rgba(255,180,60,${s.life})`;c.fillRect(s.x+rnd(-4,4),BT+rnd(-3,5),3,3);}
+
+    if(I){
+      // aletas (frente, semitransparente)
+      const d=this.d, len=60*S*Math.cos((d.aL+d.aR)/2);
+      this.hl('defletores',()=>{
+        c.fillStyle='#9aa3ad'; c.fillRect(X0+2,140,10,54);
+        c.globalAlpha=.82; c.fillStyle='#ffc400'; c.fillRect(X0,190,len,54); c.globalAlpha=1;
+        c.strokeStyle='#7a5d00'; c.lineWidth=2; c.strokeRect(X0,190,len,54);
+        c.fillStyle='#c7ced6'; c.beginPath(); c.arc(X0+7,198,8,0,Math.PI*2); c.fill();
+        c.fillStyle='#555'; c.beginPath(); c.arc(X0+7,198,3,0,Math.PI*2); c.fill();
+      });
+      // suporte
+      this.hl('suporte',()=>{
+        c.fillStyle='#1e88e5'; c.fillRect(356,130,86,11);
+        c.fillRect(440,116,48,46); c.strokeStyle='#90caf9'; c.lineWidth=1.5; c.strokeRect(440,116,48,46);
+        c.fillStyle='#c7ced6'; c.beginPath();
+        for(let i=0;i<6;i++){const a=i*Math.PI/3; c.lineTo(464+8*Math.cos(a),139+8*Math.sin(a));} c.fill();
+        c.fillStyle='#555'; c.beginPath(); c.arc(464,139,3,0,Math.PI*2); c.fill();
+      });
+      // funil – bordas da frente
+      this.hl('funil',()=>{
+        c.strokeStyle='#8a929c'; c.lineWidth=2;
+        c.beginPath(); c.moveTo(240,30); c.lineTo(360,30); c.stroke();
+      });
+      this.tag(c,226,54,'1','#5a616b','#fff');
+      this.tag(c,226,136,'2','#d32f2f','#fff');
+      this.tag(c,X0+len+18,216,'3','#ffc400','#111');
+      this.tag(c,506,128,'4','#1e88e5','#fff');
+      c.font='600 16px system-ui'; c.textAlign='left'; c.fillStyle='#9aa4ae';
+      c.fillText('↓ alimentação de minério',372,24);
+      if(this.bed<0.8){c.fillStyle='#ffb020';c.fillText('formando colchão… '+Math.round(this.bed/0.8*100)+'%',372,96);}
+      else{c.fillStyle='#7ee0a1';c.fillText('colchão formado: minério bate em minério',372,96);}
+    }else{
+      c.font='700 17px system-ui'; c.textAlign='left';
+      c.fillStyle='#ff8a80'; c.fillText('queda alta e fora do centro',200,180);
+      c.fillText('impacto forte!',345,222);
+    }
+    c.font='600 16px system-ui'; c.fillStyle='#6f7882'; c.textAlign='right';
+    c.fillText('sentido da correia →',HEADX-20,372);
+    c.font='700 20px system-ui,Arial'; c.fillStyle='#9aa4ae'; c.textAlign='left'; c.fillStyle='rgba(22,25,29,.85)'; rr(c,8,8,172,30,6); c.fill(); c.fillStyle='#9aa4ae'; c.fillText('VISTA LATERAL',16,30);
+    c.restore();
+  }
+  tag(c,x,y,n,bg,fg){c.fillStyle=bg;c.beginPath();c.arc(x,y,13,0,Math.PI*2);c.fill();c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=1.5;c.stroke();c.fillStyle=fg;c.font='800 16px system-ui';c.textAlign='center';c.fillText(n,x,y+6);}
+  roller(c,x,y,r){
+    c.fillStyle='#7b8490'; c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+    c.strokeStyle='#3f454d'; c.lineWidth=1.5; c.beginPath(); const a=this.rot*BR/r;
+    c.moveTo(x,y); c.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r); c.stroke();
+  }
+  pulley(c,x){
+    c.fillStyle='#3b4149'; c.beginPath(); c.arc(x,PCY,23,0,Math.PI*2); c.fill();
+    c.strokeStyle='#6b737d'; c.lineWidth=3;
+    for(let i=0;i<4;i++){const a=this.rot+i*Math.PI/2;c.beginPath();c.moveTo(x,PCY);c.lineTo(x+Math.cos(a)*20,PCY+Math.sin(a)*20);c.stroke();}
+    c.fillStyle='#9aa3ad'; c.beginPath(); c.arc(x,PCY,5,0,Math.PI*2); c.fill();
+  }
+  drawTop(c){
+    const I=this.innov, dr=this.drift;
+    c.save(); c.beginPath(); c.rect(0,SPLIT,VW,VH-SPLIT); c.clip();
+    c.fillStyle='#16191d'; c.fillRect(0,SPLIT,VW,VH-SPLIT);
+    c.font='700 20px system-ui,Arial'; c.fillStyle='#9aa4ae'; c.textAlign='left'; c.fillText('VISTA DE CIMA',16,SPLIT+28);
+    // chão com material derramado
+    for(const gp of this.ground){c.fillStyle=gp.c;c.fillRect(gp.x-2.5,zy(gp.zs)-2.5,5,5);}
+    // estrutura (trilhos de madeira)
+    this.hl('estrutura',()=>{
+      wood(c,80,zy(-RAIL-10),840,10*S); wood(c,80,zy(RAIL),840,10*S);
+      if(I) wood(c,452,zy(-96)-12,24,24);
+    });
+    this.hl('roletes',()=>{
+      c.fillStyle='#6b737d';
+      for(const x of IDLERS){c.fillRect(x-6,zy(-RAIL),12,RAIL*2*S);}
+    });
+    this.hl('retorno',()=>{c.fillStyle='#3b4149';c.fillRect(TAILX-24,zy(-68),48,136*S);});
+    this.hl('acion',()=>{
+      c.fillStyle='#3b4149';c.fillRect(HEADX-24,zy(-68),48,136*S);
+      c.fillStyle='#8a929c';c.fillRect(HEADX-4,zy(66),8,zy(76)-zy(66));
+      c.fillStyle='#4a4f57';c.fillRect(HEADX-18,zy(76),36,zy(100)-zy(76));
+      c.fillStyle='#ff7a00';c.fillRect(HEADX-18,zy(76),6,zy(100)-zy(76));
+    });
+    // correia
+    const st=this.status();
+    this.hl('correia',()=>{
+      const y0=zy(dr-HALF), h=HALF*2*S;
+      c.fillStyle='#0d0d0d'; c.fillRect(TAILX,y0,HEADX-TAILX,h);
+      c.strokeStyle='#1f1f1f'; c.lineWidth=3; c.beginPath();
+      for(let x=TAILX+(this.phase%40);x<HEADX;x+=40){c.moveTo(x,y0+3);c.lineTo(x,y0+h-3);} c.stroke();
+      c.strokeStyle=st==='alert'?'#ff3b30':st==='warn'?'#ffb020':'#3a3f45'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(TAILX,y0+1.5); c.lineTo(HEADX,y0+1.5); c.moveTo(TAILX,y0+h-1.5); c.lineTo(HEADX,y0+h-1.5); c.stroke();
+      c.setLineDash([4,10]); c.strokeStyle='rgba(255,255,255,.35)'; c.lineWidth=1.5;
+      c.beginPath(); c.moveTo(TAILX,zy(dr)); c.lineTo(HEADX,zy(dr)); c.stroke(); c.setLineDash([]);
+    });
+    // eixo da estrutura
+    c.setLineDash([14,10]); c.strokeStyle='rgba(255,122,0,.85)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(60,CY); c.lineTo(940,CY); c.stroke(); c.setLineDash([]);
+    // partículas na correia / descarga / derramando
+    for(const p of this.ps){
+      if(p.st==='belt'||p.st==='disch') this.drawParticle(c,p.x,zy(p.zb+dr),p);
+      else if(p.st==='spill') this.drawParticle(c,p.x,zy(p.zs),p);
+    }
+    for(const s of this.sparks){
+      const y=zy(dr+s.s*HALF); c.strokeStyle=`rgba(255,190,70,${s.life})`; c.lineWidth=2;
+      c.beginPath(); for(let i=0;i<3;i++){const a=rnd(0,Math.PI*2);c.moveTo(s.x,y);c.lineTo(s.x+Math.cos(a)*9,y+Math.sin(a)*9);} c.stroke();
+    }
+    if(I){
+      const d=this.d;
+      this.hl('defletores',()=>{
+        for(const sd of [-1,1]){
+          const a=sd<0?d.aL:d.aR, px=X0, py=zy(sd*30);
+          const ex=px+Math.cos(a)*60*S, ey=py-sd*Math.sin(a)*60*S;
+          // face interna = guia do material; espessura (8 mm) para fora do V
+          const t=8*S, ox=Math.sin(a)*t, oy=sd*Math.cos(a)*t;
+          c.fillStyle='#ffc400'; c.strokeStyle='#7a5d00'; c.lineWidth=2;
+          c.beginPath(); c.moveTo(px,py); c.lineTo(ex,ey); c.lineTo(ex+ox,ey+oy); c.lineTo(px+ox,py+oy); c.closePath();
+          c.fill(); c.stroke();
+          c.fillStyle='#c7ced6'; c.beginPath(); c.arc(px,py+oy/2,8,0,Math.PI*2); c.fill();
+          c.fillStyle='#555'; c.beginPath(); c.arc(px,py+oy/2,3,0,Math.PI*2); c.fill();
+        }
+      });
+      this.hl('stonebox',()=>{
+        c.fillStyle='#d32f2f'; c.fillRect(244,zy(-25),112,50*S);
+        c.fillStyle=this.bed>0.05?'#6e4f3c':'#3a1414'; c.fillRect(268,zy(-10),64,20*S);
+      });
+      this.hl('funil',()=>{
+        c.fillStyle='rgba(90,97,107,.62)'; c.fillRect(244,zy(-35),112,70*S);
+        c.strokeStyle='#9aa3ad'; c.lineWidth=2; c.strokeRect(244,zy(-35),112,70*S); c.strokeRect(276,zy(-15),48,30*S);
+        c.beginPath(); c.moveTo(244,zy(-35)); c.lineTo(276,zy(-15)); c.moveTo(356,zy(-35)); c.lineTo(324,zy(-15));
+        c.moveTo(244,zy(35)); c.lineTo(276,zy(15)); c.moveTo(356,zy(35)); c.lineTo(324,zy(15)); c.stroke();
+      });
+      for(const p of this.ps) if(p.st==='fall') this.drawParticle(c,p.x,zy(p.z),p);
+      this.hl('suporte',()=>{
+        c.strokeStyle='#1e88e5'; c.lineWidth=9; c.lineCap='round';
+        c.beginPath(); c.moveTo(464,zy(-96)); c.lineTo(356,zy(-25)); c.stroke(); c.lineCap='butt';
+        c.lineWidth=6; c.beginPath(); c.moveTo(447,zy(-96)-16); c.lineTo(447,zy(-96)+16); c.lineTo(481,zy(-96)+16); c.lineTo(481,zy(-96)-16); c.stroke();
+        c.fillStyle='#c7ced6'; c.beginPath(); c.arc(464,zy(-96),5,0,Math.PI*2); c.fill();
+      });
+    }else{
+      this.hl('chute',()=>{
+        c.fillStyle='#3d434b'; c.fillRect(60,zy(2),120,zy(54)-zy(2));
+        c.fillStyle='#8a6447'; c.fillRect(70,zy(8),100,zy(48)-zy(8));
+        c.fillStyle='#6d757f'; c.fillRect(110,zy(8),164,zy(48)-zy(8));
+        c.fillStyle='#4b525b'; c.fillRect(110,zy(6),164,4); c.fillRect(110,zy(48),164,4);
+      });
+      for(const p of this.ps) if(p.st==='chute'||p.st==='fall') this.drawParticle(c,p.x,zy(p.z),p);
+      c.font='700 17px system-ui'; c.textAlign='left'; c.fillStyle='#ff8a80';
+      c.fillText('carga cai fora do centro',285,zy(54)+4);
+    }
+    // impactos (vista de cima)
+    for(const f of this.fx){
+      if(f.box) continue;
+      c.strokeStyle=f.col; c.globalAlpha=f.life*Math.min(1,0.35+f.e); c.lineWidth=2;
+      c.beginPath(); c.arc(f.x,zy(f.z),(1-f.life)*18*Math.min(1.4,0.4+f.e)+2,0,Math.PI*2); c.stroke();
+    }
+    c.globalAlpha=1;
+    // medidor de desvio
+    const gx=962, col=st==='alert'?'#ff3b30':st==='warn'?'#ffb020':'#2ecc71';
+    c.strokeStyle='#4b525b'; c.lineWidth=4; c.beginPath(); c.moveTo(gx,zy(-32)); c.lineTo(gx,zy(32)); c.stroke();
+    c.strokeStyle='#ff7a00'; c.lineWidth=2; c.beginPath(); c.moveTo(gx-10,CY); c.lineTo(gx+10,CY); c.stroke();
+    const my=zy(clamp(dr,-30,30)); c.fillStyle=col;
+    c.beginPath(); c.moveTo(gx-16,my); c.lineTo(gx-4,my-8); c.lineTo(gx-4,my+8); c.closePath(); c.fill();
+    c.font='800 17px system-ui'; c.textAlign='center'; c.fillStyle=col;
+    c.fillText(fmt(dr)+' mm',gx-8,zy(32)+24);
+    c.fillStyle='#9aa4ae'; c.font='600 14px system-ui'; c.fillText('desvio',gx-8,zy(-32)-10);
+    c.restore();
+  }
+}
+
+/* ---------- Indicadores ---------- */
+function buildIndicators(el){
+  el.innerHTML=`
+  <div class="ind" data-k="drift"><span class="lbl">Desvio da correia</span><b class="val">0,0 mm</b><span class="sub">—</span><div class="bar"><i></i></div></div>
+  <div class="ind" data-k="spill"><span class="lbl">Material derramado</span><b class="val">0 g</b><span class="sub">—</span><div class="bar"><i></i></div></div>
+  <div class="ind" data-k="impact"><span class="lbl">Impacto na correia</span><b class="val">0%</b><span class="sub">—</span><div class="bar"><i></i></div></div>
+  <div class="ind" data-k="alert"><span class="lbl">Alerta de desalinhamento</span><span class="pill">—</span><span class="sub">—</span></div>
+  <div class="ind" data-k="bed"><span class="lbl">Colchão na stone box</span><b class="val">—</b><span class="sub">—</span><div class="bar"><i></i></div></div>
+  <div class="ind" data-k="defl"><span class="lbl">Ângulo das aletas (E / D)</span><b class="val">—</b><span class="sub">—</span></div>`;
+  const q=k=>el.querySelector(`[data-k="${k}"]`);
+  return {drift:q('drift'),spill:q('spill'),impact:q('impact'),alert:q('alert'),bed:q('bed'),defl:q('defl')};
+}
+function setInd(n,cls,val,sub,bar){
+  n.className='ind '+(cls||'');
+  const v=n.querySelector('.val'); if(v&&val!=null)v.textContent=val;
+  const s=n.querySelector('.sub'); if(s&&sub!=null)s.textContent=sub;
+  const b=n.querySelector('.bar i'); if(b&&bar!=null)b.style.width=clamp(bar,0,100)+'%';
+}
+function updateIndicators(sim,R){
+  const dr=sim.drift, ad=Math.abs(dr), st=sim.status();
+  setInd(R.drift,st,(dr>=0?'':'−')+fmt(ad)+' mm',ad<0.5?'no centro':dr<0?'para o lado esquerdo':'para o lado direito',ad/30*100);
+  const sr=sim.spillRate*G_PER*60;
+  setInd(R.spill,sr<5?'ok':sr<40?'warn':'alert',fmt(sim.spilled*G_PER,0)+' g','≈ '+fmt(sr,0)+' g/min agora',sr/150*100);
+  const im=sim.impact;
+  setInd(R.impact,im<35?'ok':im<60?'warn':'alert',fmt(im,0)+'%',im<35?'impacto baixo':im<60?'impacto moderado':'impacto forte',im);
+  R.alert.className='ind '+st;
+  R.alert.querySelector('.pill').textContent=st==='ok'?'ALINHADA':st==='warn'?'ATENÇÃO':'DESALINHADA';
+  R.alert.querySelector('.sub').textContent=st==='ok'?'correia no eixo':st==='warn'?'correia começando a desviar':(ad>12?'borda raspando na estrutura!':'correia fora do eixo');
+  if(sim.innov){
+    const b=sim.bed/0.8*100;
+    setInd(R.bed,b>=100?'ok':'warn',fmt(b,0)+'%',b>=100?'minério bate em minério':'enchendo a caixa…',b);
+    setInd(R.defl,'ok',fmt(sim.d.aL/DEG,0)+'° / '+fmt(sim.d.aR/DEG,0)+'°','autoajuste pelo fluxo');
+  }else{
+    setInd(R.bed,'','—','sem stone box',0);
+    setInd(R.defl,'','—','sem aletas');
+  }
+}
+
+/* ---------- Controles ---------- */
+function buildControls(el,params,sims,withToggle){
+  el.innerHTML=`
+    <button class="btn primary play" type="button">⏸ Pausar</button>
+    ${withToggle?'<button class="btn tog" type="button"></button>':''}
+    <button class="btn reset" type="button">↺ Reiniciar</button>
+    <label class="rng"><span>Velocidade da correia <output class="ov"></output></span><input class="sp" type="range" min="0.3" max="2" step="0.1" value="${params.speed}"></label>
+    <label class="rng"><span>Vazão de minério <output class="of"></output></span><input class="fl" type="range" min="0.2" max="2" step="0.1" value="${params.flow}"></label>`;
+  const play=el.querySelector('.play'), sp=el.querySelector('.sp'), fl=el.querySelector('.fl'),
+        ov=el.querySelector('.ov'), of=el.querySelector('.of'), tog=el.querySelector('.tog');
+  const sync=()=>{
+    play.textContent=params.running?'⏸ Pausar':'▶ Iniciar';
+    ov.textContent=fmt(params.speed*0.3,2)+' m/s';
+    of.textContent='≈ '+fmt(22*params.flow*G_PER,0)+' g/s';
+    if(tog){const on=sims[0].innov; tog.textContent=on?'Com inovação ✓ (desativar)':'Sem inovação ✗ (ativar inovação)'; tog.className='btn tog '+(on?'on':'off');}
+  };
+  play.onclick=()=>{params.running=!params.running;sync();};
+  el.querySelector('.reset').onclick=()=>{sims.forEach(s=>s.reset());};
+  sp.oninput=()=>{params.speed=+sp.value;sync();};
+  fl.oninput=()=>{params.flow=+fl.value;sync();};
+  if(tog) tog.onclick=()=>{sims[0].setMode(!sims[0].innov);sync();};
+  sync();
+}
+
+/* ---------- Comparação ---------- */
+function buildCompare(el){
+  const items=[['drift','Desvio da correia'],['spill','Material derramado'],['impact','Impacto na correia'],['wear','Desgaste (índice)'],['stops','Paradas p/ manutenção']];
+  el.innerHTML=items.map(([k,t])=>`<div class="card" data-k="${k}"><h4>${t}</h4>
+    <div class="row"><small>Sem inovação</small><span class="bad">—</span></div>
+    <div class="row"><small>Com inovação</small><span class="good">—</span></div>
+    <span class="red">—</span></div>`).join('');
+  const R={}; items.forEach(([k])=>R[k]=el.querySelector(`[data-k="${k}"]`)); return R;
+}
+function red(a,b){if(a<=0.01)return '—';const r=Math.round((1-b/a)*100);return r>0?`redução de ${r}%`:'sem diferença';}
+function updateCompare(A,B,R){
+  const put=(k,va,vb,ra,rb)=>{const n=R[k];n.querySelector('.bad').textContent=va;n.querySelector('.good').textContent=vb;n.querySelector('.red').textContent=red(ra,rb);};
+  const da=Math.abs(A.drift), db=Math.abs(B.drift);
+  put('drift',fmt(da)+' mm',fmt(db)+' mm',da,db);
+  put('spill',fmt(A.spilled*G_PER,0)+' g',fmt(B.spilled*G_PER,0)+' g',A.spilled,B.spilled);
+  put('impact',fmt(A.impact,0)+'%',fmt(B.impact,0)+'%',A.impact,B.impact);
+  const wa=A.wearIdx, wb=B.wearIdx;
+  put('wear',fmt(wa,0)+' / 100',fmt(wb,0)+' / 100',wa,wb);
+  const pa=Math.max(1,Math.round(1+wa/14)), pb=Math.max(1,Math.round(1+wb/14));
+  put('stops','≈ '+pa+' por mês','≈ '+pb+' por mês',pa,pb);
+}
+
+/* ---------- Montagem ---------- */
+const pA={running:true,speed:1,flow:1}, pB={running:true,speed:1,flow:1}, pC={running:true,speed:1,flow:1};
+const simA=new Sim(document.getElementById('simA'),pA,false);
+const simB=new Sim(document.getElementById('simB'),pB,true);
+const simC1=new Sim(document.getElementById('simC1'),pC,false);
+const simC2=new Sim(document.getElementById('simC2'),pC,true);
+const sims=[simA,simB,simC1,simC2];
+buildControls(document.getElementById('ctlA'),pA,[simA],true);
+buildControls(document.getElementById('ctlB'),pB,[simB],true);
+buildControls(document.getElementById('ctlC'),pC,[simC1,simC2],false);
+const indA=buildIndicators(document.getElementById('indA'));
+const indB=buildIndicators(document.getElementById('indB'));
+const cmp=buildCompare(document.getElementById('cmp'));
+
+let last=performance.now(), uiT=0;
+function loop(now){
+  let dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const s of sims){
+    if(!s.visible) continue;
+    if(s.params.running){const n=dt>1/50?2:1; for(let i=0;i<n;i++) s.update(dt/n);}
+    s.draw();
+  }
+  uiT+=dt;
+  if(uiT>0.15){uiT=0;
+    if(simA.visible)updateIndicators(simA,indA);
+    if(simB.visible)updateIndicators(simB,indB);
+    if(simC1.visible||simC2.visible)updateCompare(simC1,simC2,cmp);
+  }
+  requestAnimationFrame(loop);
+}
+updateIndicators(simA,indA); updateIndicators(simB,indB); updateCompare(simC1,simC2,cmp);
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
