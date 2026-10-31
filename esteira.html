@@ -468,7 +468,7 @@ class Sim{
     this.t=rnd(0,50);this.ground=[];this.fx=[];this.dust=[];this.sparks=[];this.phase=0;this.rot=0;
     this.zEMA=0;this.d={aL:19*DEG,wL:0,aR:19*DEG,wR:0};this.fi=1;this.spillRate=0;this._sp=0;this.frameE=0;
     this.cnt=new Float32Array(NB);this.sumZ=new Float32Array(NB);this.hS=new Float32Array(NB);this.cS=new Float32Array(NB);this.wS=new Float32Array(NB);
-    this.loadC=0;this.bias=0;this.contact=0;
+    this.loadC=0;this.bias=0;this.contact=0;this.z2=new Float32Array(NB);this.pR=0;this.pL=0;this.d.aL=this.d.aR=22*DEG;
   }
   setMode(innov){
     this.innov=innov;this.ps=this.ps.filter(p=>p.st==='belt'||p.st==='disch'||p.st==='spill');this.bed=0;this.zEMA=0;
@@ -483,7 +483,7 @@ class Sim{
     if(this.ps.length>1000)return;
     const lump=Math.random()<0.28,n=lump?6:5,sh=[];
     for(let i=0;i<n;i++)sh.push(rnd(0.72,1.15));
-    this.ps.push({st:'fall',lump,r:lump?rnd(3.6,5.4):rnd(1.8,3),c:(lump?LUMPS:FINES)[(Math.random()*5)|0],sh,a:rnd(0,6.3),
+    this.ps.push({st:'fall',lump,vis:lump||Math.random()<0.35,r:lump?rnd(3.6,5.4):rnd(1.8,3),c:(lump?LUMPS:FINES)[(Math.random()*5)|0],sh,a:rnd(0,6.3),
       x:FX+rnd(-22,22),y:rnd(40,46),vx:rnd(-6,6),vy:rnd(50,90),
       // sai do centro do chute; a "variação da carga" desloca levemente a carga para um lado
       z:clamp(this.bias*(lump?1.2:0.7)+rnd(-7,7),-16,16)});
@@ -499,13 +499,14 @@ class Sim{
     this.acc+=22*Math.max(0,fi)*dt;while(this.acc>=1){this.acc-=1;this.spawn();}
     const d=this.d;
     if(this.innov){
-      const n=1.3*DEG*Math.sin(this.t*3.1)+0.8*DEG*Math.sin(this.t*5.3+2),base=19*DEG+(fi-1)*6*DEG;
-      const tL=clamp(base-this.zEMA*0.35*DEG+n,12*DEG,27*DEG),tR=clamp(base+this.zEMA*0.35*DEG-n*0.7,12*DEG,27*DEG);
+      // mais minério → o V abre; o próprio minério empurra as aletas para fora
+      const n=0.8*DEG*Math.sin(this.t*3.1)+0.5*DEG*Math.sin(this.t*5.3+2),base=22*DEG-(fi-1)*6*DEG;
+      const tL=clamp(base-this.pL*1.5*DEG+n,12*DEG,28*DEG),tR=clamp(base-this.pR*1.5*DEG-n*0.7,12*DEG,28*DEG);
       d.wL+=(55*(tL-d.aL)-7*d.wL)*dt;d.aL+=d.wL*dt;d.wR+=(55*(tR-d.aR)-7*d.wR)*dt;d.aR+=d.wR*dt;
     }
     const bedY=170-this.bed*36;
-    this.cnt.fill(0);this.sumZ.fill(0);
-    let N=0,sumZ=0,E=0,cN=0,cZ=0;const out=[],ps=this.ps;
+    this.cnt.fill(0);this.sumZ.fill(0);this.z2.fill(0);
+    let cR=0,cL=0,N=0,sumZ=0,E=0,cN=0,cZ=0;const out=[],ps=this.ps;
     for(let i=ps.length-1;i>=0;i--){
       const p=ps[i];let del=false;
       if(p.st==='fall'){
@@ -524,7 +525,7 @@ class Sim{
               else{
                 if(Math.random()<0.35)this.fx.push({x:p.x,y:bedY,z:p.z,life:1,e:0.6,col:'#7ee0a1',box:1});
                 // dentro da caixa pedras e finos se misturam: sai pelo centro
-                const o={st:'fall',out:true,lump:p.lump,r:p.r,c:p.c,sh:p.sh,a:p.a,x:FX+rnd(-20,20),y:rnd(180,184),vx:rnd(5,25),vy:rnd(20,50),z:rnd(-10,10)};
+                const o={st:'fall',out:true,lump:p.lump,vis:p.vis,r:p.r,c:p.c,sh:p.sh,a:p.a,x:FX+rnd(-20,20),y:rnd(180,184),vx:rnd(5,25),vy:rnd(20,50),z:rnd(-10,10)};
                 this.zEMA+=(o.z-this.zEMA)*0.05;out.push(o);
               }
             }
@@ -547,13 +548,14 @@ class Sim{
         if(this.innov&&p.x>=X0&&p.x<=X0+60*S){
           const u=(p.x-X0)/S;let zs=p.zb+this.drift;
           const wR=30-u*Math.tan(d.aR),wL=30-u*Math.tan(d.aL);
-          if(u<=60*Math.cos(d.aR)&&zs>wR-2.5)zs=Math.max(0,wR-2.5);
-          if(u<=60*Math.cos(d.aL)&&zs<-(wL-2.5))zs=-Math.max(0,wL-2.5);
+          const m=p.r/S+1;  // o minério se acomoda à face interna da aleta
+          if(u<=60*Math.cos(d.aR)&&zs>wR-m){zs=Math.max(0,wR-m);cR++;}
+          if(u<=60*Math.cos(d.aL)&&zs<-(wL-m)){zs=-Math.max(0,wL-m);cL++;}
           p.zb=zs-this.drift;
         }
         if(Math.abs(p.zb)>HALF-7&&Math.random()<0.35*dt)this.spill(p);
         else if(p.x>HEADX-2){p.st='disch';p.vx=sp*1.05+20;p.vy=-25;p.y=BT-4;}
-        else{N++;sumZ+=p.zb;const b=clamp(((p.x-TAILX)/BW)|0,0,NB-1);this.cnt[b]++;this.sumZ[b]+=p.zb;if(p.x>460){cN++;cZ+=p.zb;}}
+        else{N++;sumZ+=p.zb;const b=clamp(((p.x-TAILX)/BW)|0,0,NB-1);this.cnt[b]++;this.sumZ[b]+=p.zb;this.z2[b]+=p.zb*p.zb;if(p.x>460){cN++;cZ+=p.zb;}}
       }
       else if(p.st==='disch'){p.vy+=G*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.a+=dt*4;if(p.y>396||p.x>1010)del=true;}
       else if(p.st==='spill'){
@@ -563,13 +565,14 @@ class Sim{
       if(del){ps[i]=ps[ps.length-1];ps.pop();}
     }
     for(const o of out)ps.push(o);
+    const kp=Math.min(1,dt*3);this.pR+=(cR/(dt*60)-this.pR)*kp;this.pL+=(cL/(dt*60)-this.pL)*kp;
     // desvio: a correia foge para o lado mais leve (realimentação lenta)
     let target=0;
     if(N>3){const LF=clamp(N/110,0.15,1.6);target=clamp(-0.58*(sumZ/N)*LF,-30,30);}
     this.drift+=(target-this.drift)*Math.min(1,dt*0.2*P.speed);
     this.loadC+=((cN>3?cZ/cN+this.drift:this.loadC)-this.loadC)*Math.min(1,dt*1.5);
     for(let b=0;b<NB;b++){const c=this.cnt[b],k=Math.min(1,dt*4);
-      this.hS[b]+=(Math.min(15,c*3.4)-this.hS[b])*k;this.wS[b]+=(Math.min(46,c?8+c*8:0)-this.wS[b])*k;
+      this.hS[b]+=(Math.min(15,c*3.4)-this.hS[b])*k;const m=c?this.sumZ[b]/c:0,sd=c?Math.sqrt(Math.max(0,this.z2[b]/c-m*m)):0;this.wS[b]+=((c?clamp(1.6*sd+4+c*0.6,5,46):0)-this.wS[b])*k;
       if(c)this.cS[b]+=(this.sumZ[b]/c-this.cS[b])*k;}
     const a=1-Math.exp(-dt/0.8);
     this.impE+=(E/dt-this.impE)*a;this.impact=clamp(this.impE/22*85,0,100);this.frameE=E;
@@ -648,6 +651,24 @@ class Sim{
     c.closePath();c.fill();
     if(p.lump){c.fillStyle='rgba(255,235,220,.18)';c.beginPath();c.arc(x-r*0.3,y-r*0.3,r*0.38,0,7);c.fill();}
   }
+  band(b){
+    // faixa de carga (centro, meia-largura, altura); dentro do V ela é limitada pelas aletas e fica mais alta
+    const x=TAILX+b*BW+BW/2;let cc=this.drift+this.cS[b],w=this.wS[b],h=this.hS[b];
+    if(this.innov&&w>0){const d=this.d,u=(x-X0)/S;
+      if(u>=0){const lim=a=>u<=60*Math.cos(a)?30-u*Math.tan(a):null,hi=lim(d.aR),lo=lim(d.aL);
+        let t=cc+w,bo=cc-w;if(hi!==null)t=Math.min(t,hi-0.5);if(lo!==null)bo=Math.max(bo,-(lo-0.5));
+        if(t<bo)t=bo=(t+bo)/2;const w2=Math.max(1.5,(t-bo)/2);h=Math.min(24,h*Math.sqrt(w/w2));cc=(t+bo)/2;w=w2;}}
+    return[cc,w,h];
+  }
+  streamPts(x0,y0,x1,y1,w0,w1,wob){const a=[];for(let i=0;i<=14;i++){const k=i/14,y=y0+(y1-y0)*k;a.push([x0+(x1-x0)*k+Math.sin(this.t*9+y*0.08)*wob*k,y,(w0+(w1-w0)*k)*(1+0.07*Math.sin(this.t*13+y*0.15))]);}return a;}
+  stream(c,pts){
+    // cortina contínua de minério com textura descendo
+    if(pts.length<2||pts[pts.length-1][1]<=pts[0][1])return;const off=(this.t*260)%64;
+    c.save();c.translate(0,off);c.fillStyle=this.pOre;c.beginPath();
+    pts.forEach((p,i)=>i?c.lineTo(p[0]-p[2]/2,p[1]-off):c.moveTo(p[0]-p[2]/2,p[1]-off));
+    for(let i=pts.length-1;i>=0;i--)c.lineTo(pts[i][0]+pts[i][2]/2,pts[i][1]-off);c.closePath();c.fill();
+    c.strokeStyle='rgba(0,0,0,.3)';c.lineWidth=1;c.stroke();c.restore();
+  }
   label(c,txt,x,y){c.font='700 20px system-ui,Arial';const w=c.measureText(txt).width+18;c.fillStyle='rgba(18,21,25,.82)';rr(c,x,y,w,30,7);c.fill();c.fillStyle='#aab3bc';c.textAlign='left';c.fillText(txt,x+9,y+22);}
   roller(c,x,y,r,dark){
     const g=c.createRadialGradient(x-r*0.35,y-r*0.35,r*0.1,x,y,r);g.addColorStop(0,dark?'#4a4a4a':'#c9d0d6');g.addColorStop(1,dark?'#151515':'#5b646b');
@@ -697,7 +718,7 @@ class Sim{
     });
     // leito contínuo de minério sobre a correia
     c.fillStyle=this.pOre;c.beginPath();c.moveTo(TAILX,BT);
-    for(let b=0;b<NB;b++)c.lineTo(TAILX+b*BW+BW/2,BT-this.hS[b]);
+    for(let b=0;b<NB;b++)c.lineTo(TAILX+b*BW+BW/2,BT-this.band(b)[2]);
     c.lineTo(HEADX,BT);c.closePath();c.fill();
     // silo de alimentação (comum aos dois modos) e chute vertical
     this.hl('chute',()=>{
@@ -711,6 +732,9 @@ class Sim{
         c.fillStyle='#8e98a1';for(let yy=56;yy<128;yy+=14){c.fillRect(266,yy,3,3);c.fillRect(331,yy,3,3);}
       }
     });
+    const fw=10+14*clamp(this.fi,0.1,2.2);
+    if(!I){this.stream(c,this.streamPts(FX,46,FX,128,fw,fw,0));this.stream(c,this.streamPts(FX,128,FX,BT-1,fw,fw*0.7,3));}
+    else this.stream(c,this.streamPts(FX,46,FX,132,fw,Math.min(fw,40),1));
     if(I){
       this.hl('funil',on=>{
         c.fillStyle='rgba(95,104,115,.3)';c.beginPath();c.moveTo(244,54);c.lineTo(356,54);c.lineTo(324,132);c.lineTo(276,132);c.closePath();c.fill();
@@ -724,8 +748,11 @@ class Sim{
         c.strokeStyle='rgba(255,180,180,.6)';c.lineWidth=1.5;rr(c,244,132,112,48,4);c.stroke();
       });
     }
+    if(I){const by=170-this.bed*36,w2=Math.min(fw,40);this.stream(c,this.streamPts(FX,132,FX,by,w2,w2*0.9,0));
+      if(this.bed>=0.8)this.stream(c,this.streamPts(FX,180,FX+14,BT-1,fw*0.75,fw*0.6,2));}
     for(const p of this.ps){
-      if(p.st==='belt'){const b=clamp(((p.x-TAILX)/BW)|0,0,NB-1);this.rock(c,p.x,BT-2-Math.min(this.hS[b],(p.lump?0.9:0.6)*this.hS[b]+1),p);}
+      if(!p.vis&&p.st!=='spill')continue;
+      if(p.st==='belt'){const b=clamp(((p.x-TAILX)/BW)|0,0,NB-1),h=this.band(b)[2];this.rock(c,p.x,BT-2-Math.min(h,(p.lump?0.9:0.6)*h+1),p);}
       else this.rock(c,p.x,p.y,p);
     }
     for(const q of this.ground){c.fillStyle=q.c;c.fillRect(q.x-q.r,GROUND-q.yo-q.r*0.8,q.r*2,q.r*1.4);}
@@ -737,7 +764,7 @@ class Sim{
       const d=this.d,len=60*S*Math.cos((d.aL+d.aR)/2);
       this.hl('defletores',()=>{
         steel(c,X0+2,150,10,44);
-        c.globalAlpha=.85;const yg=c.createLinearGradient(0,190,0,244);yg.addColorStop(0,'#ffd54f');yg.addColorStop(1,'#e6a800');c.fillStyle=yg;rr(c,X0,190,len,54,3);c.fill();c.globalAlpha=1;
+        c.globalAlpha=.6;const yg=c.createLinearGradient(0,190,0,244);yg.addColorStop(0,'#ffd54f');yg.addColorStop(1,'#e6a800');c.fillStyle=yg;rr(c,X0,190,len,54,3);c.fill();c.globalAlpha=1;
         c.strokeStyle='#7a5d00';c.lineWidth=2;rr(c,X0,190,len,54,3);c.stroke();
         c.fillStyle='#c7ced6';c.beginPath();c.arc(X0+7,198,8,0,Math.PI*2);c.fill();c.fillStyle='#555';c.beginPath();c.arc(X0+7,198,3,0,Math.PI*2);c.fill();
       });
@@ -814,10 +841,10 @@ class Sim{
     });
     // faixa contínua de minério
     const top=[],bot=[];
-    for(let b=0;b<NB;b++){if(this.wS[b]<1)continue;const x=TAILX+b*BW+BW/2,cz=dr+this.cS[b],w=this.wS[b];top.push([x,zy(cz-w)]);bot.push([x,zy(cz+w)]);}
+    for(let b=0;b<NB;b++){if(this.wS[b]<1)continue;const x=TAILX+b*BW+BW/2,B=this.band(b);top.push([x,zy(B[0]-B[1])]);bot.push([x,zy(B[0]+B[1])]);}
     if(top.length>1){c.fillStyle=this.pOre;c.beginPath();c.moveTo(top[0][0],top[0][1]);for(const p of top)c.lineTo(p[0],p[1]);for(let i=bot.length-1;i>=0;i--)c.lineTo(bot[i][0],bot[i][1]);c.closePath();c.fill();c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=1.5;c.stroke();}
     c.setLineDash([14,10]);c.strokeStyle='rgba(255,122,0,.9)';c.lineWidth=2;c.beginPath();c.moveTo(60,CY);c.lineTo(940,CY);c.stroke();c.setLineDash([]);
-    for(const p of this.ps){if(p.st==='belt'||p.st==='disch')this.rock(c,p.x,zy(p.zb+dr),p);else if(p.st==='spill')this.rock(c,p.x,zy(p.zs),p);}
+    for(const p of this.ps){if((p.st==='belt'||p.st==='disch')&&p.vis)this.rock(c,p.x,zy(p.zb+dr),p);else if(p.st==='spill')this.rock(c,p.x,zy(p.zs),p);}
     this.hl('chave',()=>{for(const sx of[520,760])for(const s of[-1,1]){const push=clamp((s*dr-8)/4,0,1),zz=s*(HALF+6-push*2);
       c.fillStyle='#f2c200';rr(c,sx-9,zy(s*76)-7,18,14,3);c.fill();c.fillStyle=push>0.5?'#ff3b30':'#2ecc71';c.beginPath();c.arc(sx,zy(s*76),3.5,0,7);c.fill();
       c.strokeStyle='#9aa3ad';c.lineWidth=3;c.beginPath();c.moveTo(sx,zy(s*72));c.lineTo(sx+push*6,zy(zz));c.stroke();c.fillStyle='#cfd5da';c.beginPath();c.arc(sx+push*6,zy(zz),4.5,0,7);c.fill();}});
@@ -830,11 +857,13 @@ class Sim{
       this.hl('stonebox',()=>{c.fillStyle='#d32f2f';rr(c,244,zy(-25),112,50*S,4);c.fill();c.fillStyle=this.bed>0.05?this.pOre:'#3a1414';c.fillRect(268,zy(-10),64,20*S);});
       this.hl('funil',()=>{c.fillStyle='rgba(95,104,115,.62)';c.fillRect(244,zy(-35),112,70*S);c.strokeStyle='#a6afb8';c.lineWidth=2;c.strokeRect(244,zy(-35),112,70*S);c.strokeRect(276,zy(-15),48,30*S);
         c.beginPath();c.moveTo(244,zy(-35));c.lineTo(276,zy(-15));c.moveTo(356,zy(-35));c.lineTo(324,zy(-15));c.moveTo(244,zy(35));c.lineTo(276,zy(15));c.moveTo(356,zy(35));c.lineTo(324,zy(15));c.stroke();});
-      for(const p of this.ps)if(p.st==='fall')this.rock(c,p.x,zy(p.z),p);
+      for(const p of this.ps)if(p.st==='fall'&&p.lump)this.rock(c,p.x,zy(p.z),p);
       this.hl('suporte',()=>{c.strokeStyle='#1e88e5';c.lineWidth=9;c.lineCap='round';c.beginPath();c.moveTo(464,zy(-96));c.lineTo(356,zy(-25));c.stroke();c.lineCap='butt';
         c.lineWidth=6;c.beginPath();c.moveTo(447,zy(-96)-16);c.lineTo(447,zy(-96)+16);c.lineTo(481,zy(-96)+16);c.lineTo(481,zy(-96)-16);c.stroke();c.fillStyle='#c7ced6';c.beginPath();c.arc(464,zy(-96),5,0,Math.PI*2);c.fill();});
     }else{
-      for(const p of this.ps)if(p.st==='fall')this.rock(c,p.x,zy(p.z),p);
+      const fw=10+14*clamp(this.fi,0.1,2.2),bz=clamp(this.bias*0.8,-14,14);
+      c.save();c.globalAlpha=.9;c.fillStyle=this.pOre;c.beginPath();c.ellipse(FX,zy(bz),fw*0.55,(10+Math.abs(this.bias)*0.4)*S,0,0,7);c.fill();c.restore();
+      for(const p of this.ps)if(p.st==='fall'&&p.lump)this.rock(c,p.x,zy(p.z),p);
       this.hl('chute',()=>{c.strokeStyle='#8e98a1';c.lineWidth=5;c.strokeRect(270,zy(-18),60,36*S);c.fillStyle='rgba(60,66,73,.35)';c.fillRect(270,zy(-18),60,36*S);});
       c.font='700 16px system-ui';c.textAlign='left';c.fillStyle='#ffb3ab';c.fillText('cai no centro, mas a carga não fica igual',340,zy(-50));
     }
