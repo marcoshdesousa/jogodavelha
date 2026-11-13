@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini Esteira Transportadora – Stone Box + Defletores</title>
+<meta name="description" content="Simulador visual de correia transportadora de minério: como pequenas diferenças na carga desalinham a correia e como o conjunto Funil + Stone Box + Defletores em V mantém a carga centralizada.">
+<style>
+:root{
+  --bg:#15181c; --panel:#1f242a; --panel2:#262c33; --line:#333b44;
+  --text:#e8ebee; --muted:#9aa4ae;
+  --orange:#ff7a00; --ok:#2ecc71; --warn:#ffb020; --alert:#ff3b30;
+  --funil:#5f6873; --box:#d32f2f; --aleta:#ffc400; --sup:#1e88e5; --steel:#6b7780; --ore:#5b4036;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.55;-webkit-text-size-adjust:100%}
+a{color:var(--orange)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+header.hero{position:relative;overflow:hidden;padding:44px 0 32px;border-bottom:4px solid var(--orange);
+  background:radial-gradient(900px 300px at 85% 130%,rgba(141,75,43,.5),transparent 70%),repeating-linear-gradient(135deg,#1d2126 0 22px,#1a1d22 22px 44px)}
+header.hero::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:4px;background:repeating-linear-gradient(90deg,var(--orange) 0 24px,#111 24px 48px)}
+.kicker{display:inline-block;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:#111;background:var(--orange);padding:3px 10px;border-radius:4px;font-weight:800}
+h1{font-size:clamp(1.6rem,4.6vw,2.7rem);line-height:1.15;margin:14px 0 10px}
+h1 span{color:var(--orange)}
+.lead{color:#c8ced4;max-width:780px;font-size:1.05rem;margin:0}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);padding:5px 11px;border-radius:999px;font-size:.85rem}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block;flex:none}
+nav.top{position:sticky;top:0;z-index:30;background:rgba(21,24,28,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;align-items:center;gap:6px}
+nav.top .links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+nav.top .links::-webkit-scrollbar{display:none}
+nav.top a{color:var(--muted);text-decoration:none;white-space:nowrap;padding:12px 9px;font-size:.88rem;font-weight:650;border-bottom:2px solid transparent}
+nav.top a:hover{color:var(--text);border-color:var(--orange)}
+.navbtns{display:flex;gap:6px;flex:none}
+section{padding:46px 0 10px}
+h2{font-size:clamp(1.3rem,3.4vw,1.9rem);margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2 .num{background:var(--orange);color:#111;font-size:.95rem;width:32px;height:32px;border-radius:6px;display:inline-grid;place-items:center;flex:none}
+h3{margin:22px 0 10px;font-size:1.12rem}
+p{margin:.4em 0 .9em}
+.muted{color:var(--muted)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card h4{margin:0 0 4px;font-size:1rem;display:flex;align-items:center;gap:8px}
+.card p{margin:0;color:#c3cad1;font-size:.93rem}
+.card .n{background:var(--panel2);border:1px solid var(--line);border-radius:50%;width:24px;height:24px;display:inline-grid;place-items:center;font-size:.8rem;color:var(--orange);flex:none}
+.card.prob{border-left:4px solid var(--alert)}
+.card.fac{border-left:4px solid var(--warn)}
+.card.piece{border-top:4px solid var(--c)}
+.card.piece .dims{font-size:.84rem;color:var(--text);background:var(--panel2);border-radius:6px;padding:6px 8px;margin:8px 0}
+.figure{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin:14px 0}
+.figure svg{display:block;width:100%;height:auto}
+.figcap{font-size:.84rem;color:var(--muted);margin:8px 2px 0}
+.sim-wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#1a1e23;margin-top:14px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.sim-wrap canvas{display:block;width:100%;touch-action:pan-y;cursor:crosshair}
+.tip{position:absolute;z-index:5;pointer-events:none;max-width:270px;background:rgba(14,16,19,.96);border:1px solid var(--orange);border-radius:10px;padding:9px 11px;font-size:.84rem;box-shadow:0 6px 24px rgba(0,0,0,.5);opacity:0;transition:opacity .12s}
+.tip.on{opacity:1}
+.tip b{display:block;font-size:.95rem;margin-bottom:3px}
+.tip .dims{color:#fff;background:#252b32;border-radius:6px;padding:4px 6px;margin:4px 0;font-size:.8rem}
+.tip .fn{color:#c3cad1}
+.controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-weight:750;font-size:.9rem;padding:9px 14px;border-radius:9px;cursor:pointer;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--orange)}
+.btn.sm{padding:6px 10px;min-height:34px;font-size:.82rem}
+.btn.primary{background:var(--orange);color:#111;border-color:var(--orange)}
+.btn.on{background:var(--ok);color:#06210f;border-color:var(--ok)}
+.btn.tog.off{background:#3a1d1b;border-color:var(--alert);color:#ffd2cf}
+.rng{display:flex;flex-direction:column;gap:2px;font-size:.82rem;color:var(--muted);flex:1 1 170px;min-width:150px}
+.rng span{display:flex;justify-content:space-between;gap:8px}
+.rng output{color:var(--text);font-weight:750}
+input[type=range]{width:100%;accent-color:var(--orange);height:28px}
+.ind-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:10px}
+.ind{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;border-left:4px solid var(--muted);transition:border-color .3s}
+.ind .lbl{display:block;font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.ind .val{display:block;font-size:1.28rem;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}
+.ind .sub{display:block;font-size:.78rem;color:var(--muted)}
+.bar{height:6px;background:#2c333b;border-radius:4px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--muted);transition:width .2s,background .3s}
+.cbar{position:relative;height:8px;background:#2c333b;border-radius:4px;margin-top:7px}
+.cbar::before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:2px;background:var(--orange)}
+.cbar i{position:absolute;top:-3px;width:10px;height:14px;margin-left:-5px;border-radius:3px;background:var(--muted);left:50%;transition:left .2s,background .3s}
+.ind.ok{border-left-color:var(--ok)} .ind.ok .bar i,.ind.ok .cbar i{background:var(--ok)} .ind.ok .val{color:#bff3d3}
+.ind.warn{border-left-color:var(--warn)} .ind.warn .bar i,.ind.warn .cbar i{background:var(--warn)} .ind.warn .val{color:#ffe1a6}
+.ind.alert{border-left-color:var(--alert)} .ind.alert .bar i,.ind.alert .cbar i{background:var(--alert)} .ind.alert .val{color:#ffc0bb}
+.pill{display:inline-block;margin-top:4px;padding:4px 10px;border-radius:999px;font-weight:800;font-size:.85rem;background:#2c333b}
+.ind.ok .pill{background:var(--ok);color:#06210f}
+.ind.warn .pill{background:var(--warn);color:#2a1c00}
+.ind.alert .pill{background:var(--alert);color:#fff;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.45}}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.observe{margin:14px 0 0;padding-left:20px;color:#c3cad1}
+.observe li{margin:4px 0}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.split .sim-wrap{margin-top:0}
+.side-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 6px;font-weight:800}
+.tag{font-size:.75rem;padding:3px 9px;border-radius:999px;font-weight:800;letter-spacing:.04em}
+.tag.bad{background:var(--alert);color:#fff}
+.tag.good{background:var(--ok);color:#06210f}
+.cmp{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-top:14px}
+.cmp .card h4{font-size:.88rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.cmp .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:6px;font-variant-numeric:tabular-nums}
+.cmp .row small{color:var(--muted)}
+.cmp .bad{color:#ff8a80;font-weight:800;font-size:1.08rem}
+.cmp .good{color:#7ee0a1;font-weight:800;font-size:1.08rem}
+.cmp .red{margin-top:8px;font-size:.82rem;background:rgba(46,204,113,.12);color:#9ff0bf;border-radius:6px;padding:4px 8px;display:inline-block}
+.notice{margin-top:12px;font-size:.85rem;color:#ffd9a8;background:rgba(255,122,0,.1);border:1px dashed rgba(255,122,0,.6);border-radius:10px;padding:10px 12px}
+.proto{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:start}
+.spec{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.spec li{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;display:flex;justify-content:space-between;gap:10px;font-size:.93rem}
+.spec li b{color:var(--orange);text-align:right}
+.ex-legend{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}
+.ex-legend li{display:flex;gap:10px;align-items:flex-start;font-size:.9rem}
+.ex-legend .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#111;flex:none}
+#narr{position:fixed;left:50%;bottom:12px;transform:translate(-50%,140%);z-index:50;width:min(860px,calc(100% - 20px));background:rgba(12,14,16,.97);border:1px solid var(--orange);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.6);padding:10px 12px;display:flex;gap:12px;align-items:center;transition:transform .35s}
+#narr.on{transform:translate(-50%,0)}
+#narr .st{flex:none;font-size:.72rem;font-weight:800;color:#111;background:var(--orange);border-radius:6px;padding:4px 7px;display:inline-flex;align-items:center}
+#narr .cap{flex:1;font-size:1rem;line-height:1.4;min-height:2.8em;display:flex;align-items:center}
+#narr .nb{display:flex;gap:6px;flex:none}
+.wave{display:inline-flex;gap:2px;align-items:flex-end;height:14px;margin-right:6px}
+.wave i{width:3px;background:#111;animation:wv .8s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}
+@keyframes wv{0%,100%{height:3px}50%{height:13px}}
+footer{margin-top:50px;padding:24px 0 110px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+@media (max-width:760px){
+  .split,.proto{grid-template-columns:1fr}
+  section{padding-top:36px}
+  .ind .val{font-size:1.1rem}
+  nav.top .navbtns .lbl{display:none}
+  #narr{flex-wrap:wrap}
+  #narr .cap{flex-basis:100%;order:3;font-size:.95rem}
+}
+</style>
+</head>
+<body>
+
+<header class="hero" id="topo">
+  <div class="wrap">
+    <span class="kicker">Simulador visual · Mineração</span>
+    <h1>Mini Esteira Transportadora – <span>Stone Box + Defletores</span></h1>
+    <p class="lead">O minério cai <b>reto</b> na correia, mas a carga nunca é perfeitamente igual: pedras grandes e pesadas, finos e variações no fluxo fazem um lado pesar mais que o outro. Veja como isso desalinha a correia e como o nosso conjunto <b>Funil + Stone Box + Defletores em V</b> mantém tudo no centro.</p>
+    <div class="cta">
+      <button class="btn primary" id="heroNarr" type="button">🎙️ Iniciar apresentação narrada</button>
+      <button class="btn" id="heroSnd" type="button">🔊 Ligar sons</button>
+    </div>
+    <div class="chips">
+      <span class="chip"><i class="sw" style="background:var(--funil)"></i>Funil</span>
+      <span class="chip"><i class="sw" style="background:var(--box)"></i>Stone Box</span>
+      <span class="chip"><i class="sw" style="background:var(--aleta)"></i>Aletas em V</span>
+      <span class="chip"><i class="sw" style="background:var(--sup)"></i>Suporte em U</span>
+      <span class="chip"><i class="sw" style="background:var(--ore)"></i>Minério de ferro</span>
+    </div>
+  </div>
+</header>
+
+<nav class="top"><div class="wrap">
+  <div class="links">
+    <a href="#intro">1. Introdução</a>
+    <a href="#hoje">2. Como é hoje</a>
+    <a href="#inovacao">3. Com a inovação</a>
+    <a href="#comparacao">4. Antes x Depois</a>
+    <a href="#prototipo">5. Protótipo</a>
+  </div>
+  <div class="navbtns">
+    <button class="btn sm" id="navSnd" type="button" title="Sons">🔇<span class="lbl">&nbsp;Som</span></button>
+    <button class="btn sm primary" id="navNarr" type="button" title="Apresentação narrada">🎙️<span class="lbl">&nbsp;Narrar</span></button>
+  </div>
+</div></nav>
+
+<main class="wrap">
+
+<!-- 1. INTRODUÇÃO -->
+<section id="intro">
+  <h2><span class="num">1</span>O que é uma correia transportadora?</h2>
+  <p>É o sistema que leva o minério de um ponto a outro da mina de forma contínua, às vezes por quilômetros. Uma correia de borracha em laço fechado passa por dois tambores e se apoia em roletes que lhe dão o formato de <b>calha</b>. O minério é despejado sobre ela pelo <b>chute de transferência</b>.</p>
+  <div class="figure">
+    <svg viewBox="0 0 800 310" role="img" aria-label="Desenho de uma correia transportadora com as partes numeradas">
+      <rect width="800" height="310" fill="#1a1e23"/>
+      <rect y="292" width="800" height="18" fill="#5a2f1d"/>
+      <rect x="60" y="222" width="680" height="10" rx="2" fill="#6b7780"/>
+      <g fill="#6b7780"><rect x="95" y="232" width="10" height="60"/><rect x="395" y="232" width="10" height="60"/><rect x="695" y="232" width="10" height="60"/></g>
+      <g fill="#8a949c" stroke="#4b525b">
+        <circle cx="140" cy="155" r="6"/><circle cx="205" cy="155" r="6"/><circle cx="270" cy="155" r="6"/><circle cx="335" cy="155" r="6"/><circle cx="400" cy="155" r="6"/><circle cx="465" cy="155" r="6"/><circle cx="530" cy="155" r="6"/><circle cx="595" cy="155" r="6"/><circle cx="660" cy="155" r="6"/>
+        <circle cx="250" cy="205" r="5"/><circle cx="550" cy="205" r="5"/>
+      </g>
+      <path d="M90,145 L710,145 A25,25 0 0 1 710,195 L90,195 A25,25 0 0 1 90,145 Z" fill="none" stroke="#0b0b0b" stroke-width="7"/>
+      <circle cx="90" cy="170" r="21" fill="#3b4149" stroke="#59616b" stroke-width="2"/>
+      <circle cx="710" cy="170" r="21" fill="#3b4149" stroke="#59616b" stroke-width="2"/>
+      <rect x="742" y="155" width="42" height="30" rx="4" fill="#2f7d32"/>
+      <line x1="710" y1="170" x2="742" y2="170" stroke="#8a929c" stroke-width="4"/>
+      <path d="M215,142 Q240,128 270,136 T330,132 T400,135 T470,131 T540,135 T610,132 T690,141 Z" fill="#5b4036"/>
+      <path d="M150,14 L250,14 L228,44 L172,44 Z" fill="#3d434b" stroke="#59616b"/>
+      <rect x="182" y="44" width="36" height="58" fill="#4b525b" stroke="#6d757f"/>
+      <g fill="#5b4036"><circle cx="196" cy="112" r="3"/><circle cx="204" cy="122" r="3"/><circle cx="199" cy="131" r="3"/></g>
+      <g font-family="system-ui,Arial" font-weight="800" font-size="16" text-anchor="middle">
+        <line x1="440" y1="143" x2="440" y2="88" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="440" cy="76" r="13" fill="#ff7a00"/><text x="440" y="82" fill="#111">1</text>
+        <line x1="716" y1="160" x2="740" y2="100" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="742" cy="88" r="13" fill="#ff7a00"/><text x="742" y="94" fill="#111">2</text>
+        <line x1="84" y1="178" x2="52" y2="252" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="48" cy="262" r="13" fill="#ff7a00"/><text x="48" y="268" fill="#111">3</text>
+        <line x1="335" y1="161" x2="300" y2="262" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="298" cy="270" r="13" fill="#ff7a00"/><text x="298" y="276" fill="#111">4</text>
+        <line x1="220" y1="70" x2="280" y2="52" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="292" cy="46" r="13" fill="#ff7a00"/><text x="292" y="52" fill="#111">5</text>
+        <line x1="560" y1="232" x2="590" y2="262" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="598" cy="270" r="13" fill="#ff7a00"/><text x="598" y="276" fill="#111">6</text>
+      </g>
+    </svg>
+  </div>
+  <div class="grid">
+    <div class="card"><h4><span class="n">1</span>Correia</h4><p>Faixa de borracha em laço fechado que carrega o minério. É a peça mais cara e a que mais sofre com impacto e desalinhamento.</p></div>
+    <div class="card"><h4><span class="n">2</span>Tambor de acionamento</h4><p>Ligado ao motor e ao redutor, puxa a correia. Fica na ponta de descarga.</p></div>
+    <div class="card"><h4><span class="n">3</span>Tambor de retorno</h4><p>Na ponta de carga, faz a correia voltar por baixo e mantém a tensão.</p></div>
+    <div class="card"><h4><span class="n">4</span>Roletes</h4><p>Rolos de apoio que formam a calha e sustentam a carga. No ponto de carga ficam os roletes de impacto.</p></div>
+    <div class="card"><h4><span class="n">5</span>Chute de transferência</h4><p>Leva o minério para a correia. Mesmo caindo reto, a queda é alta e o impacto é forte.</p></div>
+    <div class="card"><h4><span class="n">6</span>Estrutura</h4><p>Base que sustenta tambores, roletes e chute. Na mina é de aço; no nosso protótipo, de madeira.</p></div>
+  </div>
+
+  <h3 id="problema">Se o minério cai reto, por que a correia desalinha?</h3>
+  <p class="muted">Porque a carga quase nunca fica igual dos dois lados. Pequenas diferenças, somadas durante horas, fazem a correia "fugir" para o lado mais leve.</p>
+  <div class="grid">
+    <div class="card fac"><h4>Pedras grandes x finos</h4><p>As pedras grandes e pesadas batem, quicam e rolam para um lado; o material fino fica mais no centro. É a <b>segregação</b>.</p></div>
+    <div class="card fac"><h4>Fluxo que varia</h4><p>A vazão muda o tempo todo, e o material chega em "ondas", às vezes mais de um lado do chute.</p></div>
+    <div class="card fac"><h4>Minério diferente</h4><p>Umidade, densidade e tamanho mudam de um lote para outro: um lado pode ficar mais pesado.</p></div>
+    <div class="card fac"><h4>Impacto da queda</h4><p>A queda alta espalha o material sem controle e castiga a correia no ponto de carga.</p></div>
+  </div>
+  <div class="figure">
+    <svg viewBox="0 0 660 230" role="img" aria-label="Seção da correia: carga centralizada e carga levemente deslocada">
+      <rect width="660" height="230" fill="#1a1e23"/>
+      <g>
+        <rect x="20" y="200" width="290" height="30" fill="#5a2f1d"/>
+        <rect x="42" y="150" width="10" height="50" fill="#6b7780"/><rect x="278" y="150" width="10" height="50" fill="#6b7780"/>
+        <line x1="125" y1="160" x2="205" y2="160" stroke="#8a949c" stroke-width="12" stroke-linecap="round"/>
+        <line x1="210" y1="160" x2="262" y2="124" stroke="#8a949c" stroke-width="12" stroke-linecap="round"/>
+        <line x1="120" y1="160" x2="68" y2="124" stroke="#8a949c" stroke-width="12" stroke-linecap="round"/>
+        <polyline points="58,108 122,150 208,150 272,108" fill="none" stroke="#0b0b0b" stroke-width="8" stroke-linejoin="round"/>
+        <path d="M100,134 Q165,74 230,134 L208,146 L122,146 Z" fill="#5b4036"/>
+        <line x1="165" y1="40" x2="165" y2="200" stroke="#ff7a00" stroke-dasharray="6 5" stroke-width="2"/>
+        <text x="165" y="28" text-anchor="middle" fill="#2ecc71" font-family="system-ui" font-weight="800" font-size="17">Carga no centro ✓</text>
+      </g>
+      <g>
+        <rect x="350" y="200" width="290" height="30" fill="#5a2f1d"/>
+        <rect x="372" y="150" width="10" height="50" fill="#6b7780"/><rect x="608" y="150" width="10" height="50" fill="#6b7780"/>
+        <line x1="455" y1="160" x2="535" y2="160" stroke="#8a949c" stroke-width="12" stroke-linecap="round"/>
+        <line x1="540" y1="160" x2="592" y2="124" stroke="#8a949c" stroke-width="12" stroke-linecap="round"/>
+        <line x1="450" y1="160" x2="398" y2="124" stroke="#8a949c" stroke-width="12" stroke-linecap="round"/>
+        <polyline points="400,112 460,151 546,150 606,104" fill="none" stroke="#0b0b0b" stroke-width="8" stroke-linejoin="round"/>
+        <path d="M452,138 Q518,72 584,124 L546,146 L460,146 Z" fill="#5b4036"/>
+        <g fill="#7a5440"><circle cx="572" cy="116" r="6"/><circle cx="560" cy="108" r="5"/><circle cx="583" cy="124" r="5"/></g>
+        <line x1="495" y1="40" x2="495" y2="200" stroke="#ff7a00" stroke-dasharray="6 5" stroke-width="2"/>
+        <line x1="503" y1="60" x2="503" y2="200" stroke="#fff" stroke-dasharray="2 4" stroke-width="1.5" opacity=".6"/>
+        <text x="495" y="28" text-anchor="middle" fill="#ffb020" font-family="system-ui" font-weight="800" font-size="17">Um lado mais pesado ✗</text>
+        <text x="575" y="92" text-anchor="middle" fill="#ffb020" font-family="system-ui" font-weight="700" font-size="12">pedras grandes</text>
+      </g>
+    </svg>
+    <p class="figcap">Seção da correia em calha. Linha laranja: eixo da estrutura. À direita, as pedras grandes ficaram mais de um lado: a diferença é pequena, mas já basta para a correia começar a sair do eixo.</p>
+  </div>
+  <div class="grid">
+    <div class="card prob"><h4>Desgaste da borda</h4><p>A borda raspa na estrutura e nas chaves, desfiando a correia.</p></div>
+    <div class="card prob"><h4>Derramamento</h4><p>O minério cai pelas bordas e exige limpeza constante.</p></div>
+    <div class="card prob"><h4>Paradas</h4><p>A chave de desalinhamento desliga a correia e a produção para.</p></div>
+    <div class="card prob"><h4>Segurança</h4><p>Limpeza manual perto de partes móveis aumenta o risco de acidentes.</p></div>
+    <div class="card prob"><h4>Custo</h4><p>Correia nova, roletes, mão de obra e minério perdido.</p></div>
+  </div>
+</section>
+
+<!-- 2. COMO É HOJE -->
+<section id="hoje">
+  <h2><span class="num">2</span>Parte 1 – Como funciona hoje</h2>
+  <p>O minério desce <b>reto</b> pelo chute e cai no centro da correia, mas de uma <b>altura grande</b>. As pedras pesadas batem forte, quicam e tendem a ir mais para um lado. A carga fica <b>levemente</b> desigual e a correia vai desviando aos poucos.</p>
+  <div class="sim-wrap" id="simA"><canvas></canvas><div class="tip"></div></div>
+  <div class="legend">
+    <span><i class="sw" style="background:#6d757f"></i>Chute comum</span>
+    <span><i class="sw" style="background:#7a5440"></i>Pedras grandes</span>
+    <span><i class="sw" style="background:#4b3730"></i>Finos</span>
+    <span><i class="sw" style="background:var(--orange)"></i>Eixo da estrutura (tracejado)</span>
+    <span>👆 Toque ou passe o mouse nas peças</span>
+  </div>
+  <div class="controls" id="ctlA"></div>
+  <div class="ind-grid" id="indA"></div>
+  <ul class="observe">
+    <li><b>Vista lateral:</b> queda alta, flashes de impacto e poeira no ponto de carga.</li>
+    <li><b>Vista de cima e seção:</b> a carga fica só um pouco para um lado, não num canto, mas a correia sai do eixo laranja até a borda empurrar a <b>chave de desalinhamento</b>.</li>
+    <li>Mexa em <b>"Variação da carga"</b>: quanto mais diferença entre pedras e finos, maior o desvio. Depois toque em <b>"Ativar inovação"</b>.</li>
+  </ul>
+</section>
+
+<!-- 3. COM A INOVAÇÃO -->
+<section id="inovacao">
+  <h2><span class="num">3</span>Parte 2 – Com a nossa inovação</h2>
+  <p>Mesma correia, mesmo minério, agora com o nosso conjunto de 4 peças. A carga é <b>misturada e amortecida</b> na stone box e chega ao centro guiada pelas aletas, mesmo quando o minério varia.</p>
+  <div class="grid">
+    <div class="card piece" style="--c:var(--funil)"><h4><i class="sw" style="background:var(--funil)"></i>a) Funil de alimentação</h4>
+      <div class="dims">Tronco de pirâmide · topo 70 × 70 mm · saída 30 × 30 mm · altura 50 mm</div>
+      <p>Concentra o minério e direciona a queda.</p></div>
+    <div class="card piece" style="--c:var(--box)"><h4><i class="sw" style="background:var(--box)"></i>b) Stone Box (caixa de pedra)</h4>
+      <div class="dims">70 × 50 mm externo · bordas de 15 mm · altura 30 mm · encaixe inferior 30 × 30 mm</div>
+      <p>O minério se acumula e forma um "colchão": o minério novo bate em minério, e não na correia. Pedras e finos se misturam.</p></div>
+    <div class="card piece" style="--c:var(--aleta)"><h4><i class="sw" style="background:var(--aleta)"></i>c) Defletores ajustáveis (2 aletas)</h4>
+      <div class="dims">60 × 35 × 8 mm · eixo cilíndrico Ø10 mm · montagem em V</div>
+      <p>Giram livremente no eixo, se autoajustam ao fluxo e guiam o material para o centro.</p></div>
+    <div class="card piece" style="--c:var(--sup)"><h4><i class="sw" style="background:var(--sup)"></i>d) Suporte de fixação</h4>
+      <div class="dims">Peça em U · 40 × 50 × 10 mm · parafuso M10</div>
+      <p>Prende o conjunto na estrutura de madeira.</p></div>
+  </div>
+  <div class="sim-wrap" id="simB"><canvas></canvas><div class="tip"></div></div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--funil)"></i>1 Funil</span>
+    <span><i class="sw" style="background:var(--box)"></i>2 Stone Box</span>
+    <span><i class="sw" style="background:var(--aleta)"></i>3 Aletas em V</span>
+    <span><i class="sw" style="background:var(--sup)"></i>4 Suporte em U</span>
+    <span>👆 Toque ou passe o mouse nas peças para ver medidas e função</span>
+  </div>
+  <div class="controls" id="ctlB"></div>
+  <div class="ind-grid" id="indB"></div>
+  <ul class="observe">
+    <li>No começo a stone box enche e forma o <b>colchão</b>; depois o minério novo bate no próprio minério (brilho verde) e sai misturado.</li>
+    <li>As <b>aletas amarelas</b> giram sozinhas quando o fluxo muda: mexa na vazão e veja o V abrir e fechar.</li>
+    <li>Mesmo com muita variação na carga, o centro da carga e o desvio ficam perto de zero.</li>
+  </ul>
+</section>
+
+<!-- 4. COMPARAÇÃO -->
+<section id="comparacao">
+  <h2><span class="num">4</span>Antes x Depois</h2>
+  <p>As duas correias rodando ao mesmo tempo, com o mesmo minério, a mesma velocidade e a mesma vazão.</p>
+  <div class="split">
+    <div><div class="side-head">Antes <span class="tag bad">SEM INOVAÇÃO</span></div><div class="sim-wrap" id="simC1"><canvas></canvas><div class="tip"></div></div></div>
+    <div><div class="side-head">Depois <span class="tag good">COM INOVAÇÃO</span></div><div class="sim-wrap" id="simC2"><canvas></canvas><div class="tip"></div></div></div>
+  </div>
+  <div class="controls" id="ctlC"></div>
+  <div class="cmp" id="cmp"></div>
+  <div class="notice"><b>Atenção:</b> todos os valores são <b>simulados e ilustrativos</b>, gerados por um modelo simplificado para fins didáticos. Não representam medições reais.</div>
+</section>
+
+<!-- 5. PROTÓTIPO -->
+<section id="prototipo">
+  <h2><span class="num">5</span>Sobre o protótipo</h2>
+  <div class="proto">
+    <div>
+      <p>O protótipo é uma <b>mini esteira em escala</b>, construída para testar a ideia de forma simples e barata. A estrutura é de <b>madeira</b>, as 4 peças do conjunto são <b>impressas em 3D</b> e a <b>areia</b> faz o papel do minério.</p>
+      <ul class="spec">
+        <li><span>Estrutura</span><b>Madeira</b></li>
+        <li><span>Material das peças</span><b>PLA ou PETG</b></li>
+        <li><span>Espessura de parede</span><b>2 a 3 mm</b></li>
+        <li><span>Preenchimento (infill)</span><b>15% a 20%</b></li>
+        <li><span>Material simulado</span><b>Areia</b></li>
+        <li><span>Eixo das aletas</span><b>Cilíndrico Ø10 mm</b></li>
+        <li><span>Fixação</span><b>Parafuso M10</b></li>
+      </ul>
+      <p class="muted" style="margin-top:14px">No simulador, as medidas de desvio seguem a escala do protótipo (correia de cerca de 120 mm de largura).</p>
+    </div>
+    <div class="figure">
+      <svg viewBox="0 0 420 520" role="img" aria-label="Vista explodida das 4 peças">
+        <rect width="420" height="520" fill="#1a1e23"/>
+        <line x1="150" y1="14" x2="150" y2="505" stroke="#ff7a00" stroke-dasharray="5 6" opacity=".5"/>
+        <polygon points="100,62 130,45 230,45 200,62" fill="#2a2e33" stroke="#8a929c"/>
+        <polygon points="113,58 135,48 218,48 196,58" fill="#1b1e22"/>
+        <polygon points="100,62 200,62 172,122 128,122" fill="#5f6873" stroke="#8a929c"/>
+        <polygon points="200,62 230,45 186,113 172,122" fill="#454b53" stroke="#8a929c"/>
+        <polygon points="96,186 122,172 226,172 200,186" fill="#e57373" stroke="#ffb4b4"/>
+        <polygon points="118,183 132,176 206,176 192,183" fill="#4a1717"/>
+        <rect x="96" y="186" width="104" height="40" fill="#d32f2f" stroke="#ffb4b4"/>
+        <polygon points="200,186 226,172 226,212 200,226" fill="#a82424" stroke="#ffb4b4"/>
+        <rect x="134" y="226" width="32" height="10" fill="#a82424" stroke="#ffb4b4"/>
+        <rect x="88" y="262" width="12" height="74" rx="6" fill="#9aa3ad"/><ellipse cx="94" cy="262" rx="6" ry="3" fill="#c7ced6"/>
+        <rect x="200" y="262" width="12" height="74" rx="6" fill="#9aa3ad"/><ellipse cx="206" cy="262" rx="6" ry="3" fill="#c7ced6"/>
+        <polygon points="100,276 145,302 145,332 100,306" fill="#ffc400" stroke="#7a5d00"/>
+        <polygon points="200,276 155,302 155,332 200,306" fill="#e0ac00" stroke="#7a5d00"/>
+        <polygon points="190,392 206,384 206,444 190,452" fill="#1565c0"/>
+        <polygon points="110,392 126,392 126,436 174,436 174,392 190,392 190,452 110,452" fill="#1e88e5" stroke="#90caf9"/>
+        <rect x="145" y="452" width="10" height="34" fill="#9aa3ad"/>
+        <polygon points="138,486 162,486 166,494 134,494" fill="#c7ced6"/>
+        <g font-family="system-ui,Arial" font-size="15" font-weight="700">
+          <line x1="232" y1="80" x2="268" y2="80" stroke="#8a929c"/><circle cx="282" cy="80" r="13" fill="#5f6873"/><text x="282" y="85" text-anchor="middle" fill="#fff">1</text><text x="302" y="85" fill="#e8ebee">Funil</text>
+          <line x1="228" y1="200" x2="268" y2="200" stroke="#8a929c"/><circle cx="282" cy="200" r="13" fill="#d32f2f"/><text x="282" y="205" text-anchor="middle" fill="#fff">2</text><text x="302" y="205" fill="#e8ebee">Stone Box</text>
+          <line x1="214" y1="300" x2="268" y2="300" stroke="#8a929c"/><circle cx="282" cy="300" r="13" fill="#ffc400"/><text x="282" y="305" text-anchor="middle" fill="#111">3</text><text x="302" y="305" fill="#e8ebee">Aletas ×2</text>
+          <line x1="208" y1="420" x2="268" y2="420" stroke="#8a929c"/><circle cx="282" cy="420" r="13" fill="#1e88e5"/><text x="282" y="425" text-anchor="middle" fill="#fff">4</text><text x="302" y="425" fill="#e8ebee">Suporte U</text>
+          <text x="302" y="495" fill="#9aa4ae" font-size="13" font-weight="600">parafuso M10</text>
+          <line x1="168" y1="490" x2="296" y2="490" stroke="#555" stroke-dasharray="3 3"/>
+        </g>
+      </svg>
+      <ul class="ex-legend">
+        <li><span class="n" style="background:var(--funil);color:#fff">1</span><span><b>Funil de alimentação</b>: topo 70 × 70 mm, saída 30 × 30 mm, altura 50 mm.</span></li>
+        <li><span class="n" style="background:var(--box);color:#fff">2</span><span><b>Stone Box</b>: 70 × 50 mm externo, bordas de 15 mm, altura 30 mm, encaixe inferior 30 × 30 mm.</span></li>
+        <li><span class="n" style="background:var(--aleta)">3</span><span><b>Defletores (2 aletas)</b>: 60 × 35 × 8 mm, eixo Ø10 mm, montados em V.</span></li>
+        <li><span class="n" style="background:var(--sup);color:#fff">4</span><span><b>Suporte em U</b>: 40 × 50 × 10 mm, preso com parafuso M10 na madeira.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">
+  <b>Mini Esteira Transportadora – Stone Box + Defletores</b><br>
+  Projeto acadêmico independente, sem vínculo com a Vale S.A. ou outra mineradora. Simulador didático: valores, animações e indicadores são ilustrativos.
+</div></footer>
+
+<div id="narr" aria-live="polite">
+  <span class="st"><span class="wave"><i></i><i></i><i></i></span><span id="narrStep">1/10</span></span>
+  <div class="cap" id="narrCap"></div>
+  <div class="nb"><button class="btn sm" id="narrPrev" type="button" title="Voltar">⏮</button><button class="btn sm" id="narrNext" type="button" title="Próximo">⏭</button><button class="btn sm" id="narrStop" type="button" title="Parar">⏹</button></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ================= constantes (mundo virtual 1000 x 730) ================= */
+const VW=1000, VH=730, SPLIT=402;
+const PCY=275, BR=27.5, BT=PCY-BR-3.5, TAILX=110, HEADX=890, GROUND=384;
+const CY=572, S=1.6, HALF=60, RAIL=74;        // vista de cima: mm -> px
+const FX=300, X0=362, G=900, DEG=Math.PI/180;
+const NB=78, BW=10;                           // faixas de carga ao longo da correia
+const IDLERS=[]; for(let x=170;x<=830;x+=60) if(x<230||x>400) IDLERS.push(x);
+const IMPACT=[]; for(let x=240;x<=400;x+=26) IMPACT.push(x);
+const FINES=['#4b3730','#3a2c28','#55403a','#43332f','#5e463b'], LUMPS=['#7a5440','#6b4a3a','#8a6450','#5c4033','#7d6a62'];
+const rnd=(a=0,b=1)=>a+Math.random()*(b-a);
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const zy=z=>CY+z*S;
+const fmt=(v,d=1)=>v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const G_PER=1.5; // gramas de areia por partícula (ilustrativo)
+
+const PARTS={
+  funil:{name:'Funil de alimentação',col:'#b8c0c8',dims:'Tronco de pirâmide · topo 70 × 70 mm · saída 30 × 30 mm · altura 50 mm',fn:'Concentra o minério e direciona a queda para o centro.'},
+  stonebox:{name:'Stone Box (caixa de pedra)',col:'#ff6b6b',dims:'70 × 50 mm externo · bordas de 15 mm · altura 30 mm · encaixe inferior 30 × 30 mm',fn:'O minério se acumula e forma um colchão: o minério novo bate em minério, não na correia. Pedras e finos se misturam.'},
+  defletores:{name:'Defletores ajustáveis (aletas) ×2',col:'#ffc400',dims:'60 × 35 × 8 mm · eixo cilíndrico Ø10 mm · montagem em V',fn:'Giram livremente no eixo, se autoajustam ao fluxo e guiam o material para o centro da correia.'},
+  suporte:{name:'Suporte de fixação',col:'#64b5f6',dims:'Peça em U · 40 × 50 × 10 mm · parafuso M10',fn:'Prende o conjunto na estrutura de madeira.'},
+  correia:{name:'Correia',col:'#e8ebee',dims:'Borracha · ~120 mm de largura no protótipo',fn:'Carrega o minério do ponto de carga até a descarga.'},
+  acion:{name:'Tambor de acionamento + motor',col:'#e8ebee',dims:'Motor (verde) e redutor',fn:'Puxa a correia e gera o movimento.'},
+  retorno:{name:'Tambor de retorno',col:'#e8ebee',dims:'Ponta de carga',fn:'Faz a correia voltar por baixo e mantém a tensão.'},
+  roletes:{name:'Roletes',col:'#e8ebee',dims:'Rolos de carga (em calha) e de retorno',fn:'Sustentam a correia carregada e o lado de retorno.'},
+  impacto:{name:'Roletes de impacto',col:'#e8ebee',dims:'Anéis de borracha, mais juntos, no ponto de carga',fn:'Absorvem parte do choque da queda do minério.'},
+  chute:{name:'Chute de transferência (comum)',col:'#ff8a80',dims:'Calha vertical · queda alta, no centro',fn:'O minério cai reto, mas de muito alto: impacto forte e carga sem mistura (pedras e finos separados).'},
+  estrutura:{name:'Estrutura',col:'#c9d1d8',dims:'Aço na mina · madeira no protótipo',fn:'Sustenta tambores, roletes e o conjunto. A linha laranja tracejada é o eixo dela.'},
+  chave:{name:'Chave de desalinhamento',col:'#ffd27a',dims:'Rolete-sensor ao lado da borda da correia',fn:'Quando a borda empurra o sensor, a luz fica vermelha e o alarme dispara.'},
+  giroflex:{name:'Sinalizador (giroflex)',col:'#ffb347',dims:'Luz âmbar',fn:'Pisca quando a correia está desalinhada.'},
+  secao:{name:'Seção da correia',col:'#ffb347',dims:'Corte transversal no meio da correia',fn:'Mostra a calha, a carga e o quanto a correia saiu do eixo laranja.'}
+};
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function inRect(x,y,r){return x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3];}
+function steel(c,x,y,w,h,base){
+  const g=w>=h?c.createLinearGradient(0,y,0,y+h):c.createLinearGradient(x,0,x+w,0);
+  g.addColorStop(0,base==='dark'?'#5a646c':'#8e9aa3');g.addColorStop(.45,base==='dark'?'#454e55':'#6b7780');g.addColorStop(1,base==='dark'?'#2f363c':'#4c565e');
+  c.fillStyle=g;c.fillRect(x,y,w,h);
+}
+// texturas (padrões) do minério e do chão
+const ORE_PAT=(()=>{const cv=document.createElement('canvas');cv.width=cv.height=64;const g=cv.getContext('2d');g.fillStyle='#4a362f';g.fillRect(0,0,64,64);
+  for(let i=0;i<260;i++){g.fillStyle=(i%4?FINES:LUMPS)[(Math.random()*5)|0];g.beginPath();g.arc(Math.random()*64,Math.random()*64,rnd(.6,2.4),0,7);g.fill();}
+  g.fillStyle='rgba(200,190,185,.35)';for(let i=0;i<40;i++)g.fillRect(Math.random()*64,Math.random()*64,1,1);return cv;})();
+const GROUND_PAT=(()=>{const cv=document.createElement('canvas');cv.width=cv.height=96;const g=cv.getContext('2d');g.fillStyle='#5a2f1d';g.fillRect(0,0,96,96);
+  for(let i=0;i<500;i++){g.fillStyle=['#4a2716','#6b3a24','#7a4630','#3e2214'][(Math.random()*4)|0];g.fillRect(Math.random()*96,Math.random()*96,rnd(1,2.4),rnd(1,2.4));}return cv;})();
+
+/* ================= simulador ================= */
+class Sim{
+  constructor(wrap,params,innov){
+    this.wrap=wrap;this.canvas=wrap.querySelector('canvas');this.ctx=this.canvas.getContext('2d');
+    this.tip=wrap.querySelector('.tip');this.params=params;this.innov=innov;
+    this.visible=false;this.ratio=0;this.hover=null;this.onMode=null;
+    this.pOre=this.ctx.createPattern(ORE_PAT,'repeat');this.pGround=this.ctx.createPattern(GROUND_PAT,'repeat');
+    this.reset();this.resize();
+    new ResizeObserver(()=>this.resize()).observe(wrap);
+    const move=e=>this.pointer(e);
+    this.canvas.addEventListener('pointermove',move);this.canvas.addEventListener('pointerdown',move);
+    this.canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')this.setHover(null);});
+    document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))this.setHover(null);});
+    new IntersectionObserver(es=>{this.visible=es[0].isIntersecting;this.ratio=es[0].intersectionRatio;},{rootMargin:'80px',threshold:[0,.25,.5,.75,1]}).observe(wrap);
+  }
+  reset(){
+    this.ps=[];this.drift=0;this.spilled=0;this.impE=0;this.impact=0;this.bed=0;this.acc=0;
+    this.t=rnd(0,50);this.ground=[];this.fx=[];this.dust=[];this.sparks=[];this.phase=0;this.rot=0;
+    this.zEMA=0;this.d={aL:19*DEG,wL:0,aR:19*DEG,wR:0};this.fi=1;this.spillRate=0;this._sp=0;this.frameE=0;
+    this.cnt=new Float32Array(NB);this.sumZ=new Float32Array(NB);this.hS=new Float32Array(NB);this.cS=new Float32Array(NB);this.wS=new Float32Array(NB);
+    this.loadC=0;this.bias=0;this.contact=0;this.z2=new Float32Array(NB);this.pR=0;this.pL=0;this.d.aL=this.d.aR=22*DEG;
+  }
+  setMode(innov){
+    this.innov=innov;this.ps=this.ps.filter(p=>p.st==='belt'||p.st==='disch'||p.st==='spill');this.bed=0;this.zEMA=0;
+    if(this.onMode)this.onMode(innov);
+  }
+  resize(){
+    const w=this.wrap.clientWidth;if(!w)return;const dpr=Math.min(2,window.devicePixelRatio||1);
+    this.canvas.style.height=(w*VH/VW)+'px';this.canvas.width=Math.round(w*dpr);this.canvas.height=Math.round(w*VH/VW*dpr);this.k=this.canvas.width/VW;
+  }
+  /* ----- simulação ----- */
+  spawn(){
+    if(this.ps.length>1000)return;
+    const lump=Math.random()<0.28,n=lump?6:5,sh=[];
+    for(let i=0;i<n;i++)sh.push(rnd(0.72,1.15));
+    this.ps.push({st:'fall',lump,vis:lump||Math.random()<0.35,r:lump?rnd(3.6,5.4):rnd(1.8,3),c:(lump?LUMPS:FINES)[(Math.random()*5)|0],sh,a:rnd(0,6.3),
+      x:FX+rnd(-22,22),y:rnd(40,46),vx:rnd(-6,6),vy:rnd(50,90),
+      // sai do centro do chute; a "variação da carga" desloca levemente a carga para um lado
+      z:clamp(this.bias*(lump?1.2:0.7)+rnd(-7,7),-16,16)});
+  }
+  spill(p){p.st='spill';p.zs=p.zb+this.drift;p.sg=Math.sign(p.zb)||1;p.zt=rnd(86,100);p.vy=rnd(-40,0);p.y=BT-3;this.spilled++;this._sp++;}
+  update(dt){
+    const P=this.params,sp=120*P.speed;
+    this.t+=dt;this.phase+=sp*dt;this.rot+=sp*dt/BR;
+    // fatores que mudam a carga: segregação (pedras x finos), fluxo em ondas, minério diferente
+    const V=P.vari;
+    this.bias=V*(6+4*Math.sin(this.t*0.11)+3*Math.sin(this.t*0.37+1)+2*Math.sin(this.t*1.3));
+    const fi=P.flow*(1+0.25*Math.sin(this.t*0.9)+0.12*Math.sin(this.t*2.3+1));this.fi=fi;
+    this.acc+=22*Math.max(0,fi)*dt;while(this.acc>=1){this.acc-=1;this.spawn();}
+    const d=this.d;
+    if(this.innov){
+      // mais minério → o V abre; o próprio minério empurra as aletas para fora
+      const n=0.8*DEG*Math.sin(this.t*3.1)+0.5*DEG*Math.sin(this.t*5.3+2),base=22*DEG-(fi-1)*6*DEG;
+      const tL=clamp(base-this.pL*1.5*DEG+n,12*DEG,28*DEG),tR=clamp(base-this.pR*1.5*DEG-n*0.7,12*DEG,28*DEG);
+      d.wL+=(55*(tL-d.aL)-7*d.wL)*dt;d.aL+=d.wL*dt;d.wR+=(55*(tR-d.aR)-7*d.wR)*dt;d.aR+=d.wR*dt;
+    }
+    const bedY=170-this.bed*36;
+    this.cnt.fill(0);this.sumZ.fill(0);this.z2.fill(0);
+    let cR=0,cL=0,N=0,sumZ=0,E=0,cN=0,cZ=0;const out=[],ps=this.ps;
+    for(let i=ps.length-1;i>=0;i--){
+      const p=ps[i];let del=false;
+      if(p.st==='fall'){
+        p.vy+=G*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.a+=dt*3;
+        if(!p.out){
+          if(!this.innov){if(p.y<128&&Math.abs(p.x-FX)>27){p.x=FX+Math.sign(p.x-FX)*27;p.vx*=-0.3;}}
+          else{
+            if(p.y>54&&p.y<132){
+              const hw=56-32*(p.y-54)/78;
+              if(Math.abs(p.x-FX)>hw-3){p.x=FX+Math.sign(p.x-FX)*(hw-3);p.vx*=-0.2;}
+              const hz=hw/S-2;if(Math.abs(p.z)>hz)p.z=Math.sign(p.z)*hz;p.vy*=1-1.5*dt;
+            }
+            if(p.y>=bedY-2&&p.y>120){
+              del=true;
+              if(this.bed<0.8){this.bed=Math.min(0.8,this.bed+1/70);if(Math.random()<0.3)this.fx.push({x:p.x,y:bedY,z:p.z,life:1,e:0.5,col:'#ff8a65',box:1});}
+              else{
+                if(Math.random()<0.35)this.fx.push({x:p.x,y:bedY,z:p.z,life:1,e:0.6,col:'#7ee0a1',box:1});
+                // dentro da caixa pedras e finos se misturam: sai pelo centro
+                const o={st:'fall',out:true,lump:p.lump,vis:p.vis,r:p.r,c:p.c,sh:p.sh,a:p.a,x:FX+rnd(-20,20),y:rnd(180,184),vx:rnd(5,25),vy:rnd(20,50),z:rnd(-10,10)};
+                this.zEMA+=(o.z-this.zEMA)*0.05;out.push(o);
+              }
+            }
+          }
+        }
+        if(!del&&p.y>=BT-2){
+          const e=(p.vy*p.vy)/367000*(p.lump?1.6:0.7)*(p.out?0.55:1);E+=e;
+          let roll;
+          if(this.innov)roll=rnd(-1.5,1.5);
+          else roll=p.lump?Math.sign(this.bias)*Math.min(1,P.vari)*rnd(3,20)*Math.min(1.4,Math.sqrt(e))+rnd(-5,5):rnd(-5,5);
+          const zb=p.z-this.drift+roll;
+          p.st='belt';p.zb=zb;p.y=BT-2;
+          if(Math.random()<0.25)this.fx.push({x:p.x,y:BT,z:p.z,life:1,e,col:p.out?'#7ee0a1':'#ff4b3a'});
+          if(!p.out&&Math.random()<0.18)this.dust.push({x:p.x+rnd(-6,10),y:BT-6,vx:rnd(5,30),vy:rnd(-30,-12),r:rnd(6,12),life:1,max:rnd(1.4,2.4)});
+          if(Math.abs(zb)>HALF-1)this.spill(p);
+        }
+      }
+      else if(p.st==='belt'){
+        p.x+=sp*dt;
+        if(this.innov&&p.x>=X0&&p.x<=X0+60*S){
+          const u=(p.x-X0)/S;let zs=p.zb+this.drift;
+          const wR=30-u*Math.tan(d.aR),wL=30-u*Math.tan(d.aL);
+          const m=p.r/S+1;  // o minério se acomoda à face interna da aleta
+          if(u<=60*Math.cos(d.aR)&&zs>wR-m){zs=Math.max(0,wR-m);cR++;}
+          if(u<=60*Math.cos(d.aL)&&zs<-(wL-m)){zs=-Math.max(0,wL-m);cL++;}
+          p.zb=zs-this.drift;
+        }
+        if(Math.abs(p.zb)>HALF-7&&Math.random()<0.35*dt)this.spill(p);
+        else if(p.x>HEADX-2){p.st='disch';p.vx=sp*1.05+20;p.vy=-25;p.y=BT-4;}
+        else{N++;sumZ+=p.zb;const b=clamp(((p.x-TAILX)/BW)|0,0,NB-1);this.cnt[b]++;this.sumZ[b]+=p.zb;this.z2[b]+=p.zb*p.zb;if(p.x>460){cN++;cZ+=p.zb;}}
+      }
+      else if(p.st==='disch'){p.vy+=G*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.a+=dt*4;if(p.y>396||p.x>1010)del=true;}
+      else if(p.st==='spill'){
+        p.vy+=G*dt;p.y+=p.vy*dt;p.zs+=p.sg*70*dt;p.a+=dt*5;if(Math.abs(p.zs)>p.zt)p.zs=p.sg*p.zt;
+        if(p.y>=GROUND-2){this.ground.push({x:p.x,zs:p.zs,yo:rnd(0,4),c:p.c,r:p.r*0.8});if(this.ground.length>700)this.ground.shift();del=true;}
+      }
+      if(del){ps[i]=ps[ps.length-1];ps.pop();}
+    }
+    for(const o of out)ps.push(o);
+    const kp=Math.min(1,dt*3);this.pR+=(cR/(dt*60)-this.pR)*kp;this.pL+=(cL/(dt*60)-this.pL)*kp;
+    // desvio: a correia foge para o lado mais leve (realimentação lenta)
+    let target=0;
+    if(N>3){const LF=clamp(N/110,0.15,1.6);target=clamp(-0.58*(sumZ/N)*LF,-30,30);}
+    this.drift+=(target-this.drift)*Math.min(1,dt*0.2*P.speed);
+    this.loadC+=((cN>3?cZ/cN+this.drift:this.loadC)-this.loadC)*Math.min(1,dt*1.5);
+    for(let b=0;b<NB;b++){const c=this.cnt[b],k=Math.min(1,dt*4);
+      this.hS[b]+=(Math.min(15,c*3.4)-this.hS[b])*k;const m=c?this.sumZ[b]/c:0,sd=c?Math.sqrt(Math.max(0,this.z2[b]/c-m*m)):0;this.wS[b]+=((c?clamp(1.6*sd+4+c*0.6,5,46):0)-this.wS[b])*k;
+      if(c)this.cS[b]+=(this.sumZ[b]/c-this.cS[b])*k;}
+    const a=1-Math.exp(-dt/0.8);
+    this.impE+=(E/dt-this.impE)*a;this.impact=clamp(this.impE/22*85,0,100);this.frameE=E;
+    this.spillRate+=(this._sp/dt-this.spillRate)*(1-Math.exp(-dt/2));this._sp=0;
+    const ad=Math.abs(this.drift);this.contact=clamp((ad-10)/5,0,1);
+    if(this.contact>0&&Math.random()<dt*75*this.contact)this.sparks.push({x:[520,760][(Math.random()*2)|0]+rnd(-6,6),life:1,s:Math.sign(this.drift)});
+    for(const f of this.fx)f.life-=dt*2.2;
+    for(const s of this.sparks)s.life-=dt*3;
+    for(const q of this.dust){q.life-=dt/q.max;q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy*=1-dt*0.8;q.r+=dt*14;}
+    this.fx=this.fx.filter(f=>f.life>0);this.sparks=this.sparks.filter(s=>s.life>0);this.dust=this.dust.filter(q=>q.life>0);
+  }
+  get wearIdx(){return clamp(0.55*this.impact+0.45*clamp(Math.abs(this.drift)/15,0,1)*100,0,100);}
+  status(){const a=Math.abs(this.drift);return a<3?'ok':a<8?'warn':'alert';}
+  get tripped(){return Math.abs(this.drift)>10;}
+
+  /* ----- interação ----- */
+  pointer(e){
+    const r=this.canvas.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*VW,y=(e.clientY-r.top)/r.height*VH;
+    const key=this.hit(x,y);this.setHover(key);
+    if(key){const wr=this.wrap.getBoundingClientRect(),tw=this.tip.offsetWidth,th=this.tip.offsetHeight;
+      let tx=e.clientX-wr.left+14,ty=e.clientY-wr.top+14;
+      if(tx+tw>wr.width-6)tx=Math.max(6,e.clientX-wr.left-tw-14);if(ty+th>wr.height-6)ty=Math.max(6,e.clientY-wr.top-th-14);
+      this.tip.style.left=tx+'px';this.tip.style.top=ty+'px';}
+  }
+  setHover(key){
+    if(key===this.hover)return;this.hover=key;if(!key){this.tip.classList.remove('on');return;}
+    const p=PARTS[key];this.tip.innerHTML=`<b style="color:${p.col}">${p.name}</b><div class="dims">${p.dims}</div><div class="fn">${p.fn}</div>`;this.tip.classList.add('on');
+  }
+  hit(x,y){
+    const I=this.innov;
+    if(y<SPLIT){
+      if(inRect(x,y,[700,46,290,150]))return 'secao';
+      if(I){
+        if(inRect(x,y,[436,128,58,56])||inRect(x,y,[356,148,84,14]))return 'suporte';
+        if(inRect(x,y,[X0-6,150,106,98]))return 'defletores';
+        if(inRect(x,y,[244,132,112,50]))return 'stonebox';
+        if(inRect(x,y,[240,50,120,82]))return 'funil';
+        if(inRect(x,y,[226,2,148,46]))return 'chute';
+      }else if(inRect(x,y,[226,2,148,130]))return 'chute';
+      if(Math.hypot(x-560,y-206)<16)return 'giroflex';
+      if(Math.hypot(x-HEADX,y-PCY)<36||inRect(x,y,[HEADX+28,PCY-20,70,40]))return 'acion';
+      if(Math.hypot(x-TAILX,y-PCY)<36)return 'retorno';
+      if(inRect(x,y,[TAILX,BT-14,HEADX-TAILX,20]))return 'correia';
+      if(inRect(x,y,[230,251,175,18]))return 'impacto';
+      if(inRect(x,y,[150,251,700,16])||inRect(x,y,[TAILX,300,HEADX-TAILX,22]))return 'roletes';
+      if(inRect(x,y,[80,318,860,70])||(I&&inRect(x,y,[452,60,24,262]))||inRect(x,y,[555,206,10,116]))return 'estrutura';
+    }else{
+      const az=Math.abs((y-CY)/S);
+      if([520,760].some(sx=>Math.abs(sx-x)<14)&&az>=62&&az<=82)return 'chave';
+      if(I){
+        if(Math.hypot(x-464,y-zy(-96))<24)return 'suporte';
+        if(inRect(x,y,[X0-10,zy(-30)-12,108,60*S+24]))return 'defletores';
+        if(inRect(x,y,[268,zy(-10),64,20*S]))return 'stonebox';
+        if(inRect(x,y,[244,zy(-35),112,70*S]))return 'funil';
+      }else if(inRect(x,y,[268,zy(-20),64,40*S]))return 'chute';
+      if(inRect(x,y,[HEADX-28,zy(-68),56,136*S])||inRect(x,y,[HEADX-18,zy(66),36,zy(100)-zy(66)]))return 'acion';
+      if(inRect(x,y,[TAILX-28,zy(-68),56,136*S]))return 'retorno';
+      if(y>=zy(this.drift-HALF)&&y<=zy(this.drift+HALF)&&x>=TAILX&&x<=HEADX)return 'correia';
+      if(az>=RAIL&&az<=RAIL+12&&x>80&&x<920)return 'estrutura';
+      if(az<RAIL&&IDLERS.some(ix=>Math.abs(ix-x)<8))return 'roletes';
+    }
+    return null;
+  }
+  hl(key,fn){const c=this.ctx,on=this.hover===key;if(on){c.save();c.shadowColor='#ffb347';c.shadowBlur=24;}fn(on);if(on)c.restore();}
+
+  /* ----- desenho ----- */
+  draw(){
+    const c=this.ctx;c.setTransform(this.k,0,0,this.k,0,0);
+    this.drawSide(c);this.drawTop(c);
+    const g=c.createLinearGradient(0,SPLIT-3,0,SPLIT+3);g.addColorStop(0,'#2b3138');g.addColorStop(1,'#1c2026');c.fillStyle=g;c.fillRect(0,SPLIT-3,VW,6);
+    if(this.status()==='alert'){c.strokeStyle=`rgba(255,59,48,${0.4+0.35*Math.sin(this.t*7)})`;c.lineWidth=7;c.strokeRect(3.5,3.5,VW-7,VH-7);}
+  }
+  rock(c,x,y,p){
+    const n=p.sh.length,r=p.r;c.fillStyle=p.c;c.beginPath();
+    for(let i=0;i<n;i++){const a=p.a+i*6.283/n,q=r*p.sh[i];i?c.lineTo(x+Math.cos(a)*q,y+Math.sin(a)*q):c.moveTo(x+Math.cos(a)*q,y+Math.sin(a)*q);}
+    c.closePath();c.fill();
+    if(p.lump){c.fillStyle='rgba(255,235,220,.18)';c.beginPath();c.arc(x-r*0.3,y-r*0.3,r*0.38,0,7);c.fill();}
+  }
+  band(b){
+    // faixa de carga (centro, meia-largura, altura); dentro do V ela é limitada pelas aletas e fica mais alta
+    const x=TAILX+b*BW+BW/2;let cc=this.drift+this.cS[b],w=this.wS[b],h=this.hS[b];
+    if(this.innov&&w>0){const d=this.d,u=(x-X0)/S;
+      if(u>=0){const lim=a=>u<=60*Math.cos(a)?30-u*Math.tan(a):null,hi=lim(d.aR),lo=lim(d.aL);
+        let t=cc+w,bo=cc-w;if(hi!==null)t=Math.min(t,hi-0.5);if(lo!==null)bo=Math.max(bo,-(lo-0.5));
+        if(t<bo)t=bo=(t+bo)/2;const w2=Math.max(1.5,(t-bo)/2);h=Math.min(24,h*Math.sqrt(w/w2));cc=(t+bo)/2;w=w2;}}
+    return[cc,w,h];
+  }
+  streamPts(x0,y0,x1,y1,w0,w1,wob){const a=[];for(let i=0;i<=14;i++){const k=i/14,y=y0+(y1-y0)*k;a.push([x0+(x1-x0)*k+Math.sin(this.t*9+y*0.08)*wob*k,y,(w0+(w1-w0)*k)*(1+0.07*Math.sin(this.t*13+y*0.15))]);}return a;}
+  stream(c,pts){
+    // cortina contínua de minério com textura descendo
+    if(pts.length<2||pts[pts.length-1][1]<=pts[0][1])return;const off=(this.t*260)%64;
+    c.save();c.translate(0,off);c.fillStyle=this.pOre;c.beginPath();
+    pts.forEach((p,i)=>i?c.lineTo(p[0]-p[2]/2,p[1]-off):c.moveTo(p[0]-p[2]/2,p[1]-off));
+    for(let i=pts.length-1;i>=0;i--)c.lineTo(pts[i][0]+pts[i][2]/2,pts[i][1]-off);c.closePath();c.fill();
+    c.strokeStyle='rgba(0,0,0,.3)';c.lineWidth=1;c.stroke();c.restore();
+  }
+  label(c,txt,x,y){c.font='700 20px system-ui,Arial';const w=c.measureText(txt).width+18;c.fillStyle='rgba(18,21,25,.82)';rr(c,x,y,w,30,7);c.fill();c.fillStyle='#aab3bc';c.textAlign='left';c.fillText(txt,x+9,y+22);}
+  roller(c,x,y,r,dark){
+    const g=c.createRadialGradient(x-r*0.35,y-r*0.35,r*0.1,x,y,r);g.addColorStop(0,dark?'#4a4a4a':'#c9d0d6');g.addColorStop(1,dark?'#151515':'#5b646b');
+    c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();
+    const a=this.rot*BR/r;c.strokeStyle=dark?'#666':'#3f454d';c.lineWidth=1.5;c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(a)*r*0.8,y+Math.sin(a)*r*0.8);c.stroke();
+  }
+  pulley(c,x){
+    const g=c.createRadialGradient(x-7,PCY-7,3,x,PCY,24);g.addColorStop(0,'#7a838c');g.addColorStop(1,'#2e343a');
+    c.fillStyle=g;c.beginPath();c.arc(x,PCY,23,0,Math.PI*2);c.fill();
+    c.strokeStyle='#8e98a1';c.lineWidth=3;for(let i=0;i<5;i++){const a=this.rot+i*Math.PI*2/5;c.beginPath();c.moveTo(x+Math.cos(a)*6,PCY+Math.sin(a)*6);c.lineTo(x+Math.cos(a)*19,PCY+Math.sin(a)*19);c.stroke();}
+    c.fillStyle='#b9c1c8';c.beginPath();c.arc(x,PCY,6,0,Math.PI*2);c.fill();c.fillStyle='#ffb020';c.beginPath();c.arc(x+Math.cos(this.rot)*15,PCY+Math.sin(this.rot)*15,2.5,0,7);c.fill();
+  }
+  tag(c,x,y,n,bg,fg){c.fillStyle=bg;c.beginPath();c.arc(x,y,13,0,Math.PI*2);c.fill();c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=1.5;c.stroke();c.fillStyle=fg;c.font='800 16px system-ui';c.textAlign='center';c.fillText(n,x,y+6);}
+  drawSide(c){
+    const I=this.innov;
+    c.save();c.beginPath();c.rect(0,0,VW,SPLIT);c.clip();
+    const g=c.createLinearGradient(0,0,0,GROUND);g.addColorStop(0,'#1f262e');g.addColorStop(.7,'#262a2f');g.addColorStop(1,'#3a2a22');c.fillStyle=g;c.fillRect(0,0,VW,GROUND);
+    // morros da mina ao fundo
+    c.fillStyle='rgba(110,58,34,.28)';c.beginPath();c.moveTo(0,GROUND);c.lineTo(0,330);c.lineTo(80,330);c.lineTo(120,312);c.lineTo(220,312);c.lineTo(260,296);c.lineTo(420,296);c.lineTo(460,314);c.lineTo(600,314);c.lineTo(640,300);c.lineTo(820,300);c.lineTo(860,320);c.lineTo(1000,320);c.lineTo(1000,GROUND);c.fill();
+    c.fillStyle=this.pGround;c.fillRect(0,GROUND,VW,SPLIT-GROUND);
+    this.hl('estrutura',()=>{
+      if(I)steel(c,452,60,24,262);
+      steel(c,80,318,860,14);c.fillStyle='rgba(255,255,255,.12)';c.fillRect(80,318,860,2);
+      for(const x of[150,500,850]){steel(c,x-6,332,12,GROUND-332);c.fillStyle='#3a4148';c.fillRect(x-14,GROUND-4,28,5);}
+      steel(c,557,206,6,112,'dark');
+    });
+    this.hl('roletes',()=>{
+      c.strokeStyle='#4b525b';c.lineWidth=3;
+      for(const x of IDLERS){c.beginPath();c.moveTo(x,264);c.lineTo(x,318);c.stroke();}
+      for(const x of IDLERS)this.roller(c,x,258,7.5);
+      for(const x of[300,700]){c.beginPath();c.moveTo(x,318);c.lineTo(x,306);c.stroke();this.roller(c,x,312,6.5);}
+    });
+    this.hl('impacto',()=>{c.strokeStyle='#4b525b';c.lineWidth=3;for(const x of IMPACT){c.beginPath();c.moveTo(x,264);c.lineTo(x,318);c.stroke();this.roller(c,x,258,8,true);}});
+    this.hl('correia',()=>{
+      c.beginPath();c.moveTo(TAILX,PCY-BR);c.lineTo(HEADX,PCY-BR);c.arc(HEADX,PCY,BR,-Math.PI/2,Math.PI/2);c.lineTo(TAILX,PCY+BR);c.arc(TAILX,PCY,BR,Math.PI/2,Math.PI*1.5);
+      c.strokeStyle='#0c0c0c';c.lineWidth=8;c.stroke();
+      c.setLineDash([5,35]);c.lineDashOffset=-this.phase;c.strokeStyle='#363636';c.lineWidth=3;c.stroke();c.setLineDash([]);
+      c.strokeStyle='rgba(255,255,255,.08)';c.lineWidth=1.5;c.beginPath();c.moveTo(TAILX,PCY-BR-3.5);c.lineTo(HEADX,PCY-BR-3.5);c.stroke();
+    });
+    this.hl('retorno',()=>this.pulley(c,TAILX));
+    this.hl('acion',()=>{
+      this.pulley(c,HEADX);
+      c.strokeStyle='#8a929c';c.lineWidth=5;c.beginPath();c.moveTo(HEADX,PCY);c.lineTo(HEADX+30,PCY);c.stroke();
+      steel(c,HEADX+28,PCY-15,22,30,'dark');
+      const mg=c.createLinearGradient(0,PCY-18,0,PCY+18);mg.addColorStop(0,'#4caf50');mg.addColorStop(.5,'#2f7d32');mg.addColorStop(1,'#1b4d1e');
+      c.fillStyle=mg;rr(c,HEADX+50,PCY-18,46,36,6);c.fill();c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=1;for(let i=0;i<5;i++){c.beginPath();c.moveTo(HEADX+56+i*8,PCY-15);c.lineTo(HEADX+56+i*8,PCY+15);c.stroke();}
+    });
+    // leito contínuo de minério sobre a correia
+    c.fillStyle=this.pOre;c.beginPath();c.moveTo(TAILX,BT);
+    for(let b=0;b<NB;b++)c.lineTo(TAILX+b*BW+BW/2,BT-this.band(b)[2]);
+    c.lineTo(HEADX,BT);c.closePath();c.fill();
+    // silo de alimentação (comum aos dois modos) e chute vertical
+    this.hl('chute',()=>{
+      const hg=c.createLinearGradient(230,0,370,0);hg.addColorStop(0,'#4a525b');hg.addColorStop(.5,'#6d767f');hg.addColorStop(1,'#3a4048');
+      c.fillStyle=hg;c.beginPath();c.moveTo(226,4);c.lineTo(374,4);c.lineTo(332,46);c.lineTo(268,46);c.closePath();c.fill();
+      c.strokeStyle='#8e98a1';c.lineWidth=1.5;c.stroke();
+      c.fillStyle=this.pOre;c.beginPath();c.moveTo(236,8);c.quadraticCurveTo(300,-14,364,8);c.closePath();c.fill();
+      if(!I){
+        c.fillStyle='rgba(30,34,39,.85)';c.fillRect(270,46,60,82);
+        steel(c,264,46,7,82);steel(c,329,46,7,82);
+        c.fillStyle='#8e98a1';for(let yy=56;yy<128;yy+=14){c.fillRect(266,yy,3,3);c.fillRect(331,yy,3,3);}
+      }
+    });
+    const fw=10+14*clamp(this.fi,0.1,2.2);
+    if(!I){this.stream(c,this.streamPts(FX,46,FX,128,fw,fw,0));this.stream(c,this.streamPts(FX,128,FX,BT-1,fw,fw*0.7,3));}
+    else this.stream(c,this.streamPts(FX,46,FX,132,fw,Math.min(fw,40),1));
+    if(I){
+      this.hl('funil',on=>{
+        c.fillStyle='rgba(95,104,115,.3)';c.beginPath();c.moveTo(244,54);c.lineTo(356,54);c.lineTo(324,132);c.lineTo(276,132);c.closePath();c.fill();
+        c.strokeStyle=on?'#d6dde3':'#6f7984';c.lineWidth=7;c.lineCap='round';c.beginPath();c.moveTo(244,54);c.lineTo(276,132);c.moveTo(356,54);c.lineTo(324,132);c.stroke();c.lineCap='butt';
+      });
+      this.hl('stonebox',()=>{
+        const bg=c.createLinearGradient(0,132,0,180);bg.addColorStop(0,'#e53935');bg.addColorStop(1,'#a51f1f');c.fillStyle=bg;rr(c,244,132,112,48,4);c.fill();
+        c.fillStyle='#3a1414';c.fillRect(268,132,64,38);c.fillRect(276,170,48,10);
+        const by=170-this.bed*36;
+        if(this.bed>0){c.fillStyle=this.pOre;c.beginPath();c.moveTo(268,170);c.lineTo(268,by+3);c.quadraticCurveTo(300,by-5,332,by+3);c.lineTo(332,170);c.fill();}
+        c.strokeStyle='rgba(255,180,180,.6)';c.lineWidth=1.5;rr(c,244,132,112,48,4);c.stroke();
+      });
+    }
+    if(I){const by=170-this.bed*36,w2=Math.min(fw,40);this.stream(c,this.streamPts(FX,132,FX,by,w2,w2*0.9,0));
+      if(this.bed>=0.8)this.stream(c,this.streamPts(FX,180,FX+14,BT-1,fw*0.75,fw*0.6,2));}
+    for(const p of this.ps){
+      if(!p.vis&&p.st!=='spill')continue;
+      if(p.st==='belt'){const b=clamp(((p.x-TAILX)/BW)|0,0,NB-1),h=this.band(b)[2];this.rock(c,p.x,BT-2-Math.min(h,(p.lump?0.9:0.6)*h+1),p);}
+      else this.rock(c,p.x,p.y,p);
+    }
+    for(const q of this.ground){c.fillStyle=q.c;c.fillRect(q.x-q.r,GROUND-q.yo-q.r*0.8,q.r*2,q.r*1.4);}
+    for(const q of this.dust){const gg=c.createRadialGradient(q.x,q.y,0,q.x,q.y,q.r);gg.addColorStop(0,`rgba(170,130,105,${0.3*q.life})`);gg.addColorStop(1,'rgba(170,130,105,0)');c.fillStyle=gg;c.beginPath();c.arc(q.x,q.y,q.r,0,7);c.fill();}
+    for(const f of this.fx){c.strokeStyle=f.col;c.globalAlpha=f.life*Math.min(1,0.35+f.e);c.lineWidth=2.5;c.beginPath();c.arc(f.x,f.y,(1-f.life)*26*Math.min(1.4,0.4+f.e)+3,0,Math.PI*2);c.stroke();}
+    c.globalAlpha=1;
+    for(const s of this.sparks){c.fillStyle=`rgba(255,190,70,${s.life})`;c.fillRect(s.x+rnd(-4,4),BT+rnd(-3,5),3,3);}
+    if(I){
+      const d=this.d,len=60*S*Math.cos((d.aL+d.aR)/2);
+      this.hl('defletores',()=>{
+        steel(c,X0+2,150,10,44);
+        c.globalAlpha=.6;const yg=c.createLinearGradient(0,190,0,244);yg.addColorStop(0,'#ffd54f');yg.addColorStop(1,'#e6a800');c.fillStyle=yg;rr(c,X0,190,len,54,3);c.fill();c.globalAlpha=1;
+        c.strokeStyle='#7a5d00';c.lineWidth=2;rr(c,X0,190,len,54,3);c.stroke();
+        c.fillStyle='#c7ced6';c.beginPath();c.arc(X0+7,198,8,0,Math.PI*2);c.fill();c.fillStyle='#555';c.beginPath();c.arc(X0+7,198,3,0,Math.PI*2);c.fill();
+      });
+      this.hl('suporte',()=>{
+        const bg=c.createLinearGradient(0,128,0,184);bg.addColorStop(0,'#42a5f5');bg.addColorStop(1,'#1565c0');c.fillStyle=bg;
+        c.fillRect(356,148,86,11);rr(c,438,128,52,52,5);c.fill();c.strokeStyle='#90caf9';c.lineWidth=1.5;rr(c,438,128,52,52,5);c.stroke();
+        c.fillStyle='#c7ced6';c.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3;c.lineTo(464+8*Math.cos(a),154+8*Math.sin(a));}c.fill();c.fillStyle='#555';c.beginPath();c.arc(464,154,3,0,Math.PI*2);c.fill();
+      });
+      this.hl('funil',()=>{c.strokeStyle='#9aa3ad';c.lineWidth=2;c.beginPath();c.moveTo(240,54);c.lineTo(360,54);c.stroke();});
+      this.tag(c,226,80,'1','#5f6873','#fff');this.tag(c,226,156,'2','#d32f2f','#fff');this.tag(c,X0+len+18,216,'3','#ffc400','#111');this.tag(c,510,140,'4','#1e88e5','#fff');
+      c.font='600 16px system-ui';c.textAlign='left';
+      if(this.bed<0.8){c.fillStyle='#ffb020';c.fillText('formando colchão… '+Math.round(this.bed/0.8*100)+'%',372,112);}
+      else{c.fillStyle='#7ee0a1';c.fillText('colchão formado: minério bate em minério',372,112);}
+    }else{
+      c.font='700 17px system-ui';c.textAlign='left';c.fillStyle='#ff8a80';
+      c.fillText('cai reto, mas de muito alto',345,150);c.fillText('impacto forte!',405,222);
+    }
+    this.hl('giroflex',()=>{
+      const al=this.status()==='alert',on=al&&Math.sin(this.t*12)>0;
+      if(on){const gg=c.createRadialGradient(560,200,2,560,200,46);gg.addColorStop(0,'rgba(255,150,0,.55)');gg.addColorStop(1,'rgba(255,150,0,0)');c.fillStyle=gg;c.beginPath();c.arc(560,200,46,0,7);c.fill();}
+      c.fillStyle=on?'#ffb020':al?'#c77700':'#6a5326';c.beginPath();c.arc(560,203,9,Math.PI,0);c.fill();c.fillRect(551,203,18,4);
+    });
+    this.drawSection(c);
+    c.font='600 16px system-ui';c.fillStyle='#7c8690';c.textAlign='right';c.fillText('sentido da correia →',HEADX-20,372);
+    this.label(c,'VISTA LATERAL',10,10);
+    const txt=I?'COM INOVAÇÃO':'SEM INOVAÇÃO';c.font='800 18px system-ui,Arial';const tw=c.measureText(txt).width+26;
+    rr(c,10,46,tw,30,15);c.fillStyle=I?'#2ecc71':'#ff3b30';c.fill();c.fillStyle=I?'#06210f':'#fff';c.textAlign='center';c.fillText(txt,10+tw/2,67);
+    c.restore();
+  }
+  drawSection(c){
+    // corte transversal da correia no meio do percurso
+    const ox=845,oy=150,k=1.9,on=this.hover==='secao';
+    c.fillStyle='rgba(16,19,23,.88)';rr(c,700,46,290,150,10);c.fill();c.strokeStyle=on?'#ffb347':'#3a434c';c.lineWidth=on?2.5:1.5;rr(c,700,46,290,150,10);c.stroke();
+    c.font='700 13px system-ui';c.fillStyle='#9aa4ae';c.textAlign='left';c.fillText('SEÇÃO DA CORREIA',712,66);
+    const ang=35*DEG,ca=Math.cos(ang),sa=Math.sin(ang);
+    const prof=u=>{const au=Math.abs(u);if(au<=20)return[u,0];const d=au-20;return[Math.sign(u)*(20+d*ca),-d*sa];};
+    c.lineCap='round';c.strokeStyle='#8a949c';c.lineWidth=7;
+    c.beginPath();c.moveTo(ox-19*k,oy+6);c.lineTo(ox+19*k,oy+6);c.stroke();
+    for(const s of[-1,1]){const p1=prof(s*21),p2=prof(s*58);c.beginPath();c.moveTo(ox+p1[0]*k+s*3,oy+6-p1[1]*k);c.lineTo(ox+p2[0]*k+s*3,oy+6-p2[1]*k+2);c.stroke();}
+    c.lineCap='butt';c.fillStyle='#6b7780';c.fillRect(ox-75*k,oy+12,6,30);c.fillRect(ox+75*k-6,oy+12,6,30);c.fillRect(ox-75*k,oy+38,150*k,5);
+    // correia deslocada pelo desvio (escorrega sobre os roletes)
+    const dr=this.drift,pts=[];for(let u=-60;u<=60;u+=4){const p=prof(u+dr);pts.push([ox+p[0]*k,oy-p[1]*k]);}
+    let H=0;for(let b=40;b<60;b++)H+=this.hS[b];H=H/20*1.7;
+    const cc=clamp(this.loadC-dr,-40,40);
+    if(H>0.5){c.fillStyle=this.pOre;c.beginPath();
+      for(let u=-50;u<=50;u+=2){const p=prof(u+dr),h=H*Math.max(0,1-Math.pow((u-cc)/34,2));const x=ox+p[0]*k,y=oy-p[1]*k-h*1.4;u===-50?c.moveTo(x,y):c.lineTo(x,y);}
+      for(let u=50;u>=-50;u-=2){const p=prof(u+dr);c.lineTo(ox+p[0]*k,oy-p[1]*k);}c.fill();}
+    c.strokeStyle='#0b0b0b';c.lineWidth=5;c.lineJoin='round';c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.stroke();
+    c.setLineDash([5,4]);c.strokeStyle='#ff7a00';c.lineWidth=2;c.beginPath();c.moveTo(ox,74);c.lineTo(ox,oy+40);c.stroke();
+    c.strokeStyle='rgba(255,255,255,.6)';c.lineWidth=1.5;c.beginPath();c.moveTo(ox+dr*k,84);c.lineTo(ox+dr*k,oy+4);c.stroke();c.setLineDash([]);
+    const st=this.status(),col=st==='ok'?'#2ecc71':st==='warn'?'#ffb020':'#ff3b30';
+    c.font='800 14px system-ui';c.textAlign='right';c.fillStyle=col;c.fillText('desvio '+fmt(dr)+' mm',982,66);
+  }
+  drawTop(c){
+    const I=this.innov,dr=this.drift;
+    c.save();c.beginPath();c.rect(0,SPLIT,VW,VH-SPLIT);c.clip();
+    c.fillStyle=this.pGround;c.fillRect(0,SPLIT,VW,VH-SPLIT);c.fillStyle='rgba(20,22,26,.45)';c.fillRect(0,SPLIT,VW,VH-SPLIT);
+    for(const q of this.ground){c.fillStyle=q.c;c.fillRect(q.x-q.r,zy(q.zs)-q.r,q.r*2,q.r*2);}
+    this.hl('estrutura',()=>{steel(c,80,zy(-RAIL-10),840,10*S);steel(c,80,zy(RAIL),840,10*S);if(I)steel(c,452,zy(-96)-12,24,24);});
+    this.hl('roletes',()=>{for(const x of IDLERS)steel(c,x-6,zy(-RAIL),12,RAIL*2*S,'dark');});
+    this.hl('impacto',()=>{c.fillStyle='#1d1d1d';for(const x of IMPACT)c.fillRect(x-6,zy(-RAIL),12,RAIL*2*S);});
+    this.hl('retorno',()=>steel(c,TAILX-24,zy(-68),48,136*S,'dark'));
+    this.hl('acion',()=>{steel(c,HEADX-24,zy(-68),48,136*S,'dark');c.fillStyle='#8a929c';c.fillRect(HEADX-4,zy(66),8,zy(76)-zy(66));
+      const mg=c.createLinearGradient(HEADX-18,0,HEADX+18,0);mg.addColorStop(0,'#1b4d1e');mg.addColorStop(.5,'#3d9440');mg.addColorStop(1,'#1b4d1e');c.fillStyle=mg;rr(c,HEADX-18,zy(76),36,zy(100)-zy(76),5);c.fill();});
+    const st=this.status();
+    this.hl('correia',()=>{
+      const y0=zy(dr-HALF),h=HALF*2*S,bg=c.createLinearGradient(0,y0,0,y0+h);
+      bg.addColorStop(0,'#262626');bg.addColorStop(.3,'#121212');bg.addColorStop(.7,'#121212');bg.addColorStop(1,'#262626');
+      c.fillStyle=bg;c.fillRect(TAILX,y0,HEADX-TAILX,h);
+      c.strokeStyle='rgba(255,255,255,.05)';c.lineWidth=1;c.beginPath();c.moveTo(TAILX,y0+h*0.3);c.lineTo(HEADX,y0+h*0.3);c.moveTo(TAILX,y0+h*0.7);c.lineTo(HEADX,y0+h*0.7);c.stroke();
+      c.strokeStyle='#1e1e1e';c.lineWidth=3;c.beginPath();for(let x=TAILX+(this.phase%40);x<HEADX;x+=40){c.moveTo(x,y0+3);c.lineTo(x,y0+h-3);}c.stroke();
+      c.strokeStyle=st==='alert'?'#ff3b30':st==='warn'?'#ffb020':'#3a3f45';c.lineWidth=3;
+      c.beginPath();c.moveTo(TAILX,y0+1.5);c.lineTo(HEADX,y0+1.5);c.moveTo(TAILX,y0+h-1.5);c.lineTo(HEADX,y0+h-1.5);c.stroke();
+    });
+    // faixa contínua de minério
+    const top=[],bot=[];
+    for(let b=0;b<NB;b++){if(this.wS[b]<1)continue;const x=TAILX+b*BW+BW/2,B=this.band(b);top.push([x,zy(B[0]-B[1])]);bot.push([x,zy(B[0]+B[1])]);}
+    if(top.length>1){c.fillStyle=this.pOre;c.beginPath();c.moveTo(top[0][0],top[0][1]);for(const p of top)c.lineTo(p[0],p[1]);for(let i=bot.length-1;i>=0;i--)c.lineTo(bot[i][0],bot[i][1]);c.closePath();c.fill();c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=1.5;c.stroke();}
+    c.setLineDash([14,10]);c.strokeStyle='rgba(255,122,0,.9)';c.lineWidth=2;c.beginPath();c.moveTo(60,CY);c.lineTo(940,CY);c.stroke();c.setLineDash([]);
+    for(const p of this.ps){if((p.st==='belt'||p.st==='disch')&&p.vis)this.rock(c,p.x,zy(p.zb+dr),p);else if(p.st==='spill')this.rock(c,p.x,zy(p.zs),p);}
+    this.hl('chave',()=>{for(const sx of[520,760])for(const s of[-1,1]){const push=clamp((s*dr-8)/4,0,1),zz=s*(HALF+6-push*2);
+      c.fillStyle='#f2c200';rr(c,sx-9,zy(s*76)-7,18,14,3);c.fill();c.fillStyle=push>0.5?'#ff3b30':'#2ecc71';c.beginPath();c.arc(sx,zy(s*76),3.5,0,7);c.fill();
+      c.strokeStyle='#9aa3ad';c.lineWidth=3;c.beginPath();c.moveTo(sx,zy(s*72));c.lineTo(sx+push*6,zy(zz));c.stroke();c.fillStyle='#cfd5da';c.beginPath();c.arc(sx+push*6,zy(zz),4.5,0,7);c.fill();}});
+    for(const s of this.sparks){const y=zy(dr+s.s*HALF);c.strokeStyle=`rgba(255,190,70,${s.life})`;c.lineWidth=2;c.beginPath();for(let i=0;i<3;i++){const a=rnd(0,Math.PI*2);c.moveTo(s.x,y);c.lineTo(s.x+Math.cos(a)*9,y+Math.sin(a)*9);}c.stroke();}
+    if(I){
+      const d=this.d;
+      this.hl('defletores',()=>{for(const sd of[-1,1]){const a=sd<0?d.aL:d.aR,px=X0,py=zy(sd*30),ex=px+Math.cos(a)*60*S,ey=py-sd*Math.sin(a)*60*S,t=8*S,ox=Math.sin(a)*t,oy=sd*Math.cos(a)*t;
+        c.fillStyle='#ffc400';c.strokeStyle='#7a5d00';c.lineWidth=2;c.beginPath();c.moveTo(px,py);c.lineTo(ex,ey);c.lineTo(ex+ox,ey+oy);c.lineTo(px+ox,py+oy);c.closePath();c.fill();c.stroke();
+        c.fillStyle='#c7ced6';c.beginPath();c.arc(px,py+oy/2,8,0,Math.PI*2);c.fill();c.fillStyle='#555';c.beginPath();c.arc(px,py+oy/2,3,0,Math.PI*2);c.fill();}});
+      this.hl('stonebox',()=>{c.fillStyle='#d32f2f';rr(c,244,zy(-25),112,50*S,4);c.fill();c.fillStyle=this.bed>0.05?this.pOre:'#3a1414';c.fillRect(268,zy(-10),64,20*S);});
+      this.hl('funil',()=>{c.fillStyle='rgba(95,104,115,.62)';c.fillRect(244,zy(-35),112,70*S);c.strokeStyle='#a6afb8';c.lineWidth=2;c.strokeRect(244,zy(-35),112,70*S);c.strokeRect(276,zy(-15),48,30*S);
+        c.beginPath();c.moveTo(244,zy(-35));c.lineTo(276,zy(-15));c.moveTo(356,zy(-35));c.lineTo(324,zy(-15));c.moveTo(244,zy(35));c.lineTo(276,zy(15));c.moveTo(356,zy(35));c.lineTo(324,zy(15));c.stroke();});
+      for(const p of this.ps)if(p.st==='fall'&&p.lump)this.rock(c,p.x,zy(p.z),p);
+      this.hl('suporte',()=>{c.strokeStyle='#1e88e5';c.lineWidth=9;c.lineCap='round';c.beginPath();c.moveTo(464,zy(-96));c.lineTo(356,zy(-25));c.stroke();c.lineCap='butt';
+        c.lineWidth=6;c.beginPath();c.moveTo(447,zy(-96)-16);c.lineTo(447,zy(-96)+16);c.lineTo(481,zy(-96)+16);c.lineTo(481,zy(-96)-16);c.stroke();c.fillStyle='#c7ced6';c.beginPath();c.arc(464,zy(-96),5,0,Math.PI*2);c.fill();});
+    }else{
+      const fw=10+14*clamp(this.fi,0.1,2.2),bz=clamp(this.bias*0.8,-14,14);
+      c.save();c.globalAlpha=.9;c.fillStyle=this.pOre;c.beginPath();c.ellipse(FX,zy(bz),fw*0.55,(10+Math.abs(this.bias)*0.4)*S,0,0,7);c.fill();c.restore();
+      for(const p of this.ps)if(p.st==='fall'&&p.lump)this.rock(c,p.x,zy(p.z),p);
+      this.hl('chute',()=>{c.strokeStyle='#8e98a1';c.lineWidth=5;c.strokeRect(270,zy(-18),60,36*S);c.fillStyle='rgba(60,66,73,.35)';c.fillRect(270,zy(-18),60,36*S);});
+      c.font='700 16px system-ui';c.textAlign='left';c.fillStyle='#ffb3ab';c.fillText('cai no centro, mas a carga não fica igual',340,zy(-50));
+    }
+    for(const f of this.fx){if(f.box)continue;c.strokeStyle=f.col;c.globalAlpha=f.life*Math.min(1,0.35+f.e);c.lineWidth=2;c.beginPath();c.arc(f.x,zy(f.z),(1-f.life)*18*Math.min(1.4,0.4+f.e)+2,0,Math.PI*2);c.stroke();}
+    c.globalAlpha=1;
+    const gx=962,col=st==='alert'?'#ff3b30':st==='warn'?'#ffb020':'#2ecc71';
+    c.strokeStyle='#4b525b';c.lineWidth=4;c.beginPath();c.moveTo(gx,zy(-32));c.lineTo(gx,zy(32));c.stroke();
+    c.strokeStyle='#ff7a00';c.lineWidth=2;c.beginPath();c.moveTo(gx-10,CY);c.lineTo(gx+10,CY);c.stroke();
+    const my=zy(clamp(dr,-30,30));c.fillStyle=col;c.beginPath();c.moveTo(gx-16,my);c.lineTo(gx-4,my-8);c.lineTo(gx-4,my+8);c.closePath();c.fill();
+    c.font='800 17px system-ui';c.textAlign='center';c.fillStyle=col;c.fillText(fmt(dr)+' mm',gx-8,zy(32)+24);
+    c.fillStyle='#9aa4ae';c.font='600 14px system-ui';c.fillText('desvio',gx-8,zy(-32)-10);
+    this.label(c,'VISTA DE CIMA',10,SPLIT+10);
+    c.restore();
+  }
+  audioState(){return{running:this.params.running,speed:this.params.speed*4,impact:this.impact,innov:this.innov,E:this.params.running?this.frameE*60*(this.innov?0.35:1):0,contact:this.contact,status:this.status()};}
+}
+
+/* ================= indicadores ================= */
+function buildIndicators(el){
+  el.innerHTML=`
+  <div class="ind" data-k="alert"><span class="lbl">Alerta de desalinhamento</span><span class="pill">—</span><span class="sub">—</span></div>
+  <div class="ind" data-k="drift"><span class="lbl">Desvio da correia</span><b class="val">0,0 mm</b><span class="sub">—</span><div class="cbar"><i></i></div></div>
+  <div class="ind" data-k="load"><span class="lbl">Centro da carga</span><b class="val">—</b><span class="sub">—</span><div class="cbar"><i></i></div></div>
+  <div class="ind" data-k="spill"><span class="lbl">Material derramado</span><b class="val">0 g</b><span class="sub">—</span><div class="bar"><i></i></div></div>
+  <div class="ind" data-k="impact"><span class="lbl">Impacto na correia</span><b class="val">0%</b><span class="sub">—</span><div class="bar"><i></i></div></div>
+  <div class="ind" data-k="bed"><span class="lbl">Colchão na stone box</span><b class="val">—</b><span class="sub">—</span><div class="bar"><i></i></div></div>
+  <div class="ind" data-k="defl"><span class="lbl">Ângulo das aletas (E / D)</span><b class="val">—</b><span class="sub">—</span></div>`;
+  const q=k=>el.querySelector(`[data-k="${k}"]`);
+  return{alert:q('alert'),drift:q('drift'),load:q('load'),spill:q('spill'),impact:q('impact'),bed:q('bed'),defl:q('defl')};
+}
+function setInd(n,cls,val,sub,bar,cb){
+  n.className='ind '+(cls||'');
+  const v=n.querySelector('.val');if(v&&val!=null)v.textContent=val;
+  const s=n.querySelector('.sub');if(s&&sub!=null)s.textContent=sub;
+  const b=n.querySelector('.bar i');if(b&&bar!=null)b.style.width=clamp(bar,0,100)+'%';
+  const c=n.querySelector('.cbar i');if(c&&cb!=null)c.style.left=clamp(50+cb*50,3,97)+'%';
+}
+const sgn=v=>(v<-0.05?'−':v>0.05?'+':'')+fmt(Math.abs(v));
+function updateIndicators(sim,R){
+  const dr=sim.drift,ad=Math.abs(dr),st=sim.status();
+  R.alert.className='ind '+st;R.alert.querySelector('.pill').textContent=st==='ok'?'ALINHADA':st==='warn'?'ATENÇÃO':'DESALINHADA';
+  R.alert.querySelector('.sub').textContent=st==='ok'?'correia no eixo':st==='warn'?'correia começando a desviar':(sim.tripped?'chave de desalinhamento acionada!':'correia fora do eixo');
+  setInd(R.drift,st,sgn(dr)+' mm',ad<0.5?'no centro':dr<0?'para o lado esquerdo':'para o lado direito',null,dr/30);
+  const lc=sim.loadC,al=Math.abs(lc);
+  setInd(R.load,al<4?'ok':al<10?'warn':'alert',sgn(lc)+' mm',al<4?'carga equilibrada':'um lado mais pesado',null,lc/30);
+  const sr=sim.spillRate*G_PER*60;
+  setInd(R.spill,sr<5?'ok':sr<40?'warn':'alert',fmt(sim.spilled*G_PER,0)+' g','≈ '+fmt(sr,0)+' g/min agora',sr/150*100);
+  const im=sim.impact;setInd(R.impact,im<35?'ok':im<60?'warn':'alert',fmt(im,0)+'%',im<35?'impacto baixo':im<60?'impacto moderado':'impacto forte',im);
+  if(sim.innov){const b=sim.bed/0.8*100;setInd(R.bed,b>=100?'ok':'warn',fmt(b,0)+'%',b>=100?'minério bate em minério':'enchendo a caixa…',b);
+    setInd(R.defl,'ok',fmt(sim.d.aL/DEG,0)+'° / '+fmt(sim.d.aR/DEG,0)+'°','autoajuste pelo fluxo');}
+  else{setInd(R.bed,'','—','sem stone box',0);setInd(R.defl,'','—','sem aletas');}
+}
+
+/* ================= controles ================= */
+function buildControls(el,params,sims,withToggle){
+  el.innerHTML=`
+    <button class="btn primary play" type="button"></button>
+    ${withToggle?'<button class="btn tog" type="button"></button>':''}
+    <button class="btn reset" type="button">↺ Reiniciar</button>
+    <label class="rng"><span>Velocidade da correia <output class="ov"></output></span><input class="sp" type="range" min="0.3" max="2" step="0.1" value="${params.speed}"></label>
+    <label class="rng"><span>Vazão de minério <output class="of"></output></span><input class="fl" type="range" min="0.2" max="2" step="0.1" value="${params.flow}"></label>
+    <label class="rng"><span>Variação da carga <output class="ovr"></output></span><input class="vr" type="range" min="0" max="2" step="0.1" value="${params.vari}"></label>`;
+  const q=s=>el.querySelector(s),play=q('.play'),sp=q('.sp'),fl=q('.fl'),vr=q('.vr'),tog=q('.tog');
+  const sync=()=>{
+    play.textContent=params.running?'⏸ Pausar':'▶ Iniciar';
+    q('.ov').textContent=fmt(params.speed*0.3,2)+' m/s';q('.of').textContent='≈ '+fmt(22*params.flow*G_PER,0)+' g/s';
+    q('.ovr').textContent=params.vari<0.3?'quase nenhuma':params.vari<0.8?'pequena':params.vari<1.4?'normal':'grande';
+    if(tog){const on=sims[0].innov;tog.textContent=on?'✓ Com inovação (desativar)':'✗ Sem inovação (ativar inovação)';tog.className='btn tog '+(on?'on':'off');}
+  };
+  play.onclick=()=>{params.running=!params.running;sync();};
+  q('.reset').onclick=()=>sims.forEach(s=>s.reset());
+  sp.oninput=()=>{params.speed=+sp.value;sync();};fl.oninput=()=>{params.flow=+fl.value;sync();};vr.oninput=()=>{params.vari=+vr.value;sync();};
+  if(tog)tog.onclick=()=>sims[0].setMode(!sims[0].innov);
+  sims.forEach(s=>s.onMode=sync);sync();
+}
+
+/* ================= comparação ================= */
+function buildCompare(el){
+  const items=[['drift','Desvio da correia'],['load','Centro da carga'],['spill','Material derramado'],['impact','Impacto na correia'],['wear','Desgaste (índice)'],['stops','Paradas p/ manutenção']];
+  el.innerHTML=items.map(([k,t])=>`<div class="card" data-k="${k}"><h4>${t}</h4><div class="row"><small>Sem inovação</small><span class="bad">—</span></div><div class="row"><small>Com inovação</small><span class="good">—</span></div><span class="red">—</span></div>`).join('');
+  const R={};items.forEach(([k])=>R[k]=el.querySelector(`[data-k="${k}"]`));return R;
+}
+function red(a,b){if(a<=0.01)return '—';const r=Math.round((1-b/a)*100);return r>0?`redução de ${r}%`:'sem diferença';}
+function updateCompare(A,B,R){
+  const put=(k,va,vb,ra,rb)=>{const n=R[k];n.querySelector('.bad').textContent=va;n.querySelector('.good').textContent=vb;n.querySelector('.red').textContent=red(ra,rb);};
+  const da=Math.abs(A.drift),db=Math.abs(B.drift);put('drift',fmt(da)+' mm',fmt(db)+' mm',da,db);
+  const la=Math.abs(A.loadC),lb=Math.abs(B.loadC);put('load',fmt(la)+' mm',fmt(lb)+' mm',la,lb);
+  put('spill',fmt(A.spilled*G_PER,0)+' g',fmt(B.spilled*G_PER,0)+' g',A.spilled,B.spilled);
+  put('impact',fmt(A.impact,0)+'%',fmt(B.impact,0)+'%',A.impact,B.impact);
+  const wa=A.wearIdx,wb=B.wearIdx;put('wear',fmt(wa,0)+' / 100',fmt(wb,0)+' / 100',wa,wb);
+  const pa=Math.max(1,Math.round(1+wa/14)),pb=Math.max(1,Math.round(1+wb/14));put('stops','≈ '+pa+' por mês','≈ '+pb+' por mês',pa,pb);
+}
+
+/* ================= áudio (sintetizado no navegador) ================= */
+const AU={ctx:null,on:false,duck:1,
+  init(){
+    const C=this.ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const comp=C.createDynamicsCompressor();comp.connect(C.destination);
+    const m=this.master=C.createGain();m.gain.value=0;m.connect(comp);
+    const nb=this.nb=C.createBuffer(1,C.sampleRate*2,C.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+    const bb=C.createBuffer(1,C.sampleRate*2,C.sampleRate),bd=bb.getChannelData(0);let last=0;for(let i=0;i<bd.length;i++){last=(last+0.02*(Math.random()*2-1))/1.02;bd[i]=last*3.5;}
+    const src=b=>{const s=C.createBufferSource();s.buffer=b;s.loop=true;s.start();return s;};
+    const gain=(v,to)=>{const g=C.createGain();g.gain.value=v;g.connect(to||m);return g;};
+    const filt=(type,f,q,to)=>{const b=C.createBiquadFilter();b.type=type;b.frequency.value=f;if(q)b.Q.value=q;b.connect(to);return b;};
+    this.gM=gain(0);const lp=filt('lowpass',360,0.7,this.gM);
+    const o1=C.createOscillator();o1.type='sawtooth';o1.frequency.value=60;o1.connect(lp);o1.start();
+    const o2=C.createOscillator();o2.type='sine';o2.frequency.value=120;o2.connect(lp);o2.start();
+    this.gW=gain(0);this.wh=C.createOscillator();this.wh.type='sine';this.wh.frequency.value=700;this.wh.connect(this.gW);this.wh.start();
+    this.gR=gain(0);src(bb).connect(filt('lowpass',170,0.5,this.gR));
+    this.gO=gain(0);this.bpO=filt('bandpass',1300,0.8,this.gO);src(nb).connect(this.bpO);
+    this.gS=gain(0);src(nb).connect(filt('bandpass',3400,3,this.gS));
+    this.gA=gain(0);this.al=C.createOscillator();this.al.type='square';this.al.frequency.value=720;this.al.connect(filt('lowpass',2200,0.7,this.gA));this.al.start();
+  },
+  toggle(v){
+    if(v===undefined)v=!this.on;if(v&&!this.ctx)this.init();this.on=v;
+    if(this.ctx){if(v)this.ctx.resume();this.master.gain.setTargetAtTime(v?0.6*this.duck:0,this.ctx.currentTime,0.15);}
+    document.querySelectorAll('#navSnd,#heroSnd').forEach(b=>b.classList.toggle('on',v));
+    document.getElementById('navSnd').firstChild.textContent=v?'🔊':'🔇';
+    document.getElementById('heroSnd').textContent=v?'🔊 Sons ligados (desligar)':'🔊 Ligar sons';
+  },
+  setDuck(d){this.duck=d;if(this.on&&this.ctx)this.master.gain.setTargetAtTime(0.6*d,this.ctx.currentTime,0.3);},
+  update(st){
+    if(!this.ctx||!this.on)return;const t=this.ctx.currentTime,k=0.12;
+    if(!st||!st.running){for(const g of[this.gM,this.gW,this.gR,this.gO,this.gS,this.gA])g.gain.setTargetAtTime(0,t,0.2);return;}
+    this.gM.gain.setTargetAtTime(0.07*(0.55+st.speed/8),t,k);
+    this.wh.frequency.setTargetAtTime(380+st.speed*85,t,0.3);this.gW.gain.setTargetAtTime(0.006,t,k);
+    this.gR.gain.setTargetAtTime(0.22*(st.speed/4),t,k);
+    this.gO.gain.setTargetAtTime(clamp(st.impact/100,0,1.2)*(st.innov?0.05:0.13),t,k);
+    this.bpO.frequency.setTargetAtTime(st.innov?520:1350,t,0.2);
+    this.gS.gain.setTargetAtTime(st.contact*0.07,t,k);
+    if(st.status==='alert'){this.al.frequency.setValueAtTime(Math.floor(t*2.2)%2?960:720,t);this.gA.gain.setTargetAtTime(0.03,t,0.03);}
+    else if(st.status==='warn'){this.al.frequency.setValueAtTime(880,t);this.gA.gain.setTargetAtTime((t%1.2)<0.12?0.02:0,t,0.01);}
+    else this.gA.gain.setTargetAtTime(0,t,0.05);
+    // pancadas do minério: mais frequentes e fortes sem a inovação
+    let n=0,E=st.E;while(n<2&&Math.random()<E*0.0035){this.thump(st.innov);n++;E-=280;}
+  },
+  thump(soft){
+    const C=this.ctx,t=C.currentTime+Math.random()*0.04,A=(soft?0.06:0.2)*rnd(0.45,1);
+    const o=C.createOscillator();o.type='sine';o.frequency.setValueAtTime(soft?75:rnd(85,120),t);o.frequency.exponentialRampToValueAtTime(38,t+0.2);
+    const g=C.createGain();g.gain.setValueAtTime(A,t);g.gain.exponentialRampToValueAtTime(0.001,t+(soft?0.14:0.28));o.connect(g);g.connect(this.master);o.start(t);o.stop(t+0.32);
+    const s=C.createBufferSource();s.buffer=this.nb;const f=C.createBiquadFilter();f.type='lowpass';f.frequency.value=soft?450:rnd(1800,3200);
+    const g2=C.createGain();g2.gain.setValueAtTime(A*0.9,t);g2.gain.exponentialRampToValueAtTime(0.001,t+(soft?0.05:0.09));s.connect(f);f.connect(g2);g2.connect(this.master);s.start(t,Math.random()*1.5);s.stop(t+0.12);
+  }
+};
+
+/* ================= montagem ================= */
+const pA={running:true,speed:1,flow:1,vari:1},pB={running:true,speed:1,flow:1,vari:1},pC={running:true,speed:1,flow:1,vari:1};
+const simA=new Sim(document.getElementById('simA'),pA,false);
+const simB=new Sim(document.getElementById('simB'),pB,true);
+const simC1=new Sim(document.getElementById('simC1'),pC,false);
+const simC2=new Sim(document.getElementById('simC2'),pC,true);
+const sims=[simA,simB,simC1,simC2];
+buildControls(document.getElementById('ctlA'),pA,[simA],true);
+buildControls(document.getElementById('ctlB'),pB,[simB],true);
+buildControls(document.getElementById('ctlC'),pC,[simC1,simC2],false);
+const indA=buildIndicators(document.getElementById('indA')),indB=buildIndicators(document.getElementById('indB')),cmp=buildCompare(document.getElementById('cmp'));
+
+let last=performance.now(),uiT=0;
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;let act=null,best=0;
+  for(const s of sims){
+    if(!s.visible)continue;
+    if(s.params.running){const n=dt>1/50?2:1;for(let i=0;i<n;i++)s.update(dt/n);}
+    s.draw();if(s.ratio>best){best=s.ratio;act=s;}
+  }
+  let st=null;
+  if(act&&best>0.3){st=act.audioState();
+    if(act===simC1||act===simC2){const o=act===simC1?simC2:simC1;if(o.visible){const s2=o.audioState();st.E+=s2.E;st.impact=Math.max(st.impact,s2.impact);st.innov=false;
+      if(s2.status==='alert'||st.status==='alert')st.status='alert';st.contact=Math.max(st.contact,s2.contact);}}}
+  AU.update(st);
+  uiT+=dt;
+  if(uiT>0.15){uiT=0;if(simA.visible)updateIndicators(simA,indA);if(simB.visible)updateIndicators(simB,indB);if(simC1.visible||simC2.visible)updateCompare(simC1,simC2,cmp);}
+  requestAnimationFrame(loop);
+}
+updateIndicators(simA,indA);updateIndicators(simB,indB);updateCompare(simC1,simC2,cmp);
+requestAnimationFrame(loop);
+
+/* ================= apresentação narrada ================= */
+const STEPS=[
+  {el:'#topo',text:'Olá! Esta é a apresentação da Mini Esteira Transportadora, com Stone Box e Defletores. Vamos mostrar um problema comum nas correias de minério e a nossa solução.'},
+  {el:'#intro',text:'Uma correia transportadora tem a correia de borracha, o tambor de acionamento ligado ao motor, o tambor de retorno, os roletes que formam a calha, o chute de transferência, que despeja o minério, e a estrutura.'},
+  {el:'#problema',text:'Mesmo com o minério caindo reto, no centro da correia, a carga quase nunca fica igual dos dois lados. Pedras grandes e pesadas quicam e rolam para um lado, os finos ficam no centro, e o fluxo varia. Essa pequena diferença, somada com o tempo, faz a correia desalinhar.'},
+  {el:'#simA',do:()=>{if(simA.innov)simA.setMode(false);simA.reset();},text:'Assim funciona hoje. O minério desce reto pelo chute, mas cai de muito alto e bate forte na correia. Veja os flashes de impacto e a poeira.'},
+  {el:'#simA',text:'Repare na vista de cima e na seção da correia: a carga não vai para um canto, fica só um pouco mais de um lado. Mesmo assim, a correia vai saindo do eixo laranja, até a borda empurrar a chave de desalinhamento e o giroflex acender.'},
+  {el:'#simB',do:()=>{if(!simB.innov)simB.setMode(true);simB.reset();},text:'Agora, com a nossa inovação. O funil concentra o minério. A stone box vermelha enche e forma um colchão. O minério novo bate em minério, e não na correia, e as pedras e os finos se misturam.'},
+  {el:'#simB',text:'As duas aletas amarelas, montadas em V, giram livremente no eixo e se ajustam sozinhas ao fluxo, guiando a carga para o centro. O suporte azul em U prende tudo na estrutura de madeira com um parafuso M10.'},
+  {el:'#indB',text:'Resultado: a carga chega equilibrada, com impacto baixo. O centro da carga e o desvio da correia ficam perto de zero, e os indicadores ficam verdes.'},
+  {el:'#comparacao',do:()=>{simC1.reset();simC2.reset();},text:'Na comparação, as duas correias rodam ao mesmo tempo, com o mesmo minério. Veja a redução do desvio, do derramamento, do impacto e do desgaste. Os valores são ilustrativos.'},
+  {el:'#prototipo',text:'Para testar a ideia, montamos uma mini esteira em escala, com estrutura de madeira, peças impressas em 3D em PLA ou PETG e areia simulando o minério. Obrigado pela atenção!'}
+];
+const NR={on:false,i:0,tok:0,voice:null,
+  pickVoice(){if(!('speechSynthesis'in window))return;const vs=speechSynthesis.getVoices();this.voice=vs.find(v=>/pt[-_]BR/i.test(v.lang)&&/google|natural|luciana|francisca|maria/i.test(v.name))||vs.find(v=>/pt[-_]BR/i.test(v.lang))||vs.find(v=>/^pt/i.test(v.lang))||null;},
+  start(){this.on=true;this.i=0;document.getElementById('narr').classList.add('on');if(!AU.on)AU.toggle(true);AU.setDuck(0.35);this.btns();this.run();},
+  stop(){this.on=false;this.tok++;clearTimeout(this.guard);if('speechSynthesis'in window)speechSynthesis.cancel();document.getElementById('narr').classList.remove('on');AU.setDuck(1);this.btns();},
+  go(d){if(!this.on)return;this.tok++;clearTimeout(this.guard);if('speechSynthesis'in window)speechSynthesis.cancel();this.i=clamp(this.i+d,0,STEPS.length-1);this.run();},
+  btns(){document.querySelectorAll('#navNarr,#heroNarr').forEach(b=>b.classList.toggle('on',this.on));document.getElementById('heroNarr').textContent=this.on?'⏹ Parar apresentação':'🎙️ Iniciar apresentação narrada';},
+  run(){
+    const s=STEPS[this.i];if(!s){this.stop();return;}const tok=++this.tok;
+    document.getElementById('narrStep').textContent=(this.i+1)+'/'+STEPS.length;
+    const el=document.querySelector(s.el);if(el)el.scrollIntoView({behavior:'smooth',block:s.el.startsWith('#sim')||s.el.startsWith('#ind')?'center':'start'});
+    if(s.do)setTimeout(()=>{if(tok===this.tok)s.do();},500);
+    const parts=s.text.match(/[^.!?]+[.!?]*/g)||[s.text];let k=0;const cap=document.getElementById('narrCap');
+    const next=()=>{
+      if(tok!==this.tok)return;
+      if(k>=parts.length){this.guard=setTimeout(()=>{if(tok===this.tok){this.i++;this.run();}},900);return;}
+      const txt=parts[k++].trim();cap.textContent=txt;
+      if('speechSynthesis'in window){
+        const u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';if(this.voice)u.voice=this.voice;u.rate=1;
+        let done=false;const t0=performance.now(),minT=txt.length*55;
+        // sem voz no aparelho: segue no ritmo da legenda
+        const fin=()=>{if(done)return;done=true;clearTimeout(this.guard);const el=performance.now()-t0;this.guard=setTimeout(next,el<minT*0.3?minT-el:0);};
+        u.onend=fin;u.onerror=fin;this.guard=setTimeout(fin,txt.length*95+3000);speechSynthesis.speak(u);
+      }else this.guard=setTimeout(next,txt.length*60+900);
+    };
+    setTimeout(next,s.do?700:300);
+  }
+};
+if('speechSynthesis'in window){NR.pickVoice();speechSynthesis.onvoiceschanged=()=>NR.pickVoice();}
+const narrToggle=()=>NR.on?NR.stop():NR.start();
+document.getElementById('heroNarr').onclick=narrToggle;document.getElementById('navNarr').onclick=narrToggle;
+document.getElementById('narrStop').onclick=()=>NR.stop();document.getElementById('narrNext').onclick=()=>NR.go(1);document.getElementById('narrPrev').onclick=()=>NR.go(-1);
+document.getElementById('heroSnd').onclick=()=>AU.toggle();document.getElementById('navSnd').onclick=()=>AU.toggle();
+window.__SIM={simA,simB,simC1,simC2,AU,NR,fast:(s,sec)=>{for(let i=0;i<sec*60;i++)s.update(1/60);}};
+})();
+</script>
+</body>
+</html>
