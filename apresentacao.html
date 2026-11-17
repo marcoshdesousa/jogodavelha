@@ -96,6 +96,12 @@ h1 span,h2 span{color:var(--orange)}
 .fr .ic{font-size:32px}.fr h4{margin:0;font-size:21px;color:var(--c)}.fr p{margin:3px 0 0;font-size:16px;color:#c3cad1}
 .open{margin-top:6px;display:block;text-align:center;background:var(--orange);color:#111;font-weight:800;font-size:17px;text-decoration:none;border-radius:10px;padding:11px}
 .plus{text-align:center;font-size:30px;font-weight:900;color:var(--orange);line-height:1}
+.hint{font-size:17px;color:var(--muted);margin:-6px 0 10px}.hint b{color:var(--text)}
+.two{display:flex;align-items:stretch;gap:0;margin-top:20px}
+.two .big{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px 30px;border-top:6px solid var(--c)}
+.two .big .ic{font-size:52px}.two .big h3{margin:10px 0 10px;font-size:34px;color:var(--c)}
+.two .big p{margin:0;font-size:23px;line-height:1.5;color:#d6dbe0}.two .big p b{color:var(--text)}
+.plus2{display:grid;place-items:center;width:70px;font-size:54px;font-weight:900;color:var(--orange)}
 /* investimento */
 .cost{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;flex:1;min-height:0}
 .items{display:grid;gap:12px;align-content:start}
@@ -149,21 +155,25 @@ h1 span,h2 span{color:var(--orange)}
   <div class="diff">⭐ <b>Diferencial:</b> não é só trocar o papel. As pendências são acompanhadas <b>antes da parada</b>, e a equipe não descobre a falta de material na hora de executar o serviço.</div>
 </section>
 
-<!-- 3. painel do PCM + duas frentes -->
-<section class="slide" data-live="sigm.html?embed=painel">
+<!-- 3. SIGM ao vivo -->
+<section class="slide" data-live="sigm.html?embed=full">
   <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
-  <span class="kicker">SIGM · ao vivo</span>
-  <h2>Painel do <span>PCM</span></h2>
-  <div class="pcm">
-    <div class="live" style="height:470px"><div class="ph">carregando…</div></div>
-    <div class="fronts">
-      <div class="fh">Duas frentes complementares</div>
-      <div class="fr" style="--c:var(--orange)"><div class="ic">⚙️</div><div><h4>Stone Box + Defletores</h4><p>Melhoria técnica da transferência de minério.</p></div></div>
-      <div class="plus">+</div>
-      <div class="fr" style="--c:var(--blue)"><div class="ic">📋</div><div><h4>SIGM</h4><p>Organização e comunicação dos processos de manutenção.</p></div></div>
-      <a class="open" href="sigm.html" target="_blank" rel="noopener">Abrir o SIGM completo ↗</a>
-    </div>
+  <div class="head"><span class="kicker">SIGM · ao vivo</span><h2>Protótipo do <span>SIGM</span></h2></div>
+  <p class="hint">Clique nas abas: <b>Painel do PCM</b> · <b>1 Antes</b> · <b>2 Durante</b> · <b>3 Depois</b></p>
+  <div class="live"><div class="ph">carregando…</div></div>
+</section>
+
+<!-- 3b. duas frentes -->
+<section class="slide">
+  <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
+  <span class="kicker">O projeto</span>
+  <h2>Duas frentes <span>complementares</span></h2>
+  <div class="two">
+    <div class="big" style="--c:var(--orange)"><div class="ic">⚙️</div><h3>Stone Box + Defletores</h3><p>Melhoria <b>técnica</b> da transferência de minério: menos impacto, carga no centro e correia alinhada.</p></div>
+    <div class="plus2">+</div>
+    <div class="big" style="--c:var(--blue)"><div class="ic">📋</div><h3>SIGM</h3><p>Melhoria da <b>organização e comunicação</b> dos processos de manutenção, com as pendências resolvidas antes da parada.</p></div>
   </div>
+  <a class="open" href="sigm.html" target="_blank" rel="noopener" style="align-self:center;margin-top:26px;padding:12px 26px">Abrir o SIGM completo ↗</a>
 </section>
 
 <!-- 4. solução -->
@@ -249,6 +259,7 @@ function go(i){
   history.replaceState(null,'','#'+(i+1));
 }
 const next=()=>go(cur+1),prev=()=>go(cur-1);
+addEventListener('message',e=>{const k=e.data&&e.data.slideKey;if(!k)return;if(k==='ArrowRight'||k==='PageDown')next();else prev();});
 addEventListener('keydown',e=>{
   if(['ArrowRight','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();next();}
   else if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){e.preventDefault();prev();}
