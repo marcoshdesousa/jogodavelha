@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIGM – Sistema Integrado de Gestão da Manutenção</title>
+<script>(function(){if(new URLSearchParams(location.search).get('embed'))document.documentElement.classList.add('embed');})();</script>
+<style>
+:root{--bg:#15181c;--panel:#1f242a;--panel2:#262c33;--line:#333b44;--text:#e8ebee;--muted:#9aa4ae;
+  --orange:#ff7a00;--ok:#2ecc71;--warn:#ffb020;--alert:#ff3b30;--blue:#4fc3f7;--teal:#0f6b78}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.top{border-bottom:3px solid var(--orange);background:#1a1d22}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+header.top h1{font-size:clamp(1.05rem,2.6vw,1.45rem);margin:0}
+header.top h1 span{color:var(--orange)}
+header.top a{color:var(--muted);font-size:.9rem;text-decoration:none}
+header.top a:hover{color:var(--orange)}
+.tabs{display:flex;gap:6px;margin:14px 0 6px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:inherit;font-weight:750;padding:9px 14px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tab .k{font-size:.72rem;letter-spacing:.08em;display:block;color:var(--muted)}
+.tab.on{background:var(--orange);color:#111;border-color:var(--orange)}
+.tab.on .k{color:#3a1d00}
+.view{display:none;padding:10px 0 30px}
+.view.on{display:block}
+h2{font-size:1.25rem;margin:6px 0 10px}
+h2 span{color:var(--orange)}
+.muted{color:var(--muted)}
+.bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:end;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted);font-weight:650}
+select,input,textarea{font:inherit;color:var(--text);background:#14171b;border:1px solid #3a434c;border-radius:8px;padding:8px 10px;min-height:38px}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--orange);outline-offset:0;border-color:transparent}
+textarea{resize:vertical;min-height:60px}
+.hl{background:#3a3000;border-color:#ffd54f}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-weight:750;font-size:.88rem;padding:8px 13px;border-radius:9px;cursor:pointer;min-height:38px}
+.btn:hover{border-color:var(--orange)}
+.btn.primary{background:var(--orange);color:#111;border-color:var(--orange)}
+.btn.ok{background:var(--ok);color:#06210f;border-color:var(--ok)}
+.btn.sm{padding:5px 9px;min-height:30px;font-size:.78rem}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kp{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kp b{display:block;font-size:2rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.kp span{font-size:.8rem;color:var(--muted)}
+.kp.ok b{color:var(--ok)}.kp.warn b{color:var(--warn)}.kp.bad b{color:var(--alert)}.kp.blue b{color:var(--blue)}
+.sec{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);font-weight:850;margin:16px 0 8px}
+.charts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.chart{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.chart h4{margin:0 0 6px;font-size:.92rem}
+.chart svg{display:block;width:100%;height:auto}
+.alerts{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 14px}
+.al{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:.92rem}
+.al:first-child{border-top:0}
+.al .t{color:#d6dbe0}
+.tag{display:inline-block;font-size:.7rem;font-weight:900;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.tag.bad{background:var(--alert);color:#fff}.tag.warn{background:var(--warn);color:#2a1c00}.tag.ok{background:var(--ok);color:#06210f}.tag.n{background:#3a434c;color:#e8ebee}
+.tbl{width:100%;border-collapse:collapse;font-size:.86rem}
+.tblw{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.tbl th{position:sticky;top:0;background:var(--teal);color:#fff;text-align:left;padding:8px 10px;font-size:.74rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.tbl td{padding:7px 10px;border-top:1px solid var(--line);vertical-align:top}
+.tbl tr.sel td{background:rgba(79,195,247,.08)}
+.tbl select,.tbl input{min-height:30px;padding:4px 6px;font-size:.84rem}
+.form{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.form .full{grid-column:1/-1}
+.form .actions{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;align-items:center}
+.chk{display:flex;align-items:center;gap:8px;font-size:.9rem}
+.chk input{min-height:auto;width:18px;height:18px}
+.ok-msg{color:var(--ok);font-weight:750;font-size:.9rem;opacity:0;transition:opacity .3s}
+.ok-msg.on{opacity:1}
+.tl{position:relative;padding-left:22px}
+.tl::before{content:"";position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--line)}
+.ev{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:8px}
+.ev::before{content:"";position:absolute;left:-20px;top:13px;width:12px;height:12px;border-radius:50%;background:var(--c,var(--muted));border:2px solid var(--bg)}
+.ev .d{font-size:.75rem;color:var(--muted)}
+.ev b{color:var(--c)}
+.flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin:10px 0 0}
+.flow b{color:var(--text)}
+.note{margin-top:14px;font-size:.82rem;color:#ffd9a8;background:rgba(255,122,0,.08);border:1px dashed rgba(255,122,0,.5);border-radius:10px;padding:9px 12px}
+.diff{background:rgba(255,122,0,.1);border:1px solid rgba(255,122,0,.5);border-radius:12px;padding:10px 14px;font-size:.92rem;color:#ffe0c2;margin-bottom:12px}
+.diff b{color:var(--orange)}
+@media (max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}.form{grid-template-columns:1fr}}
+/* modo incorporado (slides) */
+html.embed header.top,html.embed .tabs,html.embed .note,html.embed .flow,html.embed #painelExtra,html.embed .diff{display:none}
+html.embed .wrap{max-width:none;padding:8px}
+html.embed .view{padding:0}
+html.embed .bar{margin-bottom:8px;padding:8px}
+html.embed .kp b{font-size:1.6rem}
+html.embed .kpis{grid-template-columns:repeat(4,1fr)}
+html.embed .kp span{font-size:.72rem}
+html.embed .sec{margin:10px 0 6px}
+html.embed .charts .chart{padding:8px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <h1>SIGM · <span>Sistema Integrado de Gestão da Manutenção</span></h1>
+  <a href="index.html">← Esteira (Stone Box)</a>
+</div></header>
+
+<main class="wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab on" data-v="painel" type="button"><span class="k">PCM</span>Painel</button>
+    <button class="tab" data-v="antes" type="button"><span class="k">1 · ANTES</span>Preparação</button>
+    <button class="tab" data-v="durante" type="button"><span class="k">2 · DURANTE</span>Execução</button>
+    <button class="tab" data-v="depois" type="button"><span class="k">3 · DEPOIS</span>Histórico do PCM</button>
+  </div>
+
+  <!-- PAINEL -->
+  <section class="view on" id="v-painel">
+    <div class="bar">
+      <label class="f">Equipamento<select id="fEq" class="hl"></select></label>
+      <label class="f">Data de referência (hoje)<input type="date" id="fRef" class="hl"></label>
+      <span class="muted" style="font-size:.82rem">← mude para analisar</span>
+    </div>
+    <div class="sec">Antes da manutenção · preparação</div>
+    <div class="kpis">
+      <div class="kp"><b id="k1">0</b><span>intervenções cadastradas</span></div>
+      <div class="kp ok"><b id="k2">0</b><span>prontas para a parada</span></div>
+      <div class="kp warn"><b id="k3">0</b><span>com pendências</span></div>
+      <div class="kp bad"><b id="k4">0</b><span>urgentes (parada em até 7 dias)</span></div>
+    </div>
+    <div class="sec">Alertas antes da parada</div>
+    <div class="alerts" id="alerts"></div>
+    <div id="painelExtra">
+      <div class="sec">Durante e depois · execução e PCM</div>
+      <div class="kpis">
+        <div class="kp blue"><b id="k5">0</b><span>registros de execução</span></div>
+        <div class="kp ok"><b id="k6">0%</b><span>enviados ao PCM</span></div>
+        <div class="kp warn"><b id="k7">0</b><span>com anomalia registrada</span></div>
+        <div class="kp"><b id="k8">0,0</b><span>tempo médio de execução (h)</span></div>
+      </div>
+      <div class="sec">Gráficos (seguem o filtro)</div>
+      <div class="charts">
+        <div class="chart"><h4>Status do material</h4><div id="c1"></div></div>
+        <div class="chart"><h4>Prontidão para a parada</h4><div id="c2"></div></div>
+        <div class="chart"><h4>Status da execução</h4><div id="c3"></div></div>
+      </div>
+      <div class="flow"><b>Fluxo:</b> Antes (preparação) → Durante (execução e registro) → Depois (PCM) → Histórico</div>
+    </div>
+  </section>
+
+  <!-- ANTES -->
+  <section class="view" id="v-antes">
+    <h2>1 · Antes da manutenção: <span>preparação</span></h2>
+    <div class="diff">⭐ <b>Diferencial:</b> as pendências de material aparecem <b>antes da parada</b>. A equipe não descobre a falta na hora de executar o serviço.</div>
+    <form class="form" id="formPrep">
+      <label class="f">OM<input name="om" required placeholder="OM-24060"></label>
+      <label class="f">Equipamento<select name="eq" class="eqSel" required></select></label>
+      <label class="f">Data da parada<input type="date" name="data" required></label>
+      <label class="f">Responsável<select name="resp" class="respSel"></select></label>
+      <label class="f">Materiais necessários<input name="mat" required placeholder="Roletes; parafusos"></label>
+      <label class="f">Quantidade<input type="number" name="qtd" min="1" value="1"></label>
+      <label class="f">Status do material<select name="st"><option>Disponível</option><option>Em separação</option><option>Indisponível</option></select></label>
+      <label class="f">Ferramentas / equipe<input name="ferr" placeholder="Equipe e ferramentas confirmadas"></label>
+      <label class="f">Pendência (deixe vazio se não houver)<input name="pend" placeholder="Ex.: item sem saldo"></label>
+      <div class="actions"><span class="ok-msg" id="okPrep">✓ Solicitação registrada</span><button class="btn primary" type="submit">Registrar solicitação</button></div>
+    </form>
+    <div class="sec">Solicitações (altere o status e as pendências direto na tabela)</div>
+    <div class="tblw"><table class="tbl" id="tPrep"></table></div>
+  </section>
+
+  <!-- DURANTE -->
+  <section class="view" id="v-durante">
+    <h2>2 · Durante a manutenção: <span>ficha de execução</span></h2>
+    <form class="form" id="formExe">
+      <label class="f">OM<select name="om" id="exeOm"></select></label>
+      <label class="f">Equipamento<select name="eq" class="eqSel"></select></label>
+      <label class="f">Data da execução<input type="date" name="data" required></label>
+      <label class="f">Responsável<select name="resp" class="respSel"></select></label>
+      <label class="f">Status da atividade<select name="st"><option>Concluída</option><option>Concluída com ressalva</option><option>Em andamento</option><option>Não executada</option></select></label>
+      <label class="f">Duração (h)<input type="number" name="dur" min="0" step="0.5" value="2"></label>
+      <label class="f full">Atividades realizadas<input name="serv" required placeholder="Ex.: ajuste de alinhamento da correia"></label>
+      <label class="f">Materiais utilizados<input name="mat" placeholder="Ex.: fixadores"></label>
+      <label class="f">Anomalias encontradas<input name="anom" placeholder="Sem anomalias relevantes"></label>
+      <label class="f">Pendências / recomendações<input name="rec" placeholder="—"></label>
+      <div class="actions"><label class="chk"><input type="checkbox" name="pcm" checked> Enviar ao PCM</label><span class="ok-msg" id="okExe">✓ Ficha enviada</span><button class="btn primary" type="submit">Salvar ficha</button></div>
+    </form>
+    <div class="sec">Fichas registradas</div>
+    <div class="tblw"><table class="tbl" id="tExe"></table></div>
+  </section>
+
+  <!-- DEPOIS -->
+  <section class="view" id="v-depois">
+    <h2>3 · Depois: <span>histórico no PCM</span></h2>
+    <div class="bar"><label class="f">Equipamento<select id="hEq"></select></label><span class="muted" style="font-size:.85rem">Linha do tempo das intervenções, da preparação ao registro no PCM.</span></div>
+    <div class="tl" id="tl"></div>
+  </section>
+
+  <div class="note">Protótipo acadêmico com <b>dados fictícios</b>. As alterações ficam salvas só neste navegador. <button class="btn sm" id="reset" type="button">↺ Restaurar dados de exemplo</button><br>Na versão real, os formulários seriam Google Forms alimentando uma planilha Google Sheets.</div>
+</main>
+
+<script>
+(function(){
+'use strict';
+const EQ=['CV-01 | Transferência T1','CV-02 | Transferência T2','CV-03 | Chute de transferência','CV-04 | Transferência T3'];
+const RESP=['Equipe Mecânica A','Equipe Mecânica B','Equipe Mecânica C','PCM','Almoxarifado'];
+const SEED={ref:'2026-11-20',
+ prep:[
+  ['OM-24018',0,'2026-11-24','Equipe Mecânica A','Chapa de desgaste; parafusos; consumíveis',1,'Disponível','Equipe e ferramentas confirmadas',''],
+  ['OM-24026',1,'2026-11-26','Equipe Mecânica B','Roletes; suportes; fixadores',4,'Em separação','Equipe confirmada; ferramenta pendente','Aguardando conferência do almoxarifado'],
+  ['OM-24031',2,'2026-11-28','Equipe Mecânica A','Revestimento; parafusos; consumíveis',1,'Indisponível','Equipe a confirmar','Item sem saldo; verificar aquisição'],
+  ['OM-24035',0,'2026-12-02','Equipe Mecânica C','Roletes; ferramentas de alinhamento',2,'Disponível','Equipe e ferramentas confirmadas',''],
+  ['OM-24040',1,'2026-12-03','Equipe Mecânica A','Stone Box (chapas de refugo); parafusos M10',1,'Disponível','Equipe e ferramentas confirmadas',''],
+  ['OM-24044',2,'2026-12-04','Equipe Mecânica B','Defletores (aletas); eixo Ø10 mm',2,'Em separação','Equipe confirmada','Aguardando retirada no almoxarifado'],
+  ['OM-24047',0,'2026-11-25','Equipe Mecânica C','Kit de emenda da correia',1,'Indisponível','Equipe a confirmar','Kit de emenda sem saldo'],
+  ['OM-24052',3,'2026-12-08','Equipe Mecânica A','Roletes de impacto',6,'Disponível','Equipe e ferramentas confirmadas',''],
+  ['OM-24055',3,'2026-12-09','Equipe Mecânica B','Raspador; lâminas',2,'Disponível','Equipe e ferramentas confirmadas',''],
+  ['OM-24058',1,'2026-12-10','Equipe Mecânica C','Chave de desalinhamento; cabo',1,'Em separação','Equipe confirmada','Conferência pendente']
+ ].map(r=>({om:r[0],eq:EQ[r[1]],data:r[2],resp:r[3],mat:r[4],qtd:r[5],st:r[6],ferr:r[7],pend:r[8]})),
+ exe:[
+  ['OM-24018',0,'2026-11-12','Equipe Mecânica A','Inspeção do chute e substituição de revestimento','Chapa de desgaste; parafusos','Desgaste localizado no lado direito','Concluída','Reavaliar condição na próxima inspeção',true,3.5],
+  ['OM-23992',1,'2026-11-10','Equipe Mecânica B','Inspeção e reaperto de suportes','Fixadores','Vibração acima do esperado','Concluída com ressalva','Programar avaliação complementar',true,2],
+  ['OM-23980',2,'2026-11-08','Equipe Mecânica C','Inspeção visual','—','Sem anomalias relevantes','Concluída','Manter rotina de inspeção',true,1],
+  ['OM-23975',3,'2026-11-06','Equipe Mecânica A','Troca de roletes de impacto','Roletes de impacto (4)','Sem anomalias relevantes','Concluída','—',true,2.5],
+  ['OM-23968',0,'2026-11-04','Equipe Mecânica B','Ajuste de alinhamento da correia','Ferramentas de alinhamento','Correia desviando para a esquerda','Concluída com ressalva','Avaliar centralização da carga no ponto de transferência',true,4],
+  ['OM-23961',2,'2026-11-03','Equipe Mecânica C','Troca de revestimento do chute','Revestimento; parafusos','Sem anomalias relevantes','Concluída','—',false,5],
+  ['OM-23955',1,'2026-10-30','Equipe Mecânica A','Limpeza de material derramado','—','Derramamento na borda direita','Concluída','Verificar desalinhamento',true,1.5],
+  ['OM-23949',3,'2026-10-28','Equipe Mecânica B','Substituição de raspador','Raspador; lâminas','Sem anomalias relevantes','Não executada','Material não disponível no dia',true,0]
+ ].map(r=>({om:r[0],eq:EQ[r[1]],data:r[2],resp:r[3],serv:r[4],mat:r[5],anom:r[6],st:r[7],rec:r[8],pcm:r[9],dur:r[10]})),
+ hist:[
+  ['2026-11-05','Preparação','OM-24018',0,'PCM','Solicitação e conferência iniciadas','Pronto'],
+  ['2026-11-07','Materiais','OM-24018',0,'Almoxarifado','Kit de materiais separado','Disponível'],
+  ['2026-11-12','Execução','OM-24018',0,'Equipe Mecânica A','Intervenção registrada e enviada ao PCM','Concluída'],
+  ['2026-11-14','PCM','OM-24018',0,'PCM','Registro analisado e incluído no histórico','Concluída'],
+  ['2026-11-18','Materiais','OM-24031',2,'Almoxarifado','Revestimento sem saldo: pendência identificada antes da parada','Pendente'],
+  ['2026-11-19','Preparação','OM-24047',0,'PCM','Kit de emenda sem saldo: aquisição solicitada','Pendente'],
+  ['2026-11-20','Preparação','OM-24026',1,'PCM','Solicitação registrada; ferramenta pendente','Pendente']
+ ].map(r=>({data:r[0],etapa:r[1],om:r[2],eq:EQ[r[3]],resp:r[4],ev:r[5],st:r[6]}))
+};
+const KEY='sigm-vanguarda-v1';
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+if(!S||!S.prep)S=JSON.parse(JSON.stringify(SEED));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dBR=d=>d?d.split('-').reverse().join('/'):'';
+const days=(a,b)=>Math.round((new Date(a+'T00:00')-new Date(b+'T00:00'))/864e5);
+const fmt1=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+const today=()=>S.ref;
+
+/* mesmas regras da planilha */
+const pronto=p=>p.st==='Disponível'&&p.ferr.trim()!==''&&p.pend.trim()==='';
+const diasP=p=>days(p.data,today());
+const alerta=p=>pronto(p)?'OK':(diasP(p)<=7?'URGENTE':'Acompanhar');
+const temAnom=e=>!(e.anom.trim()===''||e.anom==='—'||e.anom==='Sem anomalias relevantes');
+const tagFor=a=>a==='URGENTE'?'bad':a==='Acompanhar'?'warn':'ok';
+
+function fillSelects(){
+  const opts=EQ.map(e=>`<option>${esc(e)}</option>`).join('');
+  $('#fEq').innerHTML='<option>Todos</option>'+opts;$('#hEq').innerHTML='<option>Todos</option>'+opts;
+  $$('.eqSel').forEach(s=>s.innerHTML=opts);
+  $$('.respSel').forEach(s=>s.innerHTML=RESP.map(r=>`<option>${esc(r)}</option>`).join(''));
+}
+function addHist(etapa,om,eq,resp,ev,st){S.hist.push({data:today(),etapa,om,eq,resp,ev,st});}
+
+/* ---------- gráficos (SVG simples) ---------- */
+function bars(el,items,color){
+  const W=300,H=170,max=Math.max(1,...items.map(i=>i[1])),bw=W/items.length;
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img">${items.map(([l,v],i)=>{const h=(H-46)*v/max,x=i*bw+bw*0.18,w=bw*0.64,y=H-30-h;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${Math.max(h,1)}" rx="4" fill="${color}"/><text x="${x+w/2}" y="${y-6}" fill="#e8ebee" font-size="13" font-weight="800" text-anchor="middle">${v}</text><text x="${x+w/2}" y="${H-12}" fill="#9aa4ae" font-size="${l.length>12?9.5:11}" text-anchor="middle">${esc(l)}</text>`;}).join('')}<line x1="0" y1="${H-30}" x2="${W}" y2="${H-30}" stroke="#333b44"/></svg>`;
+}
+function donut(el,a,b){
+  const t=a+b||1,r=52,c=2*Math.PI*r,fa=a/t;
+  el.innerHTML=`<svg viewBox="0 0 300 170" role="img"><g transform="translate(95,85) rotate(-90)"><circle r="${r}" fill="none" stroke="#ffb020" stroke-width="24"/><circle r="${r}" fill="none" stroke="#2ecc71" stroke-width="24" stroke-dasharray="${c*fa} ${c}"/></g>
+  <text x="95" y="92" fill="#e8ebee" font-size="22" font-weight="900" text-anchor="middle">${Math.round(fa*100)}%</text>
+  <rect x="180" y="58" width="14" height="14" rx="3" fill="#2ecc71"/><text x="200" y="70" fill="#e8ebee" font-size="13">Prontas: ${a}</text>
+  <rect x="180" y="92" width="14" height="14" rx="3" fill="#ffb020"/><text x="200" y="104" fill="#e8ebee" font-size="13">Pendências: ${b}</text></svg>`;
+}
+
+/* ---------- painel ---------- */
+function renderPainel(){
+  const f=$('#fEq').value,m=x=>f==='Todos'||x.eq===f;
+  const P=S.prep.filter(m),E=S.exe.filter(m);
+  const pr=P.filter(pronto).length,urg=P.filter(p=>alerta(p)==='URGENTE').length;
+  $('#k1').textContent=P.length;$('#k2').textContent=pr;$('#k3').textContent=P.length-pr;$('#k4').textContent=urg;
+  $('#k5').textContent=E.length;$('#k6').textContent=(E.length?Math.round(E.filter(e=>e.pcm).length/E.length*100):0)+'%';
+  $('#k7').textContent=E.filter(temAnom).length;
+  const ex=E.filter(e=>e.st!=='Não executada');$('#k8').textContent=fmt1(ex.length?ex.reduce((a,e)=>a+(+e.dur||0),0)/ex.length:0);
+  const al=P.filter(p=>!pronto(p)).sort((a,b)=>diasP(a)-diasP(b));
+  $('#alerts').innerHTML=al.length?al.map(p=>{const a=alerta(p),d=diasP(p);
+    return `<div class="al"><span class="tag ${tagFor(a)}">${a.toUpperCase()}</span><span class="t"><b>${esc(p.om)}</b> · ${esc(p.eq.split(' |')[0])} · ${esc(p.pend||'aguardando material')} · ${d<0?'parada já passou':d===0?'parada hoje':'parada em '+d+(d===1?' dia':' dias')}</span></div>`;}).join('')
+    :'<div class="al"><span class="tag ok">OK</span><span class="t">Nenhuma pendência: tudo pronto para as paradas.</span></div>';
+  bars($('#c1'),['Disponível','Em separação','Indisponível'].map(s=>[s,P.filter(p=>p.st===s).length]),'#1f6fb5');
+  donut($('#c2'),pr,P.length-pr);
+  bars($('#c3'),[['Concluída','Concluída'],['C/ ressalva','Concluída com ressalva'],['Não exec.','Não executada'],['Andamento','Em andamento']].map(([l,s])=>[l,E.filter(e=>e.st===s).length]),'#0f8a99');
+}
+
+/* ---------- antes ---------- */
+function renderPrep(){
+  const rows=S.prep.map((p,i)=>({p,i})).sort((a,b)=>a.p.data<b.p.data?-1:1);
+  $('#tPrep').innerHTML=`<thead><tr><th>OM</th><th>Equipamento</th><th>Parada</th><th>Materiais</th><th>Status do material</th><th>Pendência</th><th>Prontidão</th><th>Alerta</th><th></th></tr></thead><tbody>`+
+   rows.map(({p,i})=>{const a=alerta(p),ok=pronto(p);return `<tr>
+    <td><b>${esc(p.om)}</b></td><td>${esc(p.eq)}</td><td>${dBR(p.data)}<br><span class="muted" style="font-size:.75rem">${diasP(p)} dias</span></td><td>${esc(p.mat)}</td>
+    <td><select data-i="${i}" data-k="st">${['Disponível','Em separação','Indisponível'].map(s=>`<option${s===p.st?' selected':''}>${s}</option>`).join('')}</select></td>
+    <td><input data-i="${i}" data-k="pend" value="${esc(p.pend)}" placeholder="sem pendência"></td>
+    <td><span class="tag ${ok?'ok':'warn'}">${ok?'PRONTO':'PENDENTE'}</span></td><td><span class="tag ${tagFor(a)}">${a.toUpperCase()}</span></td>
+    <td>${ok?'':`<button class="btn sm ok" data-res="${i}" type="button">Resolver</button>`}</td></tr>`;}).join('')+'</tbody>';
+}
+$('#tPrep').addEventListener('change',e=>{const t=e.target,i=t.dataset.i;if(i==null)return;const p=S.prep[i],old=p[t.dataset.k];p[t.dataset.k]=t.value;
+  if(t.dataset.k==='st'&&old!==t.value)addHist('Materiais',p.om,p.eq,'Almoxarifado','Status do material: '+t.value,t.value==='Disponível'?'Disponível':'Pendente');
+  if(t.dataset.k==='pend')addHist('Preparação',p.om,p.eq,'PCM',t.value?'Pendência atualizada: '+t.value:'Pendência resolvida',t.value?'Pendente':'Pronto');
+  save();renderAll();});
+$('#tPrep').addEventListener('click',e=>{const i=e.target.dataset.res;if(i==null)return;const p=S.prep[i];p.st='Disponível';p.pend='';if(!p.ferr)p.ferr='Equipe e ferramentas confirmadas';
+  addHist('Materiais',p.om,p.eq,'Almoxarifado','Material separado e pendência resolvida antes da parada','Pronto');save();renderAll();});
+$('#formPrep').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target),o=Object.fromEntries(f);
+  const p={om:o.om.trim(),eq:o.eq,data:o.data,resp:o.resp,mat:o.mat.trim(),qtd:+o.qtd||1,st:o.st,ferr:o.ferr.trim(),pend:o.pend.trim()};
+  S.prep.push(p);addHist('Preparação',p.om,p.eq,p.resp,'Solicitação de materiais registrada'+(p.pend?' · pendência: '+p.pend:''),pronto(p)?'Pronto':'Pendente');
+  save();e.target.reset();e.target.data.value=today();flash('#okPrep');renderAll();});
+
+/* ---------- durante ---------- */
+function renderExe(){
+  $('#exeOm').innerHTML=S.prep.map(p=>`<option value="${esc(p.om)}">${esc(p.om)} · ${esc(p.eq.split(' |')[0])}</option>`).join('');
+  const rows=[...S.exe].sort((a,b)=>a.data<b.data?1:-1);
+  $('#tExe').innerHTML=`<thead><tr><th>OM</th><th>Equipamento</th><th>Data</th><th>Atividades</th><th>Materiais</th><th>Anomalias</th><th>Status</th><th>Duração</th><th>PCM</th></tr></thead><tbody>`+
+   rows.map(e=>`<tr><td><b>${esc(e.om)}</b></td><td>${esc(e.eq)}</td><td>${dBR(e.data)}</td><td>${esc(e.serv)}</td><td>${esc(e.mat)}</td>
+    <td>${temAnom(e)?`<span class="tag warn">ANOMALIA</span> `:''}${esc(e.anom)}</td><td>${esc(e.st)}</td><td>${fmt1(+e.dur||0)} h</td><td>${e.pcm?'<span class="tag ok">ENVIADO</span>':'<span class="tag n">NÃO</span>'}</td></tr>`).join('')+'</tbody>';
+}
+$('#exeOm').addEventListener('change',e=>{const p=S.prep.find(x=>x.om===e.target.value);if(p){$('#formExe').eq.value=p.eq;$('#formExe').resp.value=p.resp;$('#formExe').mat.value=p.mat;}});
+$('#formExe').addEventListener('submit',e=>{e.preventDefault();const f=e.target,o=Object.fromEntries(new FormData(f));
+  const x={om:o.om,eq:o.eq,data:o.data,resp:o.resp,serv:o.serv.trim(),mat:o.mat.trim()||'—',anom:o.anom.trim()||'Sem anomalias relevantes',st:o.st,rec:o.rec.trim()||'—',pcm:!!o.pcm,dur:+o.dur||0};
+  S.exe.push(x);addHist('Execução',x.om,x.eq,x.resp,'Ficha de execução registrada'+(temAnom(x)?' · anomalia: '+x.anom:'')+(x.pcm?' e enviada ao PCM':''),x.st);
+  save();f.reset();f.data.value=today();flash('#okExe');renderAll();});
+
+/* ---------- depois ---------- */
+const COL={'Preparação':'#4fc3f7','Materiais':'#ffb020','Execução':'#ffc400','PCM':'#2ecc71'};
+function renderHist(){
+  const f=$('#hEq').value,H=S.hist.filter(h=>f==='Todos'||h.eq===f).slice().sort((a,b)=>a.data<b.data?1:-1);
+  $('#tl').innerHTML=H.map(h=>`<div class="ev" style="--c:${COL[h.etapa]||'#9aa4ae'}"><div class="d">${dBR(h.data)} · ${esc(h.resp)}</div><b>${esc(h.etapa)}</b> · ${esc(h.om)} · ${esc(h.eq.split(' |')[0])}<br>${esc(h.ev)} <span class="tag ${/Pendente/.test(h.st)?'warn':/Conclu|Pronto|Dispon/.test(h.st)?'ok':'n'}">${esc(h.st)}</span></div>`).join('')||'<p class="muted">Sem eventos.</p>';
+}
+
+function flash(s){const el=$(s);el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1800);}
+function renderAll(){renderPainel();renderPrep();renderExe();renderHist();}
+
+fillSelects();
+$('#fRef').value=S.ref;
+$('#formPrep').data.value=today();$('#formExe').data.value=today();
+$('#fEq').onchange=renderPainel;$('#hEq').onchange=renderHist;
+$('#fRef').onchange=e=>{if(e.target.value){S.ref=e.target.value;save();renderAll();}};
+$$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.toggle('on',x===b));$$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));history.replaceState(null,'','#'+b.dataset.v);});
+const h=location.hash.slice(1);if(h){const b=document.querySelector(`.tab[data-v="${h}"]`);if(b)b.click();}
+$('#reset').onclick=()=>{if(confirm('Restaurar os dados de exemplo? As alterações feitas neste navegador serão apagadas.')){S=JSON.parse(JSON.stringify(SEED));save();$('#fRef').value=S.ref;renderAll();}};
+$('#exeOm').dispatchEvent(new Event('change'));
+renderAll();
+})();
+</script>
+</body>
+</html>
