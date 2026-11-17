@@ -6,7 +6,7 @@
 <title>Stone Box, Defletores Ajustáveis e Ficha Rápida – Escuderia Vanguarda</title>
 <style>
 :root{--bg:#15181c;--panel:#1f242a;--panel2:#262c33;--line:#333b44;--text:#e8ebee;--muted:#9aa4ae;
-  --orange:#ff7a00;--ok:#2ecc71;--alert:#ff3b30;--funil:#5f6873;--box:#d32f2f;--aleta:#ffc400;--sup:#1e88e5}
+  --orange:#ff7a00;--ok:#2ecc71;--alert:#ff3b30;--funil:#5f6873;--box:#d32f2f;--aleta:#ffc400;--sup:#1e88e5;--blue:#4fc3f7}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#0b0d10;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
 #stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;background:var(--bg);overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,.6)}
@@ -68,6 +68,33 @@ h1 span,h2 span{color:var(--orange)}
 .send{margin-top:8px;background:#0f6cbd;color:#fff;text-align:center;border-radius:6px;padding:7px;font-weight:800}
 .mttr{margin-top:14px;display:flex;align-items:center;gap:14px;font-size:21px;color:#d6dbe0}
 .mttr b{font-size:38px;color:var(--ok)}
+/* SIGM */
+.tools{font-size:20px;color:var(--muted);margin:0 0 18px}.tools b{color:var(--text)}
+.stages{display:flex;align-items:stretch}
+.stg{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;position:relative}
+.stg .when{display:inline-block;font-size:13px;font-weight:900;letter-spacing:.12em;color:#111;background:var(--c);border-radius:6px;padding:3px 9px}
+.stg .ic{font-size:36px;margin-top:10px}.stg h4{margin:6px 0 6px;font-size:24px;color:var(--c)}
+.stg p{margin:0;font-size:18px;line-height:1.45;color:#d6dbe0}
+.arr{display:grid;place-items:center;width:40px;color:var(--orange);font-size:34px;font-weight:900}
+.diff{margin-top:20px;background:rgba(255,122,0,.1);border:1px solid rgba(255,122,0,.55);border-radius:14px;padding:14px 18px;font-size:20px;line-height:1.45;color:#ffe0c2}
+.diff b{color:var(--orange)}
+.pcm{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;align-items:start}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kp{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.kp b{display:block;font-size:44px;line-height:1;color:var(--text)}.kp span{font-size:15px;color:var(--muted)}
+.kp.ok b{color:var(--ok)}.kp.warn b{color:#ffb020}.kp.bad b{color:var(--alert)}
+.alerts{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+.ah{font-size:19px;font-weight:800;margin-bottom:8px}
+.al{font-size:16.5px;color:#d6dbe0;padding:8px 0;border-top:1px solid var(--line)}
+.al b{color:var(--text)}
+.tag{display:inline-block;font-size:12px;font-weight:900;border-radius:999px;padding:3px 9px;margin-right:8px}
+.tag.bad{background:var(--alert);color:#fff}.tag.warn{background:#ffb020;color:#2a1c00}
+.fict{font-size:14px;color:var(--muted);margin:8px 0 0}
+.fronts{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.fronts .fh{font-size:20px;font-weight:800;color:var(--text)}
+.fr{display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.fr .ic{font-size:32px}.fr h4{margin:0;font-size:21px;color:var(--c)}.fr p{margin:3px 0 0;font-size:16px;color:#c3cad1}
+.plus{text-align:center;font-size:30px;font-weight:900;color:var(--orange);line-height:1}
 /* investimento */
 .cost{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;flex:1;min-height:0}
 .items{display:grid;gap:12px;align-content:start}
@@ -105,42 +132,49 @@ h1 span,h2 span{color:var(--orange)}
   <div class="belt"></div>
 </section>
 
-<!-- 2. ficha de manutenção rápida -->
+<!-- 2. SIGM -->
 <section class="slide">
   <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
-  <span class="kicker">Ficha Rápida</span>
-  <h2>Ficha de <span>Manutenção Rápida</span></h2>
-  <div class="list">
-    <div class="li" style="--c:var(--orange)"><div class="ic">📋</div><div><b>Padrão Vale:</b><span>Baseado na OM oficial (PTS, RAC4, Executado/MAT).</span></div></div>
-    <div class="li" style="--c:#4fc3f7"><div class="ic">📱</div><div><b>Digital e Ágil:</b><span>Preenchimento pelo PCM no Microsoft Forms (Tablet).</span></div></div>
-    <div class="li" style="--c:var(--aleta)"><div class="ic">🔗</div><div><b>Integração Total:</b><span>Operação aponta, Manutenção usa o Kit local, PCM monitora no sistema.</span></div></div>
-    <div class="li" style="--c:var(--ok)"><div class="ic">⏱️</div><div><b>Foco no MTTR:</b><span>Diagnóstico e conserto no local em minutos.</span></div></div>
+  <span class="kicker">SIGM</span>
+  <h2 style="margin-bottom:6px">Sistema Integrado de <span>Gestão da Manutenção</span></h2>
+  <p class="tools">Ferramentas simples: <b>Google Forms</b> + <b>Google Sheets</b></p>
+  <div class="stages">
+    <div class="stg" style="--c:var(--blue)"><div class="when">ANTES</div><div class="ic">📦</div><h4>Preparação</h4><p>Formulário registra os materiais necessários, verifica a disponibilidade e aponta pendências com o almoxarifado.</p></div>
+    <div class="arr">→</div>
+    <div class="stg" style="--c:var(--aleta)"><div class="when">DURANTE</div><div class="ic">🛠️</div><h4>Execução</h4><p>Ficha digital com as atividades realizadas, os materiais utilizados e as anomalias encontradas.</p></div>
+    <div class="arr">→</div>
+    <div class="stg" style="--c:var(--ok)"><div class="when">DEPOIS</div><div class="ic">📊</div><h4>PCM</h4><p>Informações organizadas e enviadas ao PCM para acompanhamento e histórico das intervenções.</p></div>
   </div>
+  <div class="diff">⭐ <b>Diferencial:</b> não é só trocar o papel. As pendências são acompanhadas <b>antes da parada</b>, e a equipe não descobre a falta de material na hora de executar o serviço.</div>
 </section>
 
-<!-- 3. como funciona a ficha -->
+<!-- 3. painel do PCM + duas frentes -->
 <section class="slide">
   <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
-  <span class="kicker">Ficha Rápida</span>
-  <h2>Como a ficha <span>funciona</span></h2>
-  <div class="flowrow">
-    <div class="steps">
-      <div class="stp"><div class="n">P</div><div><h4>Aponta a falha</h4><p>Correia desalinhada é identificada na área.</p></div><span class="who">OPERAÇÃO</span></div>
-      <div class="stp"><div class="n">D</div><div><h4>Conserta no local</h4><p>Diagnóstico e ajuste com o Kit local.</p></div><span class="who">MANUTENÇÃO</span></div>
-      <div class="stp"><div class="n">C</div><div><h4>Registra no tablet</h4><p>Ficha no Microsoft Forms, no padrão da OM.</p></div><span class="who">PCM</span></div>
-      <div class="stp"><div class="n">A</div><div><h4>Monitora e melhora</h4><p>Histórico das falhas e do tempo de reparo no sistema.</p></div><span class="who">PCM</span></div>
-      <div class="mttr">🔁 Ciclo <b style="font-size:26px;color:var(--orange)">PDCA</b> · ⏱️ <b>reparo em minutos</b></div>
+  <span class="kicker">SIGM · protótipo</span>
+  <h2>Painel do <span>PCM</span></h2>
+  <div class="pcm">
+    <div>
+      <div class="kpis">
+        <div class="kp"><b>10</b><span>intervenções cadastradas</span></div>
+        <div class="kp ok"><b>5</b><span>prontas para a parada</span></div>
+        <div class="kp warn"><b>5</b><span>com pendências</span></div>
+        <div class="kp bad"><b>2</b><span>urgentes (parada em até 7 dias)</span></div>
+      </div>
+      <div class="alerts">
+        <div class="ah">⚠️ Alertas antes da parada</div>
+        <div class="al"><span class="tag bad">URGENTE</span><b>OM-24047</b> · CV-01 · kit de emenda sem saldo · parada em 5 dias</div>
+        <div class="al"><span class="tag bad">URGENTE</span><b>OM-24026</b> · CV-02 · aguardando conferência do almoxarifado · 6 dias</div>
+        <div class="al"><span class="tag warn">ACOMPANHAR</span><b>OM-24031</b> · CV-03 · revestimento sem saldo · 8 dias</div>
+      </div>
+      <p class="fict">Dados fictícios da planilha-protótipo do SIGM.</p>
     </div>
-    <div class="tablet"><div class="screen">
-      <div class="fh">Ficha de Manutenção Rápida</div>
-      <div class="fld"><label>Nº da OM</label><div class="in">OM 000000</div></div>
-      <div class="fld"><label>Equipamento</label><div class="in">Correia transportadora</div></div>
-      <div class="fld"><label>Falha</label><div class="in">Desalinhamento</div></div>
-      <div class="fld"><label>Segurança</label><div class="chk"><span><i>✓</i>PTS</span><span><i>✓</i>RAC4</span></div></div>
-      <div class="fld"><label>Status</label><div class="chk"><span><i>✓</i>Executado</span><span><i>✓</i>MAT</span></div></div>
-      <div class="fld"><label>Tempo de reparo</label><div class="in">__ min</div></div>
-      <div class="send">Enviar</div>
-    </div></div>
+    <div class="fronts">
+      <div class="fh">Duas frentes complementares</div>
+      <div class="fr" style="--c:var(--orange)"><div class="ic">⚙️</div><div><h4>Stone Box + Defletores</h4><p>Melhoria técnica da transferência de minério.</p></div></div>
+      <div class="plus">+</div>
+      <div class="fr" style="--c:var(--blue)"><div class="ic">📋</div><div><h4>SIGM</h4><p>Organização e comunicação dos processos de manutenção.</p></div></div>
+    </div>
   </div>
 </section>
 
@@ -177,7 +211,7 @@ h1 span,h2 span{color:var(--orange)}
   <div class="cost">
     <div class="items">
       <div class="it"><div class="ic">⚙️</div><div><h4>Projeto Mecânico</h4><p>Stone Box + Defletores · aço, cerâmica e parafusos</p></div><div class="v">R$ 2.100,00</div></div>
-      <div class="it"><div class="ic">📋</div><div><h4>Gestão e Comunicação</h4><p>Ficha de Manutenção Rápida no Microsoft Forms (tablet) · recursos internos</p></div><div class="v z">R$ 0,00</div></div>
+      <div class="it"><div class="ic">📋</div><div><h4>Gestão e Comunicação</h4><p>SIGM com Google Forms + Google Sheets · ferramentas gratuitas e recursos internos</p></div><div class="v z">R$ 0,00</div></div>
       <div class="it"><div class="ic">👷</div><div><h4>Mão de Obra</h4><p>Execução pela equipe interna da Vale</p></div><div class="v z">R$ 0,00</div></div>
     </div>
     <div class="tot">
