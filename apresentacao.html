@@ -3,379 +3,132 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Apresentação – Mini Esteira Transportadora</title>
-<meta name="description" content="Apresentação em slides do projeto Mini Esteira Transportadora – Stone Box + Defletores.">
+<title>Stone Box, Defletores Ajustáveis e Ficha Rápida – Escuderia Vanguarda</title>
 <style>
-:root{
-  --bg:#15181c; --panel:#1f242a; --panel2:#262c33; --line:#333b44;
-  --text:#e8ebee; --muted:#9aa4ae;
-  --orange:#ff7a00; --ok:#2ecc71; --warn:#ffb020; --alert:#ff3b30;
-  --funil:#5f6873; --box:#d32f2f; --aleta:#ffc400; --sup:#1e88e5; --ore:#5b4036;
-}
+:root{--teal:#56adba;--teal-d:#3f8f9b;--ink:#111;--paper:#fdfbfb}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:#0d0f12;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
+html,body{margin:0;height:100%;background:#0f1013;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
 /* palco 16:9 que se ajusta à tela */
-#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center;background:var(--bg);overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,.6)}
-.slide{position:absolute;inset:0;padding:56px 72px 64px;display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:translateX(40px);transition:opacity .45s,transform .45s,visibility 0s .45s}
-.slide.on{opacity:1;visibility:visible;transform:none;transition:opacity .45s,transform .45s}
-.slide.back{transform:translateX(-40px)}
-.slide::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:repeating-linear-gradient(90deg,var(--orange) 0 26px,#111 26px 52px)}
-.kicker{display:inline-block;align-self:flex-start;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:#111;background:var(--orange);padding:4px 12px;border-radius:5px;font-weight:800}
-h1{font-size:64px;line-height:1.05;margin:20px 0 14px}
-h2{font-size:42px;margin:6px 0 18px;line-height:1.1}
-h1 span,h2 span{color:var(--orange)}
-p,li{font-size:23px;line-height:1.45;color:#cfd5da}
-.lead{font-size:27px;max-width:1000px}
-.muted{color:var(--muted)}
-b{color:var(--text)}
-.grid{display:grid;gap:16px}
-.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
-.card h4{margin:0 0 6px;font-size:23px;display:flex;align-items:center;gap:10px}
-.card p{margin:0;font-size:19px}
-.card .n{background:var(--orange);color:#111;border-radius:50%;width:30px;height:30px;display:inline-grid;place-items:center;font-size:16px;font-weight:800;flex:none}
-.card.bad{border-left:5px solid var(--alert)}.card.fac{border-left:5px solid var(--warn)}
-.card.piece{border-top:6px solid var(--c)}
-.card.piece .dims{font-size:16px;background:var(--panel2);border-radius:8px;padding:7px 9px;margin:10px 0;color:var(--text)}
-.sw{width:16px;height:16px;border-radius:4px;display:inline-block;flex:none}
-.fig{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
-.fig svg{display:block;width:100%;height:auto}
-.row{display:flex;gap:28px;align-items:center;flex:1;min-height:0}
-.row>*{flex:1}
-.big{font-size:84px;font-weight:900;color:var(--orange);line-height:1}
-.live{flex:1;min-height:0;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#15181c;position:relative}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;background:var(--paper);overflow:hidden;box-shadow:0 0 50px rgba(0,0,0,.5)}
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
+.slide.on{opacity:1;visibility:visible;transition:opacity .4s}
+/* capa */
+.cover .logo{position:absolute;left:46px;top:40px;width:150px}
+.cover .panel{position:absolute;left:206px;right:0;top:0;height:470px;background:var(--teal);color:#fff;padding:42px 64px}
+.cover .team{text-align:center;font-size:34px;font-weight:700;margin:0 0 40px}
+.cover h1{font-size:74px;line-height:1.12;margin:0 0 40px;font-weight:800}
+.cover .names{font-size:26px;font-weight:700;line-height:1.4;max-width:560px}
+.cover .senai{position:absolute;left:50%;bottom:62px;transform:translateX(-30%);width:380px}
+/* slides internos */
+.side{position:absolute;left:0;top:0;bottom:0;width:178px;background:var(--teal);display:flex;flex-direction:column;align-items:center;padding:44px 0 40px}
+.side .logo{width:108px}
+.side .bar{width:3px;height:140px;background:#fff;margin-top:110px}
+.side .senai{margin-top:auto;width:150px;clip-path:inset(0 42% 0 0);transform:translateX(30px)}
+.body{position:absolute;left:178px;right:0;top:0;bottom:0;padding:56px 56px 40px 56px;display:flex;flex-direction:column}
+h2{color:var(--teal);font-size:66px;line-height:1.1;margin:0 0 34px;font-weight:800}
+h2.sm{font-size:52px;margin-bottom:18px}
+.txt p{font-size:27px;line-height:1.45;font-weight:600;color:var(--ink);margin:0 0 30px;max-width:900px}
+.txt u{color:var(--teal);text-underline-offset:4px}
+.live{flex:1;min-height:0;border-radius:14px;overflow:hidden;background:#15181c;position:relative;box-shadow:0 6px 24px rgba(0,0,0,.18)}
 .live iframe{position:relative;z-index:1;width:100%;height:100%;border:0;display:block;background:#15181c}
-.live .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:20px}
-.tagline{display:flex;align-items:center;gap:12px;margin:-6px 0 12px;font-size:19px;color:var(--muted)}
-.pill{font-size:15px;font-weight:800;padding:4px 12px;border-radius:999px}
-.pill.bad{background:var(--alert);color:#fff}.pill.good{background:var(--ok);color:#06210f}
-.flow{display:flex;align-items:stretch;gap:0;margin-top:10px}
-.flow .st{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center;border-top:6px solid var(--c)}
-.flow .st .ic{font-size:44px;margin-bottom:6px}
-.flow .st h4{margin:0 0 6px;font-size:22px}
-.flow .st p{margin:0;font-size:17px}
-.flow .ar{display:grid;place-items:center;width:46px;color:var(--orange);font-size:36px;font-weight:900}
-.cover{justify-content:center;background:radial-gradient(900px 420px at 85% 120%,rgba(141,75,43,.55),transparent 70%),repeating-linear-gradient(135deg,#1d2126 0 22px,#1a1d22 22px 44px)}
-.cover .belt{position:absolute;left:0;right:0;bottom:70px;height:46px;background:#0c0c0c;border-top:4px solid #2a2a2a}
-.cover .belt::after{content:"";position:absolute;inset:6px 0;background:repeating-linear-gradient(90deg,#3a2c28 0 18px,#5b4036 18px 30px,#4b3730 30px 44px);border-radius:20px;opacity:.95;animation:run 2.4s linear infinite}
-@keyframes run{to{background-position:88px 0}}
-.team{margin-top:26px;font-size:21px;color:var(--muted)}
-.bullets{margin:4px 0 0;padding-left:26px}.bullets li{margin:8px 0}
-.res{text-align:center}.res .big{font-size:60px}
-.res p{font-size:19px;margin:6px 0 0}
-.note{font-size:16px;color:#ffd9a8;margin-top:12px}
-/* barra de controle */
-#bar{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;gap:8px;padding:8px 12px;background:linear-gradient(transparent,rgba(0,0,0,.75));opacity:.35;transition:opacity .3s;z-index:10}
+.live .ph{position:absolute;inset:0;display:grid;place-items:center;color:#9aa4ae;font-size:20px}
+/* controles */
+#bar{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;gap:8px;padding:8px 12px;opacity:.3;transition:opacity .3s;z-index:10}
 #bar:hover,#bar.show{opacity:1}
-#bar button{appearance:none;border:1px solid #3a434c;background:rgba(31,36,42,.92);color:#e8ebee;font:inherit;font-weight:750;font-size:14px;padding:7px 12px;border-radius:9px;cursor:pointer}
-#bar button:hover{border-color:var(--orange)}
-#bar button.on{background:var(--ok);color:#06210f;border-color:var(--ok)}
-#count{color:#cfd5da;font-size:14px;font-variant-numeric:tabular-nums;margin-left:4px}
-#prog{position:fixed;left:0;top:0;height:4px;background:var(--orange);z-index:11;transition:width .35s}
-#cap{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);max-width:min(900px,92vw);background:rgba(12,14,16,.94);border:1px solid var(--orange);border-radius:12px;padding:10px 14px;font-size:17px;line-height:1.4;display:none;z-index:10}
-#cap.on{display:block}
+#bar button{appearance:none;border:1px solid #c9d6d9;background:rgba(255,255,255,.95);color:#1d4f57;font:inherit;font-weight:750;font-size:14px;padding:7px 12px;border-radius:9px;cursor:pointer}
+#count{color:#cfd5da;font-size:14px;font-variant-numeric:tabular-nums;margin-left:4px;text-shadow:0 1px 2px #000}
+#dots{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;display:flex;gap:8px;z-index:10}
+#dots i{width:9px;height:9px;border-radius:9px;background:#5b6066;transition:width .3s,background .3s;cursor:pointer}
+#dots i.on{width:28px;background:#c9ced3}
 </style>
 </head>
 <body>
-<div id="prog"></div>
 <div id="stage">
 
 <!-- 1. capa -->
-<section class="slide cover" data-notes="Olá! Nós vamos apresentar o projeto Mini Esteira Transportadora, com Stone Box e Defletores: uma solução para reduzir o desalinhamento das correias que transportam minério.">
-  <span class="kicker">Projeto de inovação · Mineração</span>
-  <h1>Mini Esteira Transportadora<br><span>Stone Box + Defletores</span></h1>
-  <p class="lead">Uma solução simples para manter a carga no centro da correia, reduzir o impacto e evitar o desalinhamento.</p>
-  <div class="team">Equipe: <b>[escreva aqui os nomes]</b></div>
-  <div class="belt"></div>
+<section class="slide cover">
+  <img class="logo" src="img/logo-vale.png" alt="">
+  <div class="panel">
+    <p class="team">Escuderia Vanguarda</p>
+    <h1>Stone Box, Defletores Ajustáveis e Ficha Rápida</h1>
+    <div class="names">Emanuelly, Fernando, Tamila,<br>Marcos e Kamily</div>
+  </div>
+  <img class="senai" src="img/logo-senai.png" alt="SENAI – Serviço Nacional de Aprendizagem Industrial">
 </section>
 
-<!-- 2. contexto -->
-<section class="slide" data-notes="Nas minas de ferro, como as de Carajás, o minério é levado por quilômetros em correias transportadoras. Se uma correia para, a produção para junto.">
-  <span class="kicker">Contexto</span>
-  <h2>O minério anda de <span>correia</span></h2>
-  <div class="row">
-    <div>
-      <p class="lead">Nas minas de ferro, o minério é levado por <b>quilômetros</b> em correias transportadoras, 24 horas por dia.</p>
-      <ul class="bullets">
-        <li>Uma correia leva o minério de forma <b>contínua</b>.</li>
-        <li>Se ela para, a <b>produção para</b> junto.</li>
-        <li>Por isso, qualquer problema na correia custa caro.</li>
-      </ul>
-    </div>
-    <div class="fig">
-      <svg viewBox="0 0 800 310" role="img" aria-label="Correia transportadora com as partes numeradas">
-        <rect width="800" height="310" fill="#1a1e23"/><rect y="292" width="800" height="18" fill="#5a2f1d"/>
-        <rect x="60" y="222" width="680" height="10" rx="2" fill="#6b7780"/>
-        <g fill="#6b7780"><rect x="95" y="232" width="10" height="60"/><rect x="395" y="232" width="10" height="60"/><rect x="695" y="232" width="10" height="60"/></g>
-        <g fill="#8a949c" stroke="#4b525b"><circle cx="140" cy="155" r="6"/><circle cx="205" cy="155" r="6"/><circle cx="270" cy="155" r="6"/><circle cx="335" cy="155" r="6"/><circle cx="400" cy="155" r="6"/><circle cx="465" cy="155" r="6"/><circle cx="530" cy="155" r="6"/><circle cx="595" cy="155" r="6"/><circle cx="660" cy="155" r="6"/><circle cx="250" cy="205" r="5"/><circle cx="550" cy="205" r="5"/></g>
-        <path d="M90,145 L710,145 A25,25 0 0 1 710,195 L90,195 A25,25 0 0 1 90,145 Z" fill="none" stroke="#0b0b0b" stroke-width="7"/>
-        <circle cx="90" cy="170" r="21" fill="#3b4149" stroke="#59616b" stroke-width="2"/><circle cx="710" cy="170" r="21" fill="#3b4149" stroke="#59616b" stroke-width="2"/>
-        <rect x="742" y="155" width="42" height="30" rx="4" fill="#2f7d32"/><line x1="710" y1="170" x2="742" y2="170" stroke="#8a929c" stroke-width="4"/>
-        <path d="M215,142 Q240,128 270,136 T330,132 T400,135 T470,131 T540,135 T610,132 T690,141 Z" fill="#5b4036"/>
-        <path d="M150,14 L250,14 L228,44 L172,44 Z" fill="#3d434b" stroke="#59616b"/><rect x="182" y="44" width="36" height="58" fill="#4b525b" stroke="#6d757f"/>
-        <rect x="186" y="102" width="28" height="38" fill="#5b4036" opacity=".9"/>
-        <g font-family="system-ui,Arial" font-weight="800" font-size="16" text-anchor="middle">
-          <line x1="440" y1="143" x2="440" y2="88" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="440" cy="76" r="13" fill="#ff7a00"/><text x="440" y="82" fill="#111">1</text>
-          <line x1="716" y1="160" x2="740" y2="100" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="742" cy="88" r="13" fill="#ff7a00"/><text x="742" y="94" fill="#111">2</text>
-          <line x1="84" y1="178" x2="52" y2="252" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="48" cy="262" r="13" fill="#ff7a00"/><text x="48" y="268" fill="#111">3</text>
-          <line x1="335" y1="161" x2="300" y2="262" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="298" cy="270" r="13" fill="#ff7a00"/><text x="298" y="276" fill="#111">4</text>
-          <line x1="220" y1="70" x2="280" y2="52" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="292" cy="46" r="13" fill="#ff7a00"/><text x="292" y="52" fill="#111">5</text>
-          <line x1="560" y1="232" x2="590" y2="262" stroke="#ff7a00" stroke-dasharray="3 3"/><circle cx="598" cy="270" r="13" fill="#ff7a00"/><text x="598" y="276" fill="#111">6</text>
-        </g>
-      </svg>
-    </div>
+<!-- 2. solução -->
+<section class="slide">
+  <div class="side"><img class="logo" src="img/logo-vale.png" alt=""><div class="bar"></div><img class="senai" src="img/logo-senai.png" alt="SENAI"></div>
+  <div class="body txt">
+    <h2>Stone Box + Defletores<br>auto ajustáveis</h2>
+    <p><u>Solução:</u> Instalação de Stone Box + Defletores Ajustáveis.</p>
+    <p><u>Como Funciona:</u> O minério forma um "colchão" que dissipa o impacto e os defletores centralizam a carga na correia.</p>
+    <p><u>Resultado Comprovado:</u> Redução de 85% da assimetria (cai para 6,2%) e fim das paradas por desalinhamento.</p>
   </div>
 </section>
 
-<!-- 3. partes -->
-<section class="slide" data-notes="Uma correia transportadora tem seis partes principais: a correia de borracha, o tambor de acionamento ligado ao motor, o tambor de retorno, os roletes que formam a calha, o chute de transferência, que despeja o minério, e a estrutura.">
-  <span class="kicker">Como funciona</span>
-  <h2>As partes de uma <span>correia transportadora</span></h2>
-  <div class="grid g3">
-    <div class="card"><h4><span class="n">1</span>Correia</h4><p>Borracha em laço fechado que carrega o minério. É a peça mais cara.</p></div>
-    <div class="card"><h4><span class="n">2</span>Tambor de acionamento</h4><p>Ligado ao motor, puxa a correia.</p></div>
-    <div class="card"><h4><span class="n">3</span>Tambor de retorno</h4><p>Faz a correia voltar por baixo e mantém a tensão.</p></div>
-    <div class="card"><h4><span class="n">4</span>Roletes</h4><p>Formam a calha e sustentam a carga.</p></div>
-    <div class="card"><h4><span class="n">5</span>Chute de transferência</h4><p>Despeja o minério sobre a correia.</p></div>
-    <div class="card"><h4><span class="n">6</span>Estrutura</h4><p>Sustenta tudo. Na mina é de aço; no protótipo, de madeira.</p></div>
-  </div>
+<!-- 3. hoje -->
+<section class="slide" data-live="esteira.html?embed=hoje">
+  <div class="side"><img class="logo" src="img/logo-vale.png" alt=""><div class="bar"></div><img class="senai" src="img/logo-senai.png" alt="SENAI"></div>
+  <div class="body"><h2 class="sm">Como funciona hoje</h2><div class="live"><div class="ph">carregando…</div></div></div>
 </section>
 
-<!-- 4. problema -->
-<section class="slide" data-notes="O problema que estudamos é o desalinhamento. O minério cai reto, no centro, mas a carga quase nunca fica igual dos dois lados. Pedras grandes e pesadas quicam e rolam para um lado, os finos ficam no centro, o fluxo varia e o minério muda de um lote para outro. Essa pequena diferença faz a correia fugir para o lado mais leve.">
-  <span class="kicker">O problema</span>
-  <h2>Se o minério cai reto, <span>por que a correia desalinha?</span></h2>
-  <div class="row">
-    <div class="grid g2" style="flex:1.1">
-      <div class="card fac"><h4>Pedras x finos</h4><p>Pedras grandes quicam e rolam para um lado; os finos ficam no centro.</p></div>
-      <div class="card fac"><h4>Fluxo que varia</h4><p>O minério chega em "ondas", às vezes mais de um lado.</p></div>
-      <div class="card fac"><h4>Minério diferente</h4><p>Umidade, peso e tamanho mudam de lote para lote.</p></div>
-      <div class="card fac"><h4>Queda alta</h4><p>O impacto espalha o material sem controle.</p></div>
-    </div>
-    <div class="fig">
-      <svg viewBox="0 0 330 230" role="img" aria-label="Seção da correia com um lado mais pesado">
-        <rect width="330" height="230" fill="#1a1e23"/><rect x="20" y="200" width="290" height="30" fill="#5a2f1d"/>
-        <rect x="42" y="150" width="10" height="50" fill="#6b7780"/><rect x="278" y="150" width="10" height="50" fill="#6b7780"/>
-        <line x1="125" y1="160" x2="205" y2="160" stroke="#8a949c" stroke-width="12" stroke-linecap="round"/>
-        <line x1="210" y1="160" x2="262" y2="124" stroke="#8a949c" stroke-width="12" stroke-linecap="round"/>
-        <line x1="120" y1="160" x2="68" y2="124" stroke="#8a949c" stroke-width="12" stroke-linecap="round"/>
-        <polyline points="50,112 110,151 196,150 256,104" fill="none" stroke="#0b0b0b" stroke-width="8" stroke-linejoin="round"/>
-        <path d="M102,138 Q168,72 234,124 L196,146 L110,146 Z" fill="#5b4036"/>
-        <g fill="#7a5440"><circle cx="222" cy="116" r="6"/><circle cx="210" cy="108" r="5"/><circle cx="233" cy="124" r="5"/></g>
-        <line x1="165" y1="40" x2="165" y2="200" stroke="#ff7a00" stroke-dasharray="6 5" stroke-width="2"/>
-        <line x1="153" y1="60" x2="153" y2="200" stroke="#fff" stroke-dasharray="2 4" stroke-width="1.5" opacity=".6"/>
-        <text x="165" y="28" text-anchor="middle" fill="#ffb020" font-family="system-ui" font-weight="800" font-size="17">Um lado mais pesado</text>
-        <text x="228" y="92" text-anchor="middle" fill="#ffb020" font-family="system-ui" font-weight="700" font-size="12">pedras grandes</text>
-      </svg>
-      <p class="muted" style="font-size:15px;margin:8px 4px 0">Linha laranja: eixo da estrutura. A correia sai do eixo para o lado mais leve.</p>
-    </div>
-  </div>
+<!-- 4. com a inovação -->
+<section class="slide" data-live="esteira.html?embed=inovacao">
+  <div class="side"><img class="logo" src="img/logo-vale.png" alt=""><div class="bar"></div><img class="senai" src="img/logo-senai.png" alt="SENAI"></div>
+  <div class="body"><h2 class="sm">Com a inovação</h2><div class="live"><div class="ph">carregando…</div></div></div>
 </section>
 
-<!-- 5. consequências -->
-<section class="slide" data-notes="O desalinhamento traz cinco consequências: a borda da correia se desgasta, o minério derrama, a correia precisa parar para manutenção, aumenta o risco para os trabalhadores e o custo sobe.">
-  <span class="kicker">Consequências</span>
-  <h2>O que o desalinhamento <span>causa</span></h2>
-  <div class="grid g5" style="margin-top:20px">
-    <div class="card bad"><h4>Desgaste</h4><p>A borda raspa na estrutura e a correia desfia.</p></div>
-    <div class="card bad"><h4>Derramamento</h4><p>Minério cai no chão e exige limpeza.</p></div>
-    <div class="card bad"><h4>Paradas</h4><p>A chave de desalinhamento desliga a correia.</p></div>
-    <div class="card bad"><h4>Segurança</h4><p>Limpeza perto de partes móveis é perigosa.</p></div>
-    <div class="card bad"><h4>Custo</h4><p>Correia nova, mão de obra e produção perdida.</p></div>
-  </div>
-  <p class="lead" style="margin-top:40px">👉 Pequenas diferenças na carga, somadas durante horas, viram <b>grandes prejuízos</b>.</p>
-</section>
-
-<!-- 6. hoje (ao vivo) -->
-<section class="slide" data-live="esteira.html?embed=hoje" data-notes="Aqui está o simulador mostrando como funciona hoje. O minério cai reto, mas de muito alto. Repare que a carga fica só um pouco mais de um lado, e mesmo assim a correia vai saindo do eixo laranja, até acionar a chave de desalinhamento.">
-  <span class="kicker">Simulação ao vivo</span>
-  <h2 style="margin-bottom:8px">Como funciona <span>hoje</span></h2>
-  <div class="tagline"><span class="pill bad">SEM INOVAÇÃO</span>Queda alta, impacto forte e carga levemente desigual.</div>
-  <div class="live"><div class="ph">carregando simulador…</div></div>
-</section>
-
-<!-- 7. solução -->
-<section class="slide" data-notes="Nossa solução é um conjunto de quatro peças: o funil de alimentação, a stone box ou caixa de pedra, dois defletores ajustáveis montados em V, e um suporte em U que prende tudo na estrutura.">
-  <span class="kicker">A nossa solução</span>
-  <h2>Conjunto <span>Funil + Stone Box + Defletores</span></h2>
-  <div class="grid g4">
-    <div class="card piece" style="--c:var(--funil)"><h4><i class="sw" style="background:var(--funil)"></i>Funil</h4><div class="dims">Topo 70 × 70 mm · saída 30 × 30 mm · altura 50 mm</div><p>Concentra o minério e direciona a queda.</p></div>
-    <div class="card piece" style="--c:var(--box)"><h4><i class="sw" style="background:var(--box)"></i>Stone Box</h4><div class="dims">70 × 50 mm · bordas 15 mm · altura 30 mm · encaixe 30 × 30 mm</div><p>Forma um colchão de minério que amortece a queda.</p></div>
-    <div class="card piece" style="--c:var(--aleta)"><h4><i class="sw" style="background:var(--aleta)"></i>Aletas ×2</h4><div class="dims">60 × 35 × 8 mm · eixo Ø10 mm · em V</div><p>Giram sozinhas e guiam o minério para o centro.</p></div>
-    <div class="card piece" style="--c:var(--sup)"><h4><i class="sw" style="background:var(--sup)"></i>Suporte em U</h4><div class="dims">40 × 50 × 10 mm · parafuso M10</div><p>Prende o conjunto na estrutura de madeira.</p></div>
-  </div>
-</section>
-
-<!-- 8. como funciona -->
-<section class="slide" data-notes="Funciona em três passos. O funil concentra o minério. Na stone box, o minério se acumula e forma um colchão: o minério novo bate em minério, e não na correia, e as pedras e os finos se misturam. Depois, as aletas em V guiam a carga para o centro. Quando vem mais minério, o V abre sozinho.">
-  <span class="kicker">Passo a passo</span>
-  <h2>Como a solução <span>funciona</span></h2>
-  <div class="flow">
-    <div class="st" style="--c:var(--funil)"><div class="ic">⬇️</div><h4>1. Funil</h4><p>Concentra o minério e leva a queda para o centro.</p></div>
-    <div class="ar">→</div>
-    <div class="st" style="--c:var(--box)"><div class="ic">🪨</div><h4>2. Stone Box</h4><p>O minério forma um <b>colchão</b>: minério bate em minério, não na correia. Pedras e finos se <b>misturam</b>.</p></div>
-    <div class="ar">→</div>
-    <div class="st" style="--c:var(--aleta)"><div class="ic">〽️</div><h4>3. Aletas em V</h4><p>Guiam a carga para o <b>centro</b>. Com mais minério, o V <b>abre sozinho</b>.</p></div>
-    <div class="ar">→</div>
-    <div class="st" style="--c:var(--ok)"><div class="ic">✅</div><h4>Resultado</h4><p>Carga equilibrada, impacto baixo e correia <b>alinhada</b>.</p></div>
-  </div>
-</section>
-
-<!-- 9. com inovação (ao vivo) -->
-<section class="slide" data-live="esteira.html?embed=inovacao" data-notes="Agora o simulador com a nossa inovação. A stone box enche e forma o colchão, as aletas amarelas se ajustam ao fluxo, e a carga chega no centro. O desvio da correia fica perto de zero e os indicadores ficam verdes.">
-  <span class="kicker">Simulação ao vivo</span>
-  <h2 style="margin-bottom:8px">Com a <span>nossa inovação</span></h2>
-  <div class="tagline"><span class="pill good">COM INOVAÇÃO</span>Colchão de minério, aletas em V e carga no centro.</div>
-  <div class="live"><div class="ph">carregando simulador…</div></div>
-</section>
-
-<!-- 10. comparação (ao vivo) -->
-<section class="slide" data-live="esteira.html?embed=comparacao" data-notes="Aqui estão as duas correias lado a lado, com o mesmo minério e a mesma vazão. Veja a redução do desvio, do derramamento, do impacto e do desgaste. Os valores são ilustrativos, gerados pelo simulador.">
-  <span class="kicker">Simulação ao vivo</span>
-  <h2 style="margin-bottom:8px">Antes <span>x</span> Depois</h2>
-  <div class="tagline"><span class="pill bad">SEM</span><span class="pill good">COM</span>Mesmo minério, mesma vazão. Valores ilustrativos.</div>
-  <div class="live"><div class="ph">carregando simulador…</div></div>
-</section>
-
-<!-- 11. protótipo -->
-<section class="slide" data-notes="Para testar a ideia, montamos uma mini esteira em escala. A estrutura é de madeira, as peças são impressas em 3D em PLA ou PETG, com parede de 2 a 3 milímetros e preenchimento de 15 a 20 por cento. A areia faz o papel do minério.">
-  <span class="kicker">Protótipo</span>
-  <h2>Mini esteira <span>em escala</span></h2>
-  <div class="row">
-    <div>
-      <ul class="bullets">
-        <li>Estrutura de <b>madeira</b></li>
-        <li>Peças <b>impressas em 3D</b> em PLA ou PETG</li>
-        <li>Parede de <b>2 a 3 mm</b>, preenchimento de <b>15% a 20%</b></li>
-        <li><b>Areia</b> simulando o minério</li>
-        <li>Aletas em eixo <b>Ø10 mm</b>, fixação com parafuso <b>M10</b></li>
-      </ul>
-    </div>
-    <div class="fig" style="flex:.75">
-      <svg viewBox="0 0 420 520" role="img" aria-label="Vista explodida das 4 peças" style="max-height:470px">
-        <rect width="420" height="520" fill="#1a1e23"/>
-        <line x1="150" y1="14" x2="150" y2="505" stroke="#ff7a00" stroke-dasharray="5 6" opacity=".5"/>
-        <polygon points="100,62 130,45 230,45 200,62" fill="#2a2e33" stroke="#8a929c"/><polygon points="113,58 135,48 218,48 196,58" fill="#1b1e22"/>
-        <polygon points="100,62 200,62 172,122 128,122" fill="#5f6873" stroke="#8a929c"/><polygon points="200,62 230,45 186,113 172,122" fill="#454b53" stroke="#8a929c"/>
-        <polygon points="96,186 122,172 226,172 200,186" fill="#e57373" stroke="#ffb4b4"/><polygon points="118,183 132,176 206,176 192,183" fill="#4a1717"/>
-        <rect x="96" y="186" width="104" height="40" fill="#d32f2f" stroke="#ffb4b4"/><polygon points="200,186 226,172 226,212 200,226" fill="#a82424" stroke="#ffb4b4"/>
-        <rect x="134" y="226" width="32" height="10" fill="#a82424" stroke="#ffb4b4"/>
-        <rect x="88" y="262" width="12" height="74" rx="6" fill="#9aa3ad"/><rect x="200" y="262" width="12" height="74" rx="6" fill="#9aa3ad"/>
-        <polygon points="100,276 145,302 145,332 100,306" fill="#ffc400" stroke="#7a5d00"/><polygon points="200,276 155,302 155,332 200,306" fill="#e0ac00" stroke="#7a5d00"/>
-        <polygon points="190,392 206,384 206,444 190,452" fill="#1565c0"/>
-        <polygon points="110,392 126,392 126,436 174,436 174,392 190,392 190,452 110,452" fill="#1e88e5" stroke="#90caf9"/>
-        <rect x="145" y="452" width="10" height="34" fill="#9aa3ad"/><polygon points="138,486 162,486 166,494 134,494" fill="#c7ced6"/>
-        <g font-family="system-ui,Arial" font-size="17" font-weight="700">
-          <line x1="232" y1="80" x2="268" y2="80" stroke="#8a929c"/><circle cx="282" cy="80" r="13" fill="#5f6873"/><text x="282" y="86" text-anchor="middle" fill="#fff">1</text><text x="302" y="86" fill="#e8ebee">Funil</text>
-          <line x1="228" y1="200" x2="268" y2="200" stroke="#8a929c"/><circle cx="282" cy="200" r="13" fill="#d32f2f"/><text x="282" y="206" text-anchor="middle" fill="#fff">2</text><text x="302" y="206" fill="#e8ebee">Stone Box</text>
-          <line x1="214" y1="300" x2="268" y2="300" stroke="#8a929c"/><circle cx="282" cy="300" r="13" fill="#ffc400"/><text x="282" y="306" text-anchor="middle" fill="#111">3</text><text x="302" y="306" fill="#e8ebee">Aletas ×2</text>
-          <line x1="208" y1="420" x2="268" y2="420" stroke="#8a929c"/><circle cx="282" cy="420" r="13" fill="#1e88e5"/><text x="282" y="426" text-anchor="middle" fill="#fff">4</text><text x="302" y="426" fill="#e8ebee">Suporte U</text>
-        </g>
-      </svg>
-    </div>
-  </div>
-</section>
-
-<!-- 12. benefícios -->
-<section class="slide" data-notes="Os benefícios esperados são: correia mais alinhada, menos minério derramado, menos impacto e desgaste, e menos paradas para manutenção. Os números são do simulador e servem só para ilustrar.">
-  <span class="kicker">Benefícios esperados</span>
-  <h2>O que a solução <span>melhora</span></h2>
-  <div class="grid g4" style="margin-top:20px">
-    <div class="card res"><div class="big">↔</div><h4 style="justify-content:center">Alinhamento</h4><p>Desvio da correia perto de zero.</p></div>
-    <div class="card res"><div class="big">⬇</div><h4 style="justify-content:center">Derramamento</h4><p>Menos minério no chão e menos limpeza.</p></div>
-    <div class="card res"><div class="big">🛡</div><h4 style="justify-content:center">Impacto e desgaste</h4><p>Minério bate em minério, não na correia.</p></div>
-    <div class="card res"><div class="big">⏱</div><h4 style="justify-content:center">Paradas</h4><p>Menos paradas para manutenção.</p></div>
-  </div>
-  <p class="lead" style="margin-top:34px">Peças <b>simples, baratas</b> e <b>sem motor</b>: as aletas se ajustam sozinhas com o próprio fluxo de minério.</p>
-  <p class="note">Valores mostrados no simulador são ilustrativos; o próximo passo é medir no protótipo.</p>
-</section>
-
-<!-- 13. fim -->
-<section class="slide cover" data-notes="Obrigado pela atenção! Estamos à disposição para perguntas.">
-  <span class="kicker">Obrigado!</span>
-  <h1>Perguntas<span>?</span></h1>
-  <p class="lead">Mini Esteira Transportadora – Stone Box + Defletores</p>
-  <p class="muted" style="font-size:19px">Simulador completo: <b>marcoshdesousa.github.io/jogodavelha</b></p>
-  <div class="belt"></div>
+<!-- 5. as duas juntas -->
+<section class="slide" data-live="esteira.html?embed=comparacao">
+  <div class="side"><img class="logo" src="img/logo-vale.png" alt=""><div class="bar"></div><img class="senai" src="img/logo-senai.png" alt="SENAI"></div>
+  <div class="body"><h2 class="sm">Hoje x Com a inovação</h2><div class="live"><div class="ph">carregando…</div></div></div>
 </section>
 
 </div>
 
-<div id="cap"></div>
+<div id="dots"></div>
 <div id="bar">
   <button id="bPrev" type="button" title="Anterior (←)">◀</button>
   <button id="bNext" type="button" title="Próximo (→)">▶</button>
-  <span id="count">1 / 13</span>
+  <span id="count"></span>
   <span style="flex:1"></span>
-  <button id="bNarr" type="button" title="Narração automática (N)">🎙️ Narrar</button>
   <button id="bFull" type="button" title="Tela cheia (F)">⛶ Tela cheia</button>
 </div>
 
 <script>
 (function(){
 'use strict';
-const stage=document.getElementById('stage'),slides=[...document.querySelectorAll('.slide')],N=slides.length;
+const stage=document.getElementById('stage'),slides=[...document.querySelectorAll('.slide')],N=slides.length,dots=document.getElementById('dots');
 let cur=-1;
 function fit(){const k=Math.min(innerWidth/1280,innerHeight/720);stage.style.transform=`translate(-50%,-50%) scale(${k})`;}
 addEventListener('resize',fit);fit();
-
+dots.innerHTML=slides.map((_,i)=>`<i data-i="${i}"></i>`).join('');
+dots.querySelectorAll('i').forEach(d=>d.onclick=()=>go(+d.dataset.i));
 function go(i){
   i=Math.max(0,Math.min(N-1,i));if(i===cur)return;const prev=cur;cur=i;
-  slides.forEach((s,k)=>{s.classList.toggle('on',k===i);s.classList.toggle('back',k<i);});
-  // simulador ao vivo só no slide visível (economiza processamento)
-  if(prev>=0)unload(slides[prev]);load(slides[i]);
+  slides.forEach((s,k)=>s.classList.toggle('on',k===i));
+  dots.querySelectorAll('i').forEach((d,k)=>d.classList.toggle('on',k===i));
+  // o simulador só roda no slide que está aberto
+  if(prev>=0){const f=slides[prev].querySelector('.live iframe');if(f)f.remove();}
+  const s=slides[i];if(s.dataset.live){const f=document.createElement('iframe');f.src=s.dataset.live;f.title='Simulador';s.querySelector('.live').appendChild(f);}
   document.getElementById('count').textContent=(i+1)+' / '+N;
-  document.getElementById('prog').style.width=((i+1)/N*100)+'%';
   history.replaceState(null,'','#'+(i+1));
-  if(NR.on)NR.say();
 }
-function load(s){const src=s.dataset.live;if(!src)return;const box=s.querySelector('.live');if(box.querySelector('iframe'))return;
-  const f=document.createElement('iframe');f.src=src;f.title='Simulador';f.loading='eager';box.appendChild(f);}
-function unload(s){const f=s.querySelector('.live iframe');if(f)f.remove();}
 const next=()=>go(cur+1),prev=()=>go(cur-1);
-
 addEventListener('keydown',e=>{
   if(['ArrowRight','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();next();}
   else if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){e.preventDefault();prev();}
-  else if(e.key==='Home')go(0);else if(e.key==='End')go(N-1);
-  else if(e.key==='f'||e.key==='F')full();else if(e.key==='n'||e.key==='N')NR.toggle();
+  else if(e.key==='Home')go(0);else if(e.key==='End')go(N-1);else if(e.key==='f'||e.key==='F')full();
 });
-// gesto de deslizar (celular/tablet)
 let tx=null,ty=0;
 addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
 addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))dx<0?next():prev();tx=null;},{passive:true});
 document.getElementById('bNext').onclick=next;document.getElementById('bPrev').onclick=prev;
-function full(){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}
+function full(){if(document.fullscreenElement)document.exitFullscreen();else if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();}
 document.getElementById('bFull').onclick=full;
-// barra aparece ao mexer o mouse
 const bar=document.getElementById('bar');let ht;
 addEventListener('mousemove',()=>{bar.classList.add('show');clearTimeout(ht);ht=setTimeout(()=>bar.classList.remove('show'),2000);});
-
-/* narração: lê as notas de cada slide e avança sozinho */
-const NR={on:false,tok:0,voice:null,
-  pick(){if(!('speechSynthesis'in window))return;const vs=speechSynthesis.getVoices();this.voice=vs.find(v=>/pt[-_]BR/i.test(v.lang)&&/google|natural|luciana|francisca|maria/i.test(v.name))||vs.find(v=>/pt[-_]BR/i.test(v.lang))||vs.find(v=>/^pt/i.test(v.lang))||null;},
-  toggle(){this.on=!this.on;document.getElementById('bNarr').classList.toggle('on',this.on);if(this.on)this.say();else this.stop();},
-  stop(){this.tok++;clearTimeout(this.t);if('speechSynthesis'in window)speechSynthesis.cancel();document.getElementById('cap').classList.remove('on');},
-  say(){
-    this.stop();const tok=this.tok,txt=slides[cur].dataset.notes||'',cap=document.getElementById('cap');
-    const parts=txt.match(/[^.!?]+[.!?]*/g)||[];let k=0;
-    const step=()=>{
-      if(tok!==this.tok)return;
-      if(k>=parts.length){cap.classList.remove('on');const live=!!slides[cur].dataset.live;
-        this.t=setTimeout(()=>{if(tok===this.tok&&cur<N-1)next();else if(tok===this.tok)this.toggle();},live?5000:1200);return;}
-      const s=parts[k++].trim();cap.textContent=s;cap.classList.add('on');
-      if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(s);u.lang='pt-BR';if(this.voice)u.voice=this.voice;
-        let done=false;const t0=performance.now(),minT=s.length*55;
-        const fin=()=>{if(done)return;done=true;clearTimeout(this.t);const el=performance.now()-t0;this.t=setTimeout(step,el<minT*0.3?minT-el:150);};
-        u.onend=fin;u.onerror=fin;this.t=setTimeout(fin,s.length*95+3000);speechSynthesis.speak(u);}
-      else this.t=setTimeout(step,s.length*60+900);
-    };
-    this.t=setTimeout(step,500);
-  }
-};
-if('speechSynthesis'in window){NR.pick();speechSynthesis.onvoiceschanged=()=>NR.pick();}
-document.getElementById('bNarr').onclick=()=>NR.toggle();
-
 go((parseInt(location.hash.slice(1),10)||1)-1);
 })();
 </script>
