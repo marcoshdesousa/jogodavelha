@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SIGM – Sistema Integrado de Gestão da Manutenção</title>
-<script>(function(){if(new URLSearchParams(location.search).get('embed'))document.documentElement.classList.add('embed');})();</script>
+<script>(function(){var e=new URLSearchParams(location.search).get('embed');if(e)document.documentElement.classList.add(e==='full'?'embedfull':'embed');})();</script>
 <style>
 :root{--bg:#15181c;--panel:#1f242a;--panel2:#262c33;--line:#333b44;--text:#e8ebee;--muted:#9aa4ae;
   --orange:#ff7a00;--ok:#2ecc71;--warn:#ffb020;--alert:#ff3b30;--blue:#4fc3f7;--teal:#0f6b78}
@@ -82,6 +82,10 @@ textarea{resize:vertical;min-height:60px}
 .diff b{color:var(--orange)}
 @media (max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}.form{grid-template-columns:1fr}}
 /* modo incorporado (slides) */
+html.embedfull header.top,html.embedfull .note{display:none}
+html.embedfull .wrap{max-width:none;padding:6px 10px}
+html.embedfull .tabs{margin:2px 0 4px}
+html.embedfull .view{padding:4px 0 10px}
 html.embed header.top,html.embed .tabs,html.embed .note,html.embed .flow,html.embed #painelExtra,html.embed .diff{display:none}
 html.embed .wrap{max-width:none;padding:8px}
 html.embed .view{padding:0}
@@ -344,6 +348,9 @@ const h=location.hash.slice(1);if(h){const b=document.querySelector(`.tab[data-v
 $('#reset').onclick=()=>{if(confirm('Restaurar os dados de exemplo? As alterações feitas neste navegador serão apagadas.')){S=JSON.parse(JSON.stringify(SEED));save();$('#fRef').value=S.ref;renderAll();}};
 $('#exeOm').dispatchEvent(new Event('change'));
 renderAll();
+// dentro dos slides: setas (fora dos campos) continuam passando os slides
+if(window.parent!==window)addEventListener('keydown',e=>{const t=e.target.tagName;if(/INPUT|SELECT|TEXTAREA/.test(t))return;
+  if(['ArrowRight','ArrowLeft','PageDown','PageUp'].includes(e.key)){e.preventDefault();window.parent.postMessage({slideKey:e.key},'*');}});
 })();
 </script>
 </body>
