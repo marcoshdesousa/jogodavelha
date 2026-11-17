@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<script>(function(){var e=new URLSearchParams(location.search).get('embed');if(e){document.documentElement.classList.add('embed');document.documentElement.dataset.embed=e;}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mini Esteira Transportadora – Stone Box + Defletores</title>
@@ -132,6 +133,23 @@ footer{margin-top:50px;padding:24px 0 110px;border-top:1px solid var(--line);col
   #narr{flex-wrap:wrap}
   #narr .cap{flex-basis:100%;order:3;font-size:.95rem}
 }
+/* modo incorporado (usado pelos slides): ?embed=hoje|inovacao|comparacao */
+html.embed body{background:#15181c}
+html.embed header.hero,html.embed nav.top,html.embed footer,html.embed #narr,html.embed section h2,html.embed section>p,html.embed section>.grid,html.embed .observe,html.embed .legend,html.embed .notice{display:none}
+html.embed section:not(.show){display:none}
+html.embed .wrap{max-width:none;padding:8px}
+html.embed section.show{padding:0;display:grid;grid-template-columns:auto 300px;gap:10px;justify-content:center;align-items:start}
+html.embed section.show>.sim-wrap{grid-row:1/3;margin:0;width:calc((100vh - 18px)*1000/730);max-width:calc(100vw - 330px)}
+html.embed section.show>.controls{margin:0;padding:10px;gap:6px 10px}
+html.embed section.show>.controls .rng{flex-basis:100%}
+html.embed section.show>.ind-grid{margin:0;grid-template-columns:1fr 1fr;gap:6px}
+html.embed .ind{padding:7px 9px}html.embed .ind .val{font-size:1.02rem}html.embed .ind .sub{display:none}
+html.embed #comparacao.show{display:block}
+html.embed #comparacao .split{max-width:calc((100vh - 250px)*1000/730*2 + 14px);margin:0 auto}
+html.embed #comparacao .side-head{margin:0 0 4px}
+html.embed #comparacao .controls{margin:6px auto 0;max-width:900px;padding:8px}
+html.embed #comparacao .cmp{grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px}
+html.embed .cmp .card{padding:8px 10px}html.embed .cmp .card h4{font-size:.72rem}html.embed .cmp .bad,html.embed .cmp .good{font-size:.95rem}
 </style>
 </head>
 <body>
@@ -402,6 +420,7 @@ footer{margin-top:50px;padding:24px 0 110px;border-top:1px solid var(--line);col
 <script>
 (function(){
 'use strict';
+{const em=document.documentElement.dataset.embed;if(em){const sec=document.getElementById(em);if(sec)sec.classList.add('show');}}
 /* ================= constantes (mundo virtual 1000 x 730) ================= */
 const VW=1000, VH=730, SPLIT=402;
 const PCY=275, BR=27.5, BT=PCY-BR-3.5, TAILX=110, HEADX=890, GROUND=384;
