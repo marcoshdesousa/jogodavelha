@@ -94,6 +94,7 @@ h1 span,h2 span{color:var(--orange)}
 .fronts .fh{font-size:20px;font-weight:800;color:var(--text)}
 .fr{display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
 .fr .ic{font-size:32px}.fr h4{margin:0;font-size:21px;color:var(--c)}.fr p{margin:3px 0 0;font-size:16px;color:#c3cad1}
+.open{margin-top:6px;display:block;text-align:center;background:var(--orange);color:#111;font-weight:800;font-size:17px;text-decoration:none;border-radius:10px;padding:11px}
 .plus{text-align:center;font-size:30px;font-weight:900;color:var(--orange);line-height:1}
 /* investimento */
 .cost{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;flex:1;min-height:0}
@@ -149,31 +150,18 @@ h1 span,h2 span{color:var(--orange)}
 </section>
 
 <!-- 3. painel do PCM + duas frentes -->
-<section class="slide">
+<section class="slide" data-live="sigm.html?embed=painel">
   <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
-  <span class="kicker">SIGM · protótipo</span>
+  <span class="kicker">SIGM · ao vivo</span>
   <h2>Painel do <span>PCM</span></h2>
   <div class="pcm">
-    <div>
-      <div class="kpis">
-        <div class="kp"><b>10</b><span>intervenções cadastradas</span></div>
-        <div class="kp ok"><b>5</b><span>prontas para a parada</span></div>
-        <div class="kp warn"><b>5</b><span>com pendências</span></div>
-        <div class="kp bad"><b>2</b><span>urgentes (parada em até 7 dias)</span></div>
-      </div>
-      <div class="alerts">
-        <div class="ah">⚠️ Alertas antes da parada</div>
-        <div class="al"><span class="tag bad">URGENTE</span><b>OM-24047</b> · CV-01 · kit de emenda sem saldo · parada em 5 dias</div>
-        <div class="al"><span class="tag bad">URGENTE</span><b>OM-24026</b> · CV-02 · aguardando conferência do almoxarifado · 6 dias</div>
-        <div class="al"><span class="tag warn">ACOMPANHAR</span><b>OM-24031</b> · CV-03 · revestimento sem saldo · 8 dias</div>
-      </div>
-      <p class="fict">Dados fictícios da planilha-protótipo do SIGM.</p>
-    </div>
+    <div class="live" style="height:470px"><div class="ph">carregando…</div></div>
     <div class="fronts">
       <div class="fh">Duas frentes complementares</div>
       <div class="fr" style="--c:var(--orange)"><div class="ic">⚙️</div><div><h4>Stone Box + Defletores</h4><p>Melhoria técnica da transferência de minério.</p></div></div>
       <div class="plus">+</div>
       <div class="fr" style="--c:var(--blue)"><div class="ic">📋</div><div><h4>SIGM</h4><p>Organização e comunicação dos processos de manutenção.</p></div></div>
+      <a class="open" href="sigm.html" target="_blank" rel="noopener">Abrir o SIGM completo ↗</a>
     </div>
   </div>
 </section>
