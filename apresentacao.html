@@ -5,89 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stone Box, Defletores Ajustáveis e Ficha Rápida – Escuderia Vanguarda</title>
 <style>
-:root{--teal:#56adba;--teal-d:#3f8f9b;--ink:#111;--paper:#fdfbfb}
+:root{--bg:#15181c;--panel:#1f242a;--panel2:#262c33;--line:#333b44;--text:#e8ebee;--muted:#9aa4ae;
+  --orange:#ff7a00;--ok:#2ecc71;--alert:#ff3b30;--funil:#5f6873;--box:#d32f2f;--aleta:#ffc400;--sup:#1e88e5}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:#0f1013;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
-/* palco 16:9 que se ajusta à tela */
-#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;background:var(--paper);overflow:hidden;box-shadow:0 0 50px rgba(0,0,0,.5)}
-.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
-.slide.on{opacity:1;visibility:visible;transition:opacity .4s}
+html,body{margin:0;height:100%;background:#0b0d10;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;background:var(--bg);overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,.6)}
+.slide{position:absolute;inset:0;padding:54px 70px 60px;display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:translateX(36px);transition:opacity .45s,transform .45s,visibility 0s .45s}
+.slide.on{opacity:1;visibility:visible;transform:none;transition:opacity .45s,transform .45s}
+.slide.back{transform:translateX(-36px)}
+.slide::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:repeating-linear-gradient(90deg,var(--orange) 0 26px,#111 26px 52px)}
+.kicker{display:inline-block;align-self:flex-start;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:#111;background:var(--orange);padding:4px 12px;border-radius:5px;font-weight:800}
+h1{font-size:68px;line-height:1.06;margin:22px 0 22px}
+h2{font-size:48px;margin:14px 0 22px;line-height:1.08}
+h1 span,h2 span{color:var(--orange)}
+.logos{position:absolute;right:46px;top:34px;display:flex;align-items:center;gap:14px;background:#fff;border-radius:12px;padding:8px 16px}
+.logos img{display:block}
 /* capa */
-.cover .logo{position:absolute;left:46px;top:40px;width:150px}
-.cover .panel{position:absolute;left:206px;right:0;top:0;height:470px;background:var(--teal);color:#fff;padding:42px 64px}
-.cover .team{text-align:center;font-size:34px;font-weight:700;margin:0 0 40px}
-.cover h1{font-size:74px;line-height:1.12;margin:0 0 40px;font-weight:800}
-.cover .names{font-size:26px;font-weight:700;line-height:1.4;max-width:560px}
-.cover .senai{position:absolute;left:50%;bottom:62px;transform:translateX(-30%);width:380px}
-/* slides internos */
-.side{position:absolute;left:0;top:0;bottom:0;width:178px;background:var(--teal);display:flex;flex-direction:column;align-items:center;padding:44px 0 40px}
-.side .logo{width:108px}
-.side .bar{width:3px;height:140px;background:#fff;margin-top:110px}
-.side .senai{margin-top:auto;width:150px;clip-path:inset(0 42% 0 0);transform:translateX(30px)}
-.body{position:absolute;left:178px;right:0;top:0;bottom:0;padding:56px 56px 40px 56px;display:flex;flex-direction:column}
-h2{color:var(--teal);font-size:66px;line-height:1.1;margin:0 0 34px;font-weight:800}
-h2.sm{font-size:52px;margin-bottom:18px}
-.txt p{font-size:27px;line-height:1.45;font-weight:600;color:var(--ink);margin:0 0 30px;max-width:900px}
-.txt u{color:var(--teal);text-underline-offset:4px}
-.live{flex:1;min-height:0;border-radius:14px;overflow:hidden;background:#15181c;position:relative;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.cover{justify-content:center;background:radial-gradient(900px 420px at 85% 120%,rgba(141,75,43,.55),transparent 70%),repeating-linear-gradient(135deg,#1d2126 0 22px,#1a1d22 22px 44px)}
+.team{font-size:30px;font-weight:800;color:var(--orange);margin:0}
+.names{font-size:24px;color:#cfd5da;margin-top:6px}
+.names b{color:var(--text)}
+.belt{position:absolute;left:0;right:0;bottom:64px;height:46px;background:#0c0c0c;border-top:4px solid #2a2a2a}
+.belt::after{content:"";position:absolute;inset:6px 0;background:repeating-linear-gradient(90deg,#3a2c28 0 18px,#5b4036 18px 30px,#4b3730 30px 44px);border-radius:20px;animation:run 2.4s linear infinite}
+@keyframes run{to{background-position:88px 0}}
+/* solução */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px 24px 26px;border-top:6px solid var(--c)}
+.card .ic{font-size:40px}
+.card h4{margin:10px 0 8px;font-size:26px;color:var(--c)}
+.card p{margin:0;font-size:22px;line-height:1.45;color:#d6dbe0}
+.card .big{font-size:58px;font-weight:900;color:var(--ok);line-height:1;margin:6px 0 8px}
+.parts{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.parts span{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);padding:7px 14px;border-radius:999px;font-size:18px}
+.sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* simuladores */
+.head{display:flex;align-items:center;gap:14px;margin:6px 0 14px}
+.head h2{margin:0}
+.pill{font-size:16px;font-weight:800;padding:5px 13px;border-radius:999px}
+.pill.bad{background:var(--alert);color:#fff}.pill.good{background:var(--ok);color:#06210f}
+.live{flex:1;min-height:0;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#15181c;position:relative}
 .live iframe{position:relative;z-index:1;width:100%;height:100%;border:0;display:block;background:#15181c}
-.live .ph{position:absolute;inset:0;display:grid;place-items:center;color:#9aa4ae;font-size:20px}
+.live .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:20px}
 /* controles */
-#bar{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;gap:8px;padding:8px 12px;opacity:.3;transition:opacity .3s;z-index:10}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--orange);z-index:11;transition:width .35s}
+#bar{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;gap:8px;padding:8px 12px;background:linear-gradient(transparent,rgba(0,0,0,.7));opacity:.3;transition:opacity .3s;z-index:10}
 #bar:hover,#bar.show{opacity:1}
-#bar button{appearance:none;border:1px solid #c9d6d9;background:rgba(255,255,255,.95);color:#1d4f57;font:inherit;font-weight:750;font-size:14px;padding:7px 12px;border-radius:9px;cursor:pointer}
-#count{color:#cfd5da;font-size:14px;font-variant-numeric:tabular-nums;margin-left:4px;text-shadow:0 1px 2px #000}
-#dots{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;display:flex;gap:8px;z-index:10}
-#dots i{width:9px;height:9px;border-radius:9px;background:#5b6066;transition:width .3s,background .3s;cursor:pointer}
-#dots i.on{width:28px;background:#c9ced3}
+#bar button{appearance:none;border:1px solid #3a434c;background:rgba(31,36,42,.92);color:#e8ebee;font:inherit;font-weight:750;font-size:14px;padding:7px 12px;border-radius:9px;cursor:pointer}
+#bar button:hover{border-color:var(--orange)}
+#count{color:#cfd5da;font-size:14px;font-variant-numeric:tabular-nums;margin-left:4px}
 </style>
 </head>
 <body>
+<div id="prog"></div>
 <div id="stage">
 
 <!-- 1. capa -->
 <section class="slide cover">
-  <img class="logo" src="img/logo-vale.png" alt="">
-  <div class="panel">
-    <p class="team">Escuderia Vanguarda</p>
-    <h1>Stone Box, Defletores Ajustáveis e Ficha Rápida</h1>
-    <div class="names">Emanuelly, Fernando, Tamila,<br>Marcos e Kamily</div>
-  </div>
-  <img class="senai" src="img/logo-senai.png" alt="SENAI – Serviço Nacional de Aprendizagem Industrial">
+  <div class="logos"><img src="img/logo-vale.png" alt="" style="height:44px"><img src="img/logo-senai.png" alt="SENAI" style="height:40px"></div>
+  <p class="team">Escuderia Vanguarda</p>
+  <h1>Stone Box, Defletores<br>Ajustáveis e <span>Ficha Rápida</span></h1>
+  <div class="names">Equipe: <b>Emanuelly, Fernando, Tamila, Marcos e Kamily</b></div>
+  <div class="belt"></div>
 </section>
 
 <!-- 2. solução -->
 <section class="slide">
-  <div class="side"><img class="logo" src="img/logo-vale.png" alt=""><div class="bar"></div><img class="senai" src="img/logo-senai.png" alt="SENAI"></div>
-  <div class="body txt">
-    <h2>Stone Box + Defletores<br>auto ajustáveis</h2>
-    <p><u>Solução:</u> Instalação de Stone Box + Defletores Ajustáveis.</p>
-    <p><u>Como Funciona:</u> O minério forma um "colchão" que dissipa o impacto e os defletores centralizam a carga na correia.</p>
-    <p><u>Resultado Comprovado:</u> Redução de 85% da assimetria (cai para 6,2%) e fim das paradas por desalinhamento.</p>
+  <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
+  <span class="kicker">A solução</span>
+  <h2>Stone Box + Defletores <span>auto ajustáveis</span></h2>
+  <div class="cards">
+    <div class="card" style="--c:var(--orange)"><div class="ic">🛠️</div><h4>Solução</h4><p>Instalação de Stone Box + Defletores Ajustáveis.</p></div>
+    <div class="card" style="--c:var(--aleta)"><div class="ic">⚙️</div><h4>Como funciona</h4><p>O minério forma um "colchão" que dissipa o impacto e os defletores centralizam a carga na correia.</p></div>
+    <div class="card" style="--c:var(--ok)"><div class="ic">✅</div><h4>Resultado comprovado</h4><div class="big">−85%</div><p>da assimetria (cai para 6,2%) e fim das paradas por desalinhamento.</p></div>
+  </div>
+  <div class="parts">
+    <span><i class="sw" style="background:var(--funil)"></i>Funil</span>
+    <span><i class="sw" style="background:var(--box)"></i>Stone Box</span>
+    <span><i class="sw" style="background:var(--aleta)"></i>Aletas em V</span>
+    <span><i class="sw" style="background:var(--sup)"></i>Suporte em U</span>
   </div>
 </section>
 
 <!-- 3. hoje -->
 <section class="slide" data-live="esteira.html?embed=hoje">
-  <div class="side"><img class="logo" src="img/logo-vale.png" alt=""><div class="bar"></div><img class="senai" src="img/logo-senai.png" alt="SENAI"></div>
-  <div class="body"><h2 class="sm">Como funciona hoje</h2><div class="live"><div class="ph">carregando…</div></div></div>
+  <div class="head"><span class="kicker">Simulação</span><h2>Como funciona <span>hoje</span></h2><span class="pill bad">SEM INOVAÇÃO</span></div>
+  <div class="live"><div class="ph">carregando…</div></div>
 </section>
 
 <!-- 4. com a inovação -->
 <section class="slide" data-live="esteira.html?embed=inovacao">
-  <div class="side"><img class="logo" src="img/logo-vale.png" alt=""><div class="bar"></div><img class="senai" src="img/logo-senai.png" alt="SENAI"></div>
-  <div class="body"><h2 class="sm">Com a inovação</h2><div class="live"><div class="ph">carregando…</div></div></div>
+  <div class="head"><span class="kicker">Simulação</span><h2>Com a <span>inovação</span></h2><span class="pill good">COM INOVAÇÃO</span></div>
+  <div class="live"><div class="ph">carregando…</div></div>
 </section>
 
 <!-- 5. as duas juntas -->
 <section class="slide" data-live="esteira.html?embed=comparacao">
-  <div class="side"><img class="logo" src="img/logo-vale.png" alt=""><div class="bar"></div><img class="senai" src="img/logo-senai.png" alt="SENAI"></div>
-  <div class="body"><h2 class="sm">Hoje x Com a inovação</h2><div class="live"><div class="ph">carregando…</div></div></div>
+  <div class="head"><span class="kicker">Simulação</span><h2>Hoje <span>x</span> Com a inovação</h2></div>
+  <div class="live"><div class="ph">carregando…</div></div>
 </section>
 
 </div>
 
-<div id="dots"></div>
 <div id="bar">
   <button id="bPrev" type="button" title="Anterior (←)">◀</button>
   <button id="bNext" type="button" title="Próximo (→)">▶</button>
@@ -99,20 +117,18 @@ h2.sm{font-size:52px;margin-bottom:18px}
 <script>
 (function(){
 'use strict';
-const stage=document.getElementById('stage'),slides=[...document.querySelectorAll('.slide')],N=slides.length,dots=document.getElementById('dots');
+const stage=document.getElementById('stage'),slides=[...document.querySelectorAll('.slide')],N=slides.length;
 let cur=-1;
 function fit(){const k=Math.min(innerWidth/1280,innerHeight/720);stage.style.transform=`translate(-50%,-50%) scale(${k})`;}
 addEventListener('resize',fit);fit();
-dots.innerHTML=slides.map((_,i)=>`<i data-i="${i}"></i>`).join('');
-dots.querySelectorAll('i').forEach(d=>d.onclick=()=>go(+d.dataset.i));
 function go(i){
   i=Math.max(0,Math.min(N-1,i));if(i===cur)return;const prev=cur;cur=i;
-  slides.forEach((s,k)=>s.classList.toggle('on',k===i));
-  dots.querySelectorAll('i').forEach((d,k)=>d.classList.toggle('on',k===i));
+  slides.forEach((s,k)=>{s.classList.toggle('on',k===i);s.classList.toggle('back',k<i);});
   // o simulador só roda no slide que está aberto
   if(prev>=0){const f=slides[prev].querySelector('.live iframe');if(f)f.remove();}
   const s=slides[i];if(s.dataset.live){const f=document.createElement('iframe');f.src=s.dataset.live;f.title='Simulador';s.querySelector('.live').appendChild(f);}
   document.getElementById('count').textContent=(i+1)+' / '+N;
+  document.getElementById('prog').style.width=((i+1)/N*100)+'%';
   history.replaceState(null,'','#'+(i+1));
 }
 const next=()=>go(cur+1),prev=()=>go(cur-1);
