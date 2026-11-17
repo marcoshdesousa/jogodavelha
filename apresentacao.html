@@ -46,6 +46,42 @@ h1 span,h2 span{color:var(--orange)}
 .live{flex:1;min-height:0;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#15181c;position:relative}
 .live iframe{position:relative;z-index:1;width:100%;height:100%;border:0;display:block;background:#15181c}
 .live .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:20px}
+/* ficha rápida */
+.list{display:grid;gap:14px;margin-top:6px}
+.li{display:flex;gap:18px;align-items:center;background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:14px;padding:16px 22px}
+.li .ic{font-size:34px;width:46px;text-align:center}
+.li b{color:var(--c);font-size:24px;margin-right:6px}
+.li span{font-size:23px;color:#d6dbe0}
+.flowrow{display:flex;gap:26px;align-items:center;flex:1;min-height:0}
+.steps{flex:1;display:grid;gap:12px}
+.stp{display:flex;gap:16px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.stp .n{width:44px;height:44px;border-radius:50%;background:var(--orange);color:#111;font-weight:900;font-size:22px;display:grid;place-items:center;flex:none}
+.stp h4{margin:0;font-size:23px}.stp p{margin:2px 0 0;font-size:18px;color:#c3cad1}
+.stp .who{margin-left:auto;font-size:14px;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--panel2);color:var(--orange);white-space:nowrap}
+.tablet{width:330px;flex:none;background:#0c0c0c;border-radius:26px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.5);border:2px solid #2c3036}
+.screen{background:#f4f6f8;border-radius:12px;color:#1d2328;padding:14px 14px 16px;font-size:14px}
+.screen .fh{background:#0f6cbd;color:#fff;margin:-14px -14px 12px;padding:10px 14px;border-radius:12px 12px 0 0;font-weight:800;font-size:15px}
+.fld{margin-bottom:9px}.fld label{display:block;font-weight:700;font-size:12px;color:#4a5560;margin-bottom:3px}
+.fld .in{background:#fff;border:1px solid #cfd6dd;border-radius:6px;padding:6px 8px;font-size:13px}
+.chk{display:flex;gap:10px;flex-wrap:wrap}.chk span{display:inline-flex;align-items:center;gap:5px;font-size:13px}
+.chk i{width:14px;height:14px;border-radius:3px;background:#2ecc71;display:inline-grid;place-items:center;color:#fff;font-style:normal;font-size:10px}
+.send{margin-top:8px;background:#0f6cbd;color:#fff;text-align:center;border-radius:6px;padding:7px;font-weight:800}
+.mttr{margin-top:14px;display:flex;align-items:center;gap:14px;font-size:21px;color:#d6dbe0}
+.mttr b{font-size:38px;color:var(--ok)}
+/* investimento */
+.cost{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;flex:1;min-height:0}
+.items{display:grid;gap:12px;align-content:start}
+.it{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+.it .ic{font-size:32px}.it h4{margin:0;font-size:22px}.it p{margin:2px 0 0;font-size:17px;color:#aab3bc}
+.it .v{margin-left:auto;font-size:28px;font-weight:900;white-space:nowrap}
+.it .v.z{color:var(--ok)}
+.tot{background:var(--panel);border:2px solid var(--orange);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px}
+.tot .l{font-size:18px;font-weight:800;color:var(--orange);letter-spacing:.08em}
+.tot .big{font-size:50px;font-weight:900;line-height:1;white-space:nowrap}
+.budget{height:18px;background:#2c333b;border-radius:9px;overflow:hidden;margin-top:6px}
+.budget i{display:block;height:100%;width:21%;background:var(--ok)}
+.tot p{margin:0;font-size:18px;color:#c3cad1}
+.tot .tip{margin-top:auto;background:rgba(46,204,113,.12);border-radius:10px;padding:12px;color:#bff3d3;font-size:17px}
 /* controles */
 #prog{position:fixed;left:0;top:0;height:4px;background:var(--orange);z-index:11;transition:width .35s}
 #bar{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;gap:8px;padding:8px 12px;background:linear-gradient(transparent,rgba(0,0,0,.7));opacity:.3;transition:opacity .3s;z-index:10}
@@ -68,7 +104,46 @@ h1 span,h2 span{color:var(--orange)}
   <div class="belt"></div>
 </section>
 
-<!-- 2. solução -->
+<!-- 2. ficha rápida -->
+<section class="slide">
+  <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
+  <span class="kicker">Ficha Rápida</span>
+  <h2>Ficha <span>Rápida</span></h2>
+  <div class="list">
+    <div class="li" style="--c:var(--orange)"><div class="ic">📋</div><div><b>Padrão Vale:</b><span>Baseado na OM oficial (PTS, RAC4, Executado/MAT).</span></div></div>
+    <div class="li" style="--c:#4fc3f7"><div class="ic">📱</div><div><b>Digital e Ágil:</b><span>Preenchimento pelo PCM no Microsoft Forms (Tablet).</span></div></div>
+    <div class="li" style="--c:var(--aleta)"><div class="ic">🔗</div><div><b>Integração Total:</b><span>Operação aponta, Manutenção usa o Kit local, PCM monitora no sistema.</span></div></div>
+    <div class="li" style="--c:var(--ok)"><div class="ic">⏱️</div><div><b>Foco no MTTR:</b><span>Diagnóstico e conserto no local em minutos.</span></div></div>
+  </div>
+</section>
+
+<!-- 3. como funciona a ficha -->
+<section class="slide">
+  <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
+  <span class="kicker">Ficha Rápida</span>
+  <h2>Como a ficha <span>funciona</span></h2>
+  <div class="flowrow">
+    <div class="steps">
+      <div class="stp"><div class="n">1</div><div><h4>Aponta a falha</h4><p>Correia desalinhada é identificada na área.</p></div><span class="who">OPERAÇÃO</span></div>
+      <div class="stp"><div class="n">2</div><div><h4>Conserta no local</h4><p>Diagnóstico e ajuste com o Kit local.</p></div><span class="who">MANUTENÇÃO</span></div>
+      <div class="stp"><div class="n">3</div><div><h4>Registra no tablet</h4><p>Ficha no Microsoft Forms, no padrão da OM.</p></div><span class="who">PCM</span></div>
+      <div class="stp"><div class="n">4</div><div><h4>Monitora no sistema</h4><p>Histórico das falhas e do tempo de reparo.</p></div><span class="who">PCM</span></div>
+      <div class="mttr">⏱️ Menos tempo parado: <b>reparo em minutos</b></div>
+    </div>
+    <div class="tablet"><div class="screen">
+      <div class="fh">Ficha Rápida – Correia</div>
+      <div class="fld"><label>Nº da OM</label><div class="in">OM 000000</div></div>
+      <div class="fld"><label>Equipamento</label><div class="in">Correia transportadora</div></div>
+      <div class="fld"><label>Falha</label><div class="in">Desalinhamento</div></div>
+      <div class="fld"><label>Segurança</label><div class="chk"><span><i>✓</i>PTS</span><span><i>✓</i>RAC4</span></div></div>
+      <div class="fld"><label>Status</label><div class="chk"><span><i>✓</i>Executado</span><span><i>✓</i>MAT</span></div></div>
+      <div class="fld"><label>Tempo de reparo</label><div class="in">__ min</div></div>
+      <div class="send">Enviar</div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 4. solução -->
 <section class="slide">
   <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
   <span class="kicker">A solução</span>
@@ -102,6 +177,27 @@ h1 span,h2 span{color:var(--orange)}
 <section class="slide" data-live="esteira.html?embed=comparacao">
   <div class="head"><span class="kicker">Simulação</span><h2>Hoje <span>x</span> Com a inovação</h2></div>
   <div class="live"><div class="ph">carregando…</div></div>
+</section>
+
+<!-- investimento -->
+<section class="slide">
+  <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
+  <span class="kicker">Custo</span>
+  <h2><span>Investimento</span></h2>
+  <div class="cost">
+    <div class="items">
+      <div class="it"><div class="ic">⚙️</div><div><h4>Projeto Mecânico</h4><p>Stone Box + Defletores · aço, cerâmica e parafusos</p></div><div class="v">R$ 2.100,00</div></div>
+      <div class="it"><div class="ic">📋</div><div><h4>Gestão e Comunicação</h4><p>Prancheta + Google Forms · ferramenta gratuita e recursos internos</p></div><div class="v z">R$ 0,00</div></div>
+      <div class="it"><div class="ic">👷</div><div><h4>Mão de Obra</h4><p>Execução pela equipe interna da Vale</p></div><div class="v z">R$ 0,00</div></div>
+    </div>
+    <div class="tot">
+      <span class="l">CUSTO TOTAL</span>
+      <div class="big">R$ 2.100,00</div>
+      <div class="budget"><i></i></div>
+      <p>Apenas <b>21%</b> do orçamento limite de <b>R$ 10 mil</b>.</p>
+      <div class="tip">♻️ Ainda mais barato: o valor pode cair para quase zero usando chapas de refugo do almoxarifado!</div>
+    </div>
+  </div>
 </section>
 
 </div>
