@@ -102,6 +102,18 @@ h1 span,h2 span{color:var(--orange)}
 .two .big .ic{font-size:52px}.two .big h3{margin:10px 0 10px;font-size:34px;color:var(--c)}
 .two .big p{margin:0;font-size:23px;line-height:1.5;color:#d6dbe0}.two .big p b{color:var(--text)}
 .plus2{display:grid;place-items:center;width:70px;font-size:54px;font-weight:900;color:var(--orange)}
+/* BMC */
+.bmc{flex:1;min-height:0;display:grid;gap:8px;grid-template-columns:repeat(10,1fr);grid-template-rows:1.2fr 1.2fr .62fr;
+  grid-template-areas:"pc pc ac ac pv pv rl rl sc sc" "pc pc rc rc pv pv cn cn sc sc" "ct ct ct ct ct rs rs rs rs rs"}
+.bk{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 11px;overflow:hidden}
+.bk h5{margin:0 0 5px;font-size:14.5px;color:var(--c);display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.03em}
+.bk h5 span{font-size:16px}
+.bk ul{margin:0;padding-left:15px}
+.bk li{font-size:13.2px;line-height:1.32;color:#d6dbe0;margin:0 0 3px}
+.bk li b{color:var(--text)}
+.bk[style*="grid-area:pv"]{background:rgba(255,122,0,.08);border-color:rgba(255,122,0,.55)}
+.bk[style*="grid-area:pv"] li{font-size:14px;margin-bottom:6px}
+.bk[style*="grid-area:ct"] ul,.bk[style*="grid-area:rs"] ul{columns:2;column-gap:20px}
 /* investimento */
 .cost{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;flex:1;min-height:0}
 .items{display:grid;gap:12px;align-content:start}
@@ -186,6 +198,23 @@ h1 span,h2 span{color:var(--orange)}
   <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
   <div class="head"><span class="kicker">Simulação</span><h2>Hoje <span>x</span> Com a inovação</h2></div>
   <div class="live"><div class="ph">carregando…</div></div>
+</section>
+
+<!-- BMC -->
+<section class="slide">
+  <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
+  <div class="head"><span class="kicker">Modelo de negócio</span><h2>Business Model <span>Canvas</span></h2></div>
+  <div class="bmc">
+    <div class="bk" style="grid-area:pc;--c:#4fc3f7"><h5><span>🤝</span>Parcerias-chave</h5><ul><li><b>Vale</b>: manutenção, operação e PCM</li><li><b>SENAI</b>: formação e apoio técnico</li><li><b>Almoxarifado</b>: materiais e chapas de refugo</li><li><b>Escuderia Vanguarda</b>: projeto e protótipo</li></ul></div>
+    <div class="bk" style="grid-area:ac;--c:#ffc400"><h5><span>🛠️</span>Atividades-chave</h5><ul><li>Fabricar Stone Box + defletores</li><li>Instalar no ponto de transferência</li><li>Implantar o SIGM (formulários e painel)</li><li>Treinar equipes e acompanhar indicadores</li></ul></div>
+    <div class="bk" style="grid-area:rc;--c:#ffc400"><h5><span>🧰</span>Recursos-chave</h5><ul><li>Aço, cerâmica, parafusos e chapas reaproveitadas</li><li>Google Forms + Google Sheets</li><li>Equipe interna da Vale</li><li>Simulador e protótipo em escala (3D + madeira)</li></ul></div>
+    <div class="bk" style="grid-area:pv;--c:var(--orange)"><h5><span>💎</span>Proposta de valor</h5><ul><li><b>Correia alinhada</b>: carga no centro, −85% de assimetria</li><li><b>Menos impacto</b>, desgaste e derramamento</li><li><b>Fim das paradas</b> por desalinhamento</li><li><b>Pendências resolvidas antes da parada</b> com o SIGM</li><li>Solução <b>simples e barata</b>: aletas sem motor</li></ul></div>
+    <div class="bk" style="grid-area:rl;--c:#2ecc71"><h5><span>💬</span>Relacionamento</h5><ul><li>Piloto em uma correia</li><li>Treinamento das equipes</li><li>Acompanhamento pelo Painel do PCM</li><li>Melhoria contínua com o histórico</li></ul></div>
+    <div class="bk" style="grid-area:cn;--c:#2ecc71"><h5><span>📡</span>Canais</h5><ul><li>Apresentação SENAI / Vale</li><li>Site com simulador e SIGM</li><li>Formulários no tablet/celular</li><li>Painel do PCM</li></ul></div>
+    <div class="bk" style="grid-area:sc;--c:#4fc3f7"><h5><span>👷</span>Segmentos de clientes</h5><ul><li>Manutenção de correias transportadoras</li><li>Operação das transferências de minério</li><li>PCM (planejamento e controle)</li><li>Almoxarifado</li></ul></div>
+    <div class="bk" style="grid-area:ct;--c:#ff8a80"><h5><span>💰</span>Estrutura de custos</h5><ul><li>Projeto mecânico: <b>R$ 2.100,00</b> (estimado)</li><li>SIGM: <b>R$ 0,00</b> (ferramentas gratuitas)</li><li>Mão de obra: <b>R$ 0,00</b> (equipe interna)</li><li><b>21%</b> do limite de R$ 10 mil; pode chegar a quase zero reaproveitando materiais</li></ul></div>
+    <div class="bk" style="grid-area:rs;--c:#2ecc71"><h5><span>📈</span>Fontes de receita · ganhos para a Vale</h5><ul><li>Menos paradas não programadas: mais produção</li><li>Menos troca de correia e roletes</li><li>Menos limpeza e minério perdido</li><li>Mais segurança para as equipes</li></ul></div>
+  </div>
 </section>
 
 <!-- investimento -->
