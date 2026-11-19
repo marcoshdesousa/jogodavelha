@@ -42,6 +42,8 @@ button:active{transform:scale(.98)}
 .sigm button span{font-size:.72rem;font-weight:700}
 .sigm .tabs button.on{background:#4fc3f7;border-color:#4fc3f7;color:#062433}
 .sigm .scroll button{background:#14171b}
+#sgHint{color:var(--muted);font-weight:700;letter-spacing:0}
+.ver{text-align:center;font-size:.7rem;color:#5b646c}
 body.has-sigm .nav{min-height:120px}
 </style>
 </head>
@@ -54,8 +56,8 @@ body.has-sigm .nav{min-height:120px}
   <div id="mins">pronto para iniciar</div>
   <div class="tb"><button id="tStart" type="button">▶ Iniciar</button><button id="tReset" type="button">↺ Zerar</button></div>
 </div>
-<div class="sigm" id="sigm" hidden>
-  <div class="lbl">SIGM AO VIVO · toque para mostrar no slide</div>
+<div class="sigm" id="sigm">
+  <div class="lbl">SIGM AO VIVO · toque e aparece no slide <span id="sgHint"></span></div>
   <div class="tabs">
     <button type="button" data-tab="painel">📊<span>Painel</span></button>
     <button type="button" data-tab="antes">📦<span>Preparação</span></button>
@@ -73,6 +75,7 @@ body.has-sigm .nav{min-height:120px}
   <button id="bPrev" type="button" aria-label="Slide anterior">◀<span>Voltar</span></button>
   <button id="bNext" type="button" aria-label="Próximo slide">▶<span>Próximo</span></button>
 </div>
+<div class="ver">versão 2026-11-19c</div>
 <script>
 (function(){
 'use strict';
@@ -100,8 +103,8 @@ if(room){
     let d;try{d=JSON.parse(m.message);}catch(e){return;}
     $('st').textContent='conectado';$('st').className='ok';
     $('num').textContent='Slide '+(d.i+1)+' / '+d.n;$('tit').textContent=d.t||'';
-    $('sigm').hidden=!d.sigm;document.body.classList.toggle('has-sigm',!!d.sigm);
-    document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===d.tab));};
+    document.body.classList.toggle('has-sigm',!!d.sigm);$('sgHint').textContent=d.sigm?'':'(abre o slide do SIGM)';
+    document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',!!d.sigm&&b.dataset.tab===d.tab));};
   es.onerror=()=>{if($('st').className!=='ok'){$('st').textContent='sem conexão';$('st').className='err';}};
 }
 

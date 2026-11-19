@@ -281,7 +281,7 @@ h1 span,h2 span{color:var(--orange)}
     <div id="qr"></div>
     <a id="rLink" target="_blank" rel="noopener"></a>
     <div id="rStatus" class="wait">● Aguardando o celular…</div>
-    <p class="rn">O celular e este computador precisam de internet. Código da sala: <b id="rRoom"></b></p>
+    <p class="rn">O celular e este computador precisam de internet. Código da sala: <b id="rRoom"></b> · versão 2026-11-19c</p>
   </div>
 </div>
 
@@ -2598,7 +2598,7 @@ function go(i){
   slides.forEach((s,k)=>{s.classList.toggle('on',k===i);s.classList.toggle('back',k<i);});
   // o simulador só roda no slide que está aberto
   if(prev>=0){const f=slides[prev].querySelector('.live iframe');if(f)f.remove();}
-  const s=slides[i];if(s.dataset.live){const f=document.createElement('iframe');f.src=s.dataset.live;f.title='Simulador';s.querySelector('.live').appendChild(f);}
+  const s=slides[i];if(s.dataset.live){const f=document.createElement('iframe');f.src=s.dataset.live+(s.dataset.live.includes('?')?'&':'?')+'v='+VER;f.title='Simulador';s.querySelector('.live').appendChild(f);}
   document.getElementById('count').textContent=(i+1)+' / '+N;
   document.getElementById('prog').style.width=((i+1)/N*100)+'%';
   history.replaceState(null,'','#'+(i+1));
@@ -2626,6 +2626,7 @@ addEventListener('mousemove',()=>{bar.classList.add('show');clearTimeout(ht);ht=
 
 /* ---------- passador de slides pelo celular (mensagens via ntfy.sh) ---------- */
 const RELAY='https://ntfy.sh/';
+const VER='2026-11-19c';
 let room=null,es=null,remoteOn=false;
 try{room=sessionStorage.getItem('vg-room');}catch(e){}
 if(!room){room=Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('vg-room',room);}catch(e){}}
@@ -2634,7 +2635,20 @@ const titleOf=i=>{const h=slides[i].querySelector('h1,h2');return h?h.textConten
 const isSigm=i=>/sigm\.html/.test(slides[i].dataset.live||'');
 function pubState(){if(!remoteOn)return;const sg=isSigm(cur);fetch(RELAY+topicS,{method:'POST',body:JSON.stringify({i:cur,n:N,t:titleOf(cur),sigm:sg,tab:sg?sigmTab:null})}).catch(()=>{});}
 // comandos do celular para o SIGM ao vivo (abas e rolagem) vão para dentro do slide
-function toSigm(cmd){const f=slides[cur].querySelector('.live iframe');if(f&&f.contentWindow)f.contentWindow.postMessage({sigmCmd:cmd},'*');}
+function sigmReady(f){try{const d=f.contentDocument;return d&&/sigm\.html/.test(d.URL)&&d.readyState==='complete'&&d.querySelector('.tab');}catch(e){return false;}}
+function toSigm(cmd,tries){
+  const f=slides[cur].querySelector('.live iframe');if(!f)return;
+  if(!sigmReady(f)){tries=(tries||0)+1;if(tries<60)setTimeout(()=>toSigm(cmd,tries),150);return;}
+  const w=f.contentWindow,d=f.contentDocument;
+  try{
+    if(cmd.startsWith('tab:')){const v=cmd.slice(4),b=d.querySelector('.tab[data-v="'+v+'"]');if(b){b.click();sigmTab=v;pubState();}}
+    else{const H=Math.round(w.innerHeight*0.6),el=d.scrollingElement||d.documentElement;
+      if(cmd==='down')w.scrollBy({top:H,behavior:'smooth'});
+      else if(cmd==='up')w.scrollBy({top:-H,behavior:'smooth'});
+      else if(cmd==='top')w.scrollTo({top:0,behavior:'smooth'});
+      else if(cmd==='bottom')w.scrollTo({top:el.scrollHeight,behavior:'smooth'});}
+  }catch(e){w.postMessage({sigmCmd:cmd},'*');}
+}
 function setStatus(cls,txt){const el=document.getElementById('rStatus');el.className=cls;el.textContent=txt;}
 function listen(){
   if(es)return;
@@ -2643,12 +2657,12 @@ function listen(){
     if(!remoteOn)setTimeout(()=>document.getElementById('remote').classList.remove('on'),1500);
     remoteOn=true;setStatus('ok','✓ Celular conectado');
     if(c==='next')next();else if(c==='prev')prev();else if(/^goto:\d+$/.test(c))go(+c.slice(5));
-    else if(/^sigm:[a-z:]+$/.test(c)){if(isSigm(cur))toSigm(c.slice(5));return;}
+    else if(/^sigm:[a-z:]+$/.test(c)){if(!isSigm(cur)){const k=slides.findIndex((x,j)=>isSigm(j));if(k<0)return;go(k);}toSigm(c.slice(5));return;}
     pubState();};
   es.onerror=()=>{if(!remoteOn)setStatus('err','Sem conexão com o serviço de mensagens. Verifique a internet.');};
 }
 function openRemote(){
-  const url=new URL('controle.html?sala='+room,location.href).href;
+  const url=new URL('controle.html?sala='+room+'&v='+VER,location.href).href;
   const q=qrcode(0,'M');q.addData(url);q.make();
   document.getElementById('qr').innerHTML=q.createSvgTag({cellSize:6,margin:2,scalable:true});
   const a=document.getElementById('rLink');a.href=url;a.textContent=url;
