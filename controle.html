@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#15181c">
+<title>Passador de slides – Escuderia Vanguarda</title>
+<style>
+:root{--bg:#15181c;--panel:#1f242a;--panel2:#262c33;--line:#333b44;--text:#e8ebee;--muted:#9aa4ae;--orange:#ff7a00;--ok:#2ecc71;--alert:#ff3b30}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+body{display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));gap:12px;user-select:none}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+header h1{font-size:1rem;margin:0}header h1 span{color:var(--orange)}
+#st{font-size:.8rem;font-weight:800;padding:4px 10px;border-radius:999px;background:#3a2a00;color:#ffb020;white-space:nowrap}
+#st.ok{background:rgba(46,204,113,.15);color:var(--ok)}#st.err{background:rgba(255,59,48,.15);color:#ff8a80}
+.now{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.now .n{font-size:.8rem;color:var(--muted);font-weight:700}
+.now .t{font-size:1.15rem;font-weight:800;margin-top:2px;min-height:1.4em}
+.timer{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-align:center}
+.timer .lbl{font-size:.75rem;letter-spacing:.1em;color:var(--muted);font-weight:800}
+#clock{font-size:3.6rem;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1;margin:4px 0}
+#clock.run{color:var(--orange)}
+#mins{font-size:.9rem;color:var(--muted);min-height:1.2em;margin-bottom:8px}
+.tb{display:flex;gap:10px}
+.tb button{flex:1}
+button{appearance:none;font:inherit;font-weight:800;border-radius:14px;border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:14px;cursor:pointer;touch-action:manipulation}
+button:active{transform:scale(.98)}
+#tStart{background:var(--ok);border-color:var(--ok);color:#06210f}
+#tStart.pause{background:#ffb020;border-color:#ffb020;color:#2a1c00}
+.nav{flex:1;display:grid;grid-template-columns:1fr 1.6fr;gap:12px;min-height:180px}
+.nav button{font-size:1.4rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.nav button span{font-size:.85rem;font-weight:700;opacity:.8}
+#bNext{background:var(--orange);border-color:var(--orange);color:#111;font-size:2rem}
+#bPrev{font-size:2rem}
+.err{font-size:.9rem;color:#ff8a80;text-align:center}
+</style>
+</head>
+<body>
+<header><h1>Passador · <span>Vanguarda</span></h1><span id="st">conectando…</span></header>
+<div class="now"><div class="n" id="num">Slide – / –</div><div class="t" id="tit">Aguardando a apresentação…</div></div>
+<div class="timer">
+  <div class="lbl">CRONÔMETRO</div>
+  <div id="clock">00:00</div>
+  <div id="mins">pronto para iniciar</div>
+  <div class="tb"><button id="tStart" type="button">▶ Iniciar</button><button id="tReset" type="button">↺ Zerar</button></div>
+</div>
+<div class="nav">
+  <button id="bPrev" type="button" aria-label="Slide anterior">◀<span>Voltar</span></button>
+  <button id="bNext" type="button" aria-label="Próximo slide">▶<span>Próximo</span></button>
+</div>
+<script>
+(function(){
+'use strict';
+const RELAY='https://ntfy.sh/';
+const room=(new URLSearchParams(location.search).get('sala')||'').replace(/[^a-z0-9]/gi,'');
+const $=id=>document.getElementById(id);
+if(!room){$('tit').textContent='Abra este controle pelo QR Code da apresentação.';$('st').textContent='sem sala';$('st').className='err';}
+const topicC='vanguarda-'+room+'-c',topicS='vanguarda-'+room+'-s';
+
+function send(cmd){
+  if(!room)return;
+  if(navigator.vibrate)navigator.vibrate(25);
+  fetch(RELAY+topicC,{method:'POST',body:cmd}).then(r=>{if(!r.ok)throw 0;}).catch(()=>{$('st').textContent='sem conexão';$('st').className='err';});
+}
+$('bNext').onclick=()=>send('next');
+$('bPrev').onclick=()=>send('prev');
+
+// recebe o slide atual da apresentação
+if(room){
+  const es=new EventSource(RELAY+topicS+'/sse');
+  es.onopen=()=>{send('hello');};
+  es.onmessage=ev=>{let m;try{m=JSON.parse(ev.data);}catch(e){return;}if(m.event!=='message')return;
+    let d;try{d=JSON.parse(m.message);}catch(e){return;}
+    $('st').textContent='conectado';$('st').className='ok';
+    $('num').textContent='Slide '+(d.i+1)+' / '+d.n;$('tit').textContent=d.t||'';};
+  es.onerror=()=>{if($('st').className!=='ok'){$('st').textContent='sem conexão';$('st').className='err';}};
+}
+
+// cronômetro
+let t0=0,acc=0,run=false,tick=null;
+const pad=n=>String(n).padStart(2,'0');
+function show(){
+  const ms=acc+(run?Date.now()-t0:0),s=Math.floor(ms/1000),m=Math.floor(s/60);
+  $('clock').textContent=(m>=60?Math.floor(m/60)+':'+pad(m%60):pad(m))+':'+pad(s%60);
+  $('mins').textContent=!run&&!ms?'pronto para iniciar':m<1?'menos de 1 minuto':m===1?'1 minuto':m+' minutos';
+}
+$('tStart').onclick=()=>{
+  if(run){acc+=Date.now()-t0;run=false;clearInterval(tick);}
+  else{t0=Date.now();run=true;tick=setInterval(show,250);keepAwake();}
+  $('tStart').textContent=run?'⏸ Pausar':'▶ Continuar';$('tStart').classList.toggle('pause',run);$('clock').classList.toggle('run',run);show();
+};
+$('tReset').onclick=()=>{acc=0;t0=Date.now();if(!run){$('tStart').textContent='▶ Iniciar';}show();};
+
+// mantém a tela do celular acesa durante a apresentação
+let lock=null;
+async function keepAwake(){try{if('wakeLock' in navigator&&!lock){lock=await navigator.wakeLock.request('screen');lock.addEventListener('release',()=>{lock=null;});}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&run)keepAwake();});
+show();
+})();
+</script>
+</body>
+</html>
