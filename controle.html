@@ -34,6 +34,15 @@ button:active{transform:scale(.98)}
 #bNext{background:var(--orange);border-color:var(--orange);color:#111;font-size:2rem}
 #bPrev{font-size:2rem}
 .err{font-size:.9rem;color:#ff8a80;text-align:center}
+.sigm{background:var(--panel);border:1px solid #4fc3f7;border-radius:14px;padding:10px 12px}
+.sigm .lbl{font-size:.72rem;letter-spacing:.08em;color:#4fc3f7;font-weight:800;margin-bottom:8px}
+.sigm .tabs,.sigm .scroll{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sigm .scroll{margin-top:8px}
+.sigm button{padding:10px 4px;font-size:1.15rem;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px}
+.sigm button span{font-size:.72rem;font-weight:700}
+.sigm .tabs button.on{background:#4fc3f7;border-color:#4fc3f7;color:#062433}
+.sigm .scroll button{background:#14171b}
+body.has-sigm .nav{min-height:120px}
 </style>
 </head>
 <body>
@@ -44,6 +53,21 @@ button:active{transform:scale(.98)}
   <div id="clock">00:00</div>
   <div id="mins">pronto para iniciar</div>
   <div class="tb"><button id="tStart" type="button">▶ Iniciar</button><button id="tReset" type="button">↺ Zerar</button></div>
+</div>
+<div class="sigm" id="sigm" hidden>
+  <div class="lbl">SIGM AO VIVO · toque para mostrar no slide</div>
+  <div class="tabs">
+    <button type="button" data-tab="painel">📊<span>Painel</span></button>
+    <button type="button" data-tab="antes">📦<span>Preparação</span></button>
+    <button type="button" data-tab="durante">🛠️<span>Execução</span></button>
+    <button type="button" data-tab="depois">🗂️<span>Histórico</span></button>
+  </div>
+  <div class="scroll">
+    <button type="button" data-sc="top">⤒<span>Topo</span></button>
+    <button type="button" data-sc="up">▲<span>Subir</span></button>
+    <button type="button" data-sc="down">▼<span>Descer</span></button>
+    <button type="button" data-sc="bottom">⤓<span>Fim</span></button>
+  </div>
 </div>
 <div class="nav">
   <button id="bPrev" type="button" aria-label="Slide anterior">◀<span>Voltar</span></button>
@@ -65,6 +89,8 @@ function send(cmd){
 }
 $('bNext').onclick=()=>send('next');
 $('bPrev').onclick=()=>send('prev');
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x===b));send('sigm:tab:'+b.dataset.tab);});
+document.querySelectorAll('[data-sc]').forEach(b=>b.onclick=()=>send('sigm:'+b.dataset.sc));
 
 // recebe o slide atual da apresentação
 if(room){
@@ -73,7 +99,9 @@ if(room){
   es.onmessage=ev=>{let m;try{m=JSON.parse(ev.data);}catch(e){return;}if(m.event!=='message')return;
     let d;try{d=JSON.parse(m.message);}catch(e){return;}
     $('st').textContent='conectado';$('st').className='ok';
-    $('num').textContent='Slide '+(d.i+1)+' / '+d.n;$('tit').textContent=d.t||'';};
+    $('num').textContent='Slide '+(d.i+1)+' / '+d.n;$('tit').textContent=d.t||'';
+    $('sigm').hidden=!d.sigm;document.body.classList.toggle('has-sigm',!!d.sigm);
+    document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===d.tab));};
   es.onerror=()=>{if($('st').className!=='ok'){$('st').textContent='sem conexão';$('st').className='err';}};
 }
 

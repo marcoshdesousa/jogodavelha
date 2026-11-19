@@ -343,7 +343,15 @@ $('#fRef').value=S.ref;
 $('#formPrep').data.value=today();$('#formExe').data.value=today();
 $('#fEq').onchange=renderPainel;$('#hEq').onchange=renderHist;
 $('#fRef').onchange=e=>{if(e.target.value){S.ref=e.target.value;save();renderAll();}};
-$$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.toggle('on',x===b));$$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));history.replaceState(null,'','#'+b.dataset.v);});
+$$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.toggle('on',x===b));$$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));history.replaceState(null,'','#'+b.dataset.v);
+  scrollTo({top:0});if(window.parent!==window)window.parent.postMessage({sigmTab:b.dataset.v},'*');});
+// comandos vindos do passador de slides (celular) através da apresentação
+addEventListener('message',e=>{const c=e.data&&e.data.sigmCmd;if(!c)return;
+  if(c.startsWith('tab:')){const b=document.querySelector('.tab[data-v="'+c.slice(4)+'"]');if(b)b.click();}
+  else if(c==='down')scrollBy({top:innerHeight*0.6,behavior:'smooth'});
+  else if(c==='up')scrollBy({top:-innerHeight*0.6,behavior:'smooth'});
+  else if(c==='top')scrollTo({top:0,behavior:'smooth'});
+  else if(c==='bottom')scrollTo({top:document.body.scrollHeight,behavior:'smooth'});});
 const h=location.hash.slice(1);if(h){const b=document.querySelector(`.tab[data-v="${h}"]`);if(b)b.click();}
 $('#reset').onclick=()=>{if(confirm('Restaurar os dados de exemplo? As alterações feitas neste navegador serão apagadas.')){S=JSON.parse(JSON.stringify(SEED));save();$('#fRef').value=S.ref;renderAll();}};
 $('#exeOm').dispatchEvent(new Event('change'));

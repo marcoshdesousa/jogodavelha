@@ -2602,10 +2602,14 @@ function go(i){
   document.getElementById('count').textContent=(i+1)+' / '+N;
   document.getElementById('prog').style.width=((i+1)/N*100)+'%';
   history.replaceState(null,'','#'+(i+1));
+  sigmTab='painel';
   if(typeof pubState==='function')pubState();
 }
 const next=()=>go(cur+1),prev=()=>go(cur-1);
-addEventListener('message',e=>{const k=e.data&&e.data.slideKey;if(!k)return;if(k==='ArrowRight'||k==='PageDown')next();else prev();});
+addEventListener('message',e=>{const d=e.data||{};
+  if(d.sigmTab){sigmTab=d.sigmTab;if(typeof pubState==='function')pubState();return;}
+  const k=d.slideKey;if(!k)return;if(k==='ArrowRight'||k==='PageDown')next();else prev();});
+let sigmTab='painel';
 addEventListener('keydown',e=>{
   if(['ArrowRight','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();next();}
   else if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){e.preventDefault();prev();}
@@ -2627,7 +2631,10 @@ try{room=sessionStorage.getItem('vg-room');}catch(e){}
 if(!room){room=Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('vg-room',room);}catch(e){}}
 const topicC='vanguarda-'+room+'-c',topicS='vanguarda-'+room+'-s';
 const titleOf=i=>{const h=slides[i].querySelector('h1,h2');return h?h.textContent.replace(/\s+/g,' ').trim():''};
-function pubState(){if(!remoteOn)return;fetch(RELAY+topicS,{method:'POST',body:JSON.stringify({i:cur,n:N,t:titleOf(cur)})}).catch(()=>{});}
+const isSigm=i=>/sigm\.html/.test(slides[i].dataset.live||'');
+function pubState(){if(!remoteOn)return;const sg=isSigm(cur);fetch(RELAY+topicS,{method:'POST',body:JSON.stringify({i:cur,n:N,t:titleOf(cur),sigm:sg,tab:sg?sigmTab:null})}).catch(()=>{});}
+// comandos do celular para o SIGM ao vivo (abas e rolagem) vão para dentro do slide
+function toSigm(cmd){const f=slides[cur].querySelector('.live iframe');if(f&&f.contentWindow)f.contentWindow.postMessage({sigmCmd:cmd},'*');}
 function setStatus(cls,txt){const el=document.getElementById('rStatus');el.className=cls;el.textContent=txt;}
 function listen(){
   if(es)return;
@@ -2636,6 +2643,7 @@ function listen(){
     if(!remoteOn)setTimeout(()=>document.getElementById('remote').classList.remove('on'),1500);
     remoteOn=true;setStatus('ok','✓ Celular conectado');
     if(c==='next')next();else if(c==='prev')prev();else if(/^goto:\d+$/.test(c))go(+c.slice(5));
+    else if(/^sigm:[a-z:]+$/.test(c)){if(isSigm(cur))toSigm(c.slice(5));return;}
     pubState();};
   es.onerror=()=>{if(!remoteOn)setStatus('err','Sem conexão com o serviço de mensagens. Verifique a internet.');};
 }
