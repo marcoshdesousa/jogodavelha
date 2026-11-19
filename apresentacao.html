@@ -125,6 +125,22 @@ h1 span,h2 span{color:var(--orange)}
 .result span{font-size:13px;font-weight:900;letter-spacing:.1em;color:var(--ok);margin-right:12px}
 .result b{color:var(--ok)}
 .foot{margin:8px 0 0;font-size:13px;color:var(--muted)}
+/* limite do orçamento */
+.budget2{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 20px 12px;margin-bottom:10px}
+.bcols{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:0}
+.bcols .st{padding:0 16px}.bcols .st:first-child{padding-left:0}
+.bcols .st+.st{border-left:1px solid var(--line)}
+.bcols span{display:block;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.bcols b{display:block;font-size:30px;line-height:1.15}
+.bcols small{font-size:13.5px;color:var(--muted);font-weight:700}
+.bcols .lim b{color:#4fc3f7}.bcols .ok b{color:var(--ok)}.bcols .ok small{color:#9ff0bf}
+.bbar{position:relative;height:12px;background:#2c333b;border-radius:6px;margin:10px 0 16px}
+.bbar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:linear-gradient(90deg,#2ecc71,#ffb020)}
+.bbar .mk{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1px;background:#ffb020;border-radius:2px}
+.bbar span{position:absolute;top:15px;font-size:12px;color:var(--muted);font-weight:700;white-space:nowrap}
+.bbar .t0{left:0}.bbar .t100{right:0}.bbar .t16{transform:translateX(-50%);color:#ffd27a}
+.obs{display:flex;gap:12px;align-items:flex-start;margin-top:10px;background:rgba(255,176,32,.1);border:1px dashed rgba(255,176,32,.7);border-radius:12px;padding:10px 14px;font-size:15.5px;line-height:1.42;color:#ffe9c2}
+.obs .oi{font-size:22px;line-height:1}.obs b{color:#ffd27a}
 /* investimento */
 .cost{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;flex:1;min-height:0}
 .items{display:grid;gap:12px;align-content:start}
@@ -231,9 +247,16 @@ h1 span,h2 span{color:var(--orange)}
 <section class="slide">
   <div class="logos"><img src="img/logo-vale.png" alt="" style="height:34px"><img src="img/logo-senai.png" alt="SENAI" style="height:30px"></div>
   <div class="head"><span class="kicker">Custo estimado</span><h2>Provável <span>investimento</span></h2></div>
-  <div class="cmp2">
-    <div class="st"><span>Custo de mercado estimado</span><b>R$ 1.600,00</b></div>
-    <div class="st ok"><span>Custo otimizado Vale</span><b>R$ 0,00</b><em>100% de economia</em></div>
+  <div class="budget2">
+    <div class="bcols">
+      <div class="st lim"><span>Limite do orçamento</span><b>R$ 10.000,00</b></div>
+      <div class="st"><span>Custo de mercado estimado</span><b>R$ 1.600,00</b><small>16% do limite</small></div>
+      <div class="st ok"><span>Custo otimizado Vale</span><b>R$ 0,00</b><small>0% do limite · 100% de economia</small></div>
+    </div>
+    <div class="bbar" role="img" aria-label="Uso do limite de R$ 10.000: mercado 16%, otimizado 0%">
+      <i class="mk" style="left:16%"></i><i class="fill" style="width:16%"></i>
+      <span class="t0">R$ 0</span><span class="t16" style="left:16%">R$ 1.600 (16%)</span><span class="t100">R$ 10.000</span>
+    </div>
   </div>
   <div class="cgrid">
     <div class="ci" style="--c:#4fc3f7"><div class="cn">01</div><div class="cb"><h4>Chapas de aço</h4><p class="sub">ASTM A36 · 6 a 10 mm</p><p class="orig"><b>Origem:</b> retalhos de chapas (sucatas) da caldeiraria.</p>
@@ -246,8 +269,7 @@ h1 span,h2 span{color:var(--orange)}
       <div class="cf"><span>Qtd.: <b>equipe interna</b></span><span>Mercado: <b>já inclusa</b></span><span class="zero">R$ 0,00</span></div></div></div>
   </div>
   <div class="sigmcost">📋 <b>SIGM:</b> Power Apps + Microsoft Lists + Power Automate · recursos internos <span class="zero">R$ 0,00</span></div>
-  <div class="result"><span>RESULTADO</span>Custo total estimado do projeto mecânico: <b>R$ 0,00</b> com reaproveitamento interno.</div>
-  <p class="foot">Valores conforme estimativa da equipe. O custo de mercado da mão de obra já está incluso na folha, sem custo adicional ao projeto.</p>
+  <div class="obs"><div class="oi">💡</div><div><b>Observação:</b> valores estimados, sujeitos a ajuste. Mesmo comprando tudo no mercado, usamos só <b>16% do limite</b>. Reaproveitando materiais da caldeiraria e do almoxarifado, o custo pode cair para <b>quase zero</b>, dependendo do que estiver disponível.</div></div>
 </section>
 
 <!-- agradecimento -->
