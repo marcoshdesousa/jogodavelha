@@ -281,7 +281,7 @@ h1 span,h2 span{color:var(--orange)}
     <div id="qr"></div>
     <a id="rLink" target="_blank" rel="noopener"></a>
     <div id="rStatus" class="wait">● Aguardando o celular…</div>
-    <p class="rn">O celular e este computador precisam de internet. Código da sala: <b id="rRoom"></b> · versão 2026-11-19c</p>
+    <p class="rn">O celular e este computador precisam de internet. Código da sala: <b id="rRoom"></b> · versão 2026-11-19d</p>
   </div>
 </div>
 
@@ -2598,7 +2598,8 @@ function go(i){
   slides.forEach((s,k)=>{s.classList.toggle('on',k===i);s.classList.toggle('back',k<i);});
   // o simulador só roda no slide que está aberto
   if(prev>=0){const f=slides[prev].querySelector('.live iframe');if(f)f.remove();}
-  const s=slides[i];if(s.dataset.live){const f=document.createElement('iframe');f.src=s.dataset.live+(s.dataset.live.includes('?')?'&':'?')+'v='+VER;f.title='Simulador';s.querySelector('.live').appendChild(f);}
+  const s=slides[i];if(s.dataset.live){const f=document.createElement('iframe');f.src=s.dataset.live+(s.dataset.live.includes('?')?'&':'?')+'v='+VER;f.title='Simulador';s.querySelector('.live').appendChild(f);
+    f.addEventListener('load',()=>setTimeout(()=>{if(slides[cur]===s&&typeof sigmReady==='function'&&sigmReady(f)){watchSigm(f);pubState();}},300));}
   document.getElementById('count').textContent=(i+1)+' / '+N;
   document.getElementById('prog').style.width=((i+1)/N*100)+'%';
   history.replaceState(null,'','#'+(i+1));
@@ -2626,28 +2627,43 @@ addEventListener('mousemove',()=>{bar.classList.add('show');clearTimeout(ht);ht=
 
 /* ---------- passador de slides pelo celular (mensagens via ntfy.sh) ---------- */
 const RELAY='https://ntfy.sh/';
-const VER='2026-11-19c';
+const VER='2026-11-19d';
 let room=null,es=null,remoteOn=false;
 try{room=sessionStorage.getItem('vg-room');}catch(e){}
 if(!room){room=Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('vg-room',room);}catch(e){}}
 const topicC='vanguarda-'+room+'-c',topicS='vanguarda-'+room+'-s';
 const titleOf=i=>{const h=slides[i].querySelector('h1,h2');return h?h.textContent.replace(/\s+/g,' ').trim():''};
 const isSigm=i=>/sigm\.html/.test(slides[i].dataset.live||'');
-function pubState(){if(!remoteOn)return;const sg=isSigm(cur);fetch(RELAY+topicS,{method:'POST',body:JSON.stringify({i:cur,n:N,t:titleOf(cur),sigm:sg,tab:sg?sigmTab:null})}).catch(()=>{});}
-// comandos do celular para o SIGM ao vivo (abas e rolagem) vão para dentro do slide
+// posição da rolagem do SIGM dentro do slide (para travar no topo e no fim)
+function sigmScroll(){const f=slides[cur]&&slides[cur].querySelector('.live iframe');if(!f||!sigmReady(f))return{top:true,end:true};
+  const el=f.contentDocument.scrollingElement||f.contentDocument.documentElement,max=Math.max(0,el.scrollHeight-el.clientHeight);
+  return{top:el.scrollTop<=2,end:el.scrollTop>=max-2};}
+function pubState(){if(!remoteOn)return;const sg=isSigm(cur);
+  fetch(RELAY+topicS,{method:'POST',body:JSON.stringify({i:cur,n:N,t:titleOf(cur),sigm:sg,tab:sg?sigmTab:null,sc:sg?sigmScroll():null})}).catch(()=>{});}
+// comandos do celular para o SIGM ao vivo (abas e rolagem), só no slide do SIGM
 function sigmReady(f){try{const d=f.contentDocument;return d&&/sigm\.html/.test(d.URL)&&d.readyState==='complete'&&d.querySelector('.tab');}catch(e){return false;}}
+let scAnim=null,scPub=null;
+function watchSigm(f){ // rolagem feita com mouse/dedo também atualiza o celular
+  const w=f.contentWindow;if(w.__vgWatch)return;w.__vgWatch=true;
+  w.addEventListener('scroll',()=>{clearTimeout(scPub);scPub=setTimeout(pubState,250);},{passive:true});}
+function scrollSigm(el,target){
+  const max=Math.max(0,el.scrollHeight-el.clientHeight);target=Math.max(0,Math.min(max,Math.round(target))); // trava no topo e no fim
+  const from=el.scrollTop,t0=performance.now(),dur=320;cancelAnimationFrame(scAnim);
+  const step=t=>{const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);el.scrollTop=from+(target-from)*e;
+    if(k<1)scAnim=requestAnimationFrame(step);else{el.scrollTop=target;pubState();}};
+  scAnim=requestAnimationFrame(step);
+}
 function toSigm(cmd,tries){
+  if(!isSigm(cur))return;
   const f=slides[cur].querySelector('.live iframe');if(!f)return;
   if(!sigmReady(f)){tries=(tries||0)+1;if(tries<60)setTimeout(()=>toSigm(cmd,tries),150);return;}
-  const w=f.contentWindow,d=f.contentDocument;
-  try{
-    if(cmd.startsWith('tab:')){const v=cmd.slice(4),b=d.querySelector('.tab[data-v="'+v+'"]');if(b){b.click();sigmTab=v;pubState();}}
-    else{const H=Math.round(w.innerHeight*0.6),el=d.scrollingElement||d.documentElement;
-      if(cmd==='down')w.scrollBy({top:H,behavior:'smooth'});
-      else if(cmd==='up')w.scrollBy({top:-H,behavior:'smooth'});
-      else if(cmd==='top')w.scrollTo({top:0,behavior:'smooth'});
-      else if(cmd==='bottom')w.scrollTo({top:el.scrollHeight,behavior:'smooth'});}
-  }catch(e){w.postMessage({sigmCmd:cmd},'*');}
+  watchSigm(f);
+  const d=f.contentDocument,el=d.scrollingElement||d.documentElement,H=el.clientHeight*0.6;
+  if(cmd.startsWith('tab:')){const v=cmd.slice(4),b=d.querySelector('.tab[data-v="'+v+'"]');if(b){b.click();el.scrollTop=0;sigmTab=v;pubState();}}
+  else if(cmd==='down')scrollSigm(el,el.scrollTop+H);
+  else if(cmd==='up')scrollSigm(el,el.scrollTop-H);
+  else if(cmd==='top')scrollSigm(el,0);
+  else if(cmd==='bottom')scrollSigm(el,el.scrollHeight);
 }
 function setStatus(cls,txt){const el=document.getElementById('rStatus');el.className=cls;el.textContent=txt;}
 function listen(){
@@ -2657,7 +2673,7 @@ function listen(){
     if(!remoteOn)setTimeout(()=>document.getElementById('remote').classList.remove('on'),1500);
     remoteOn=true;setStatus('ok','✓ Celular conectado');
     if(c==='next')next();else if(c==='prev')prev();else if(/^goto:\d+$/.test(c))go(+c.slice(5));
-    else if(/^sigm:[a-z:]+$/.test(c)){if(!isSigm(cur)){const k=slides.findIndex((x,j)=>isSigm(j));if(k<0)return;go(k);}toSigm(c.slice(5));return;}
+    else if(/^sigm:[a-z:]+$/.test(c)){if(isSigm(cur))toSigm(c.slice(5));return;}
     pubState();};
   es.onerror=()=>{if(!remoteOn)setStatus('err','Sem conexão com o serviço de mensagens. Verifique a internet.');};
 }
