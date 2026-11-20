@@ -303,7 +303,7 @@ h1 span,h2 span{color:var(--orange)}
     <div id="qr"></div>
     <a id="rLink" target="_blank" rel="noopener"></a>
     <div id="rStatus" class="wait">● Aguardando o celular…</div>
-    <p class="rn">O celular e este computador precisam de internet. Código da sala: <b id="rRoom"></b> · versão 2026-11-20a</p>
+    <p class="rn">O celular e este computador precisam de internet. Código da sala: <b id="rRoom"></b> · versão 2026-11-20b</p>
   </div>
 </div>
 
@@ -2649,7 +2649,7 @@ addEventListener('mousemove',()=>{bar.classList.add('show');clearTimeout(ht);ht=
 
 /* ---------- passador de slides pelo celular (mensagens via ntfy.sh) ---------- */
 const RELAY='https://ntfy.sh/';
-const VER='2026-11-20a';
+const VER='2026-11-20b';
 let room=null,es=null,remoteOn=false;
 try{room=sessionStorage.getItem('vg-room');}catch(e){}
 if(!room){room=Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('vg-room',room);}catch(e){}}
