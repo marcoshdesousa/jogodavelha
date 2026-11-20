@@ -2622,7 +2622,7 @@ var qrcode = function() {
 }));
 
 </script>
-<script src="relay.js?v=2026-11-20e"></script>
+<script src="relay.js?v=2026-11-20f"></script>
 <script>
 (function(){
 'use strict';
@@ -2669,8 +2669,8 @@ const bar=document.getElementById('bar');let ht;
 addEventListener('mousemove',()=>{bar.classList.add('show');clearTimeout(ht);ht=setTimeout(()=>bar.classList.remove('show'),2000);});
 
 /* ---------- passador de slides pelo celular (relay.js: MQTT em 2 servidores + ntfy de reserva) ---------- */
-const VER='2026-11-20e';
-let room=null,rel=null,remoteOn=false,lastPub='',pubT=null;
+const VER='2026-11-20f';
+let room=null,rel=null,remoteOn=false,lastPub='',pubSeq=0;const pubBoot=Date.now();
 try{room=sessionStorage.getItem('vg-room');}catch(e){}
 if(!room){room=Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('vg-room',room);}catch(e){}}
 const titleOf=i=>{const h=slides[i].querySelector('h1,h2');return h?h.textContent.replace(/\s+/g,' ').trim():''};
@@ -2682,7 +2682,7 @@ function sigmScroll(){const f=slides[cur]&&slides[cur].querySelector('.live ifra
 function pubState(ack){if(!rel)return;const sg=isSigm(cur);
   const st={i:cur,n:N,t:titleOf(cur),sigm:sg,tab:sg?sigmTab:null,sc:sg?sigmScroll():null,est:isEst(cur),tr:trMode},key=JSON.stringify(st);
   if(!ack&&key===lastPub)return; // nada mudou: não manda de novo
-  lastPub=key;st.k='s';if(ack)st.ack=ack;
+  lastPub=key;st.k='s';st.b=pubBoot;st.q=++pubSeq;if(ack)st.ack=ack; // b+q: o celular ignora mensagem atrasada
   try{rel.send(st,{retain:true,ntfyEvery:ack?0:2500});}catch(e){}}
 // comandos do celular para o SIGM ao vivo (abas e rolagem), só no slide do SIGM
 function sigmReady(f){try{const d=f.contentDocument;return d&&/sigm\.html/.test(d.URL)&&d.readyState==='complete'&&d.querySelector('.tab');}catch(e){return false;}}
