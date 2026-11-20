@@ -84,8 +84,8 @@ body.has-sigm .nav{min-height:120px}
   <button id="bPrev" type="button" aria-label="Slide anterior">◀<span>Voltar</span></button>
   <button id="bNext" type="button" aria-label="Próximo slide">▶<span>Próximo</span></button>
 </div>
-<div class="ver">versão 2026-11-20e</div>
-<script src="relay.js?v=2026-11-20e"></script>
+<div class="ver">versão 2026-11-20f</div>
+<script src="relay.js?v=2026-11-20f"></script>
 <script>
 (function(){
 'use strict';
@@ -94,7 +94,7 @@ const $=id=>document.getElementById(id);
 function st(cls,txt){$('st').className=cls;$('st').textContent=txt;}
 if(!room){$('tit').textContent='Abra este controle pelo QR Code da apresentação.';st('err','sem sala');}
 
-let rel=null,lastState=0;const pend=new Map();
+let rel=null,lastState=0,lastB=0,lastQ=0;const pend=new Map();
 function showState(d){
   lastState=Date.now();
   $('num').textContent='Slide '+(d.i+1)+' / '+d.n;$('tit').textContent=d.t||'';
@@ -107,8 +107,14 @@ function showState(d){
 }
 function onMsg(m){
   if(m.k!=='s')return;
-  if(m.ack&&pend.has(m.ack)){clearTimeout(pend.get(m.ack).t);pend.delete(m.ack);}
-  if(typeof m.i==='number')showState(m);
+  // ordem: só aceita estado mais novo que o último (uma mensagem atrasada não faz a tela "voltar")
+  const b=+m.b||0,q=+m.q||0;
+  if(b<lastB||(b===lastB&&q<=lastQ)){refresh();return;}
+  lastB=b;lastQ=q;
+  const isAck=m.ack&&pend.has(m.ack);
+  if(isAck){clearTimeout(pend.get(m.ack).t);pend.delete(m.ack);}
+  // enquanto um toque ainda não foi confirmado, não desfaz o botão que acabou de ser marcado
+  if(typeof m.i==='number'&&(isAck||!pend.size))showState(m);
   refresh();
 }
 // estado da conexão: verde = apresentação respondendo; amarelo = reconectando sozinho
@@ -121,8 +127,11 @@ function refresh(){
   else st('wait',rel&&rel.peer?'reconectando…':'conectando…');
 }
 // envia o comando e repete até a apresentação confirmar (sem executar duas vezes)
+let lastTap={c:'',t:0};
 function send(cmd){
   if(!rel)return;
+  const now=Date.now();if(cmd===lastTap.c&&now-lastTap.t<300)return; // toque fantasma (duplo) no mesmo botão
+  lastTap={c:cmd,t:now};
   if(navigator.vibrate)navigator.vibrate(25);
   keepAwake();
   const msg={k:'c',c:cmd,id:Math.random().toString(36).slice(2,11)};
