@@ -43,6 +43,8 @@ button:active{transform:scale(.98)}
 .sigm .tabs button.on{background:#4fc3f7;border-color:#4fc3f7;color:#062433}
 .sigm .scroll button{background:#14171b}
 .sigm .scroll button:disabled{opacity:.3}
+.sigm .tabs.two{grid-template-columns:1fr 1fr}.est{border-color:var(--orange)}.est .lbl{color:var(--orange)}.est .tabs button.on{background:var(--orange);border-color:var(--orange);color:#111}
+body.has-est .nav{min-height:140px}
 .ver{text-align:center;font-size:.7rem;color:#5b646c}
 body.has-sigm .nav{min-height:120px}
 </style>
@@ -71,11 +73,18 @@ body.has-sigm .nav{min-height:120px}
     <button type="button" data-sc="bottom">⤓<span>Fim</span></button>
   </div>
 </div>
+<div class="sigm est" id="est" hidden>
+  <div class="lbl">ESTEIRA AO VIVO · escolha o traçado</div>
+  <div class="tabs two">
+    <button type="button" data-tr="real">〰️<span>Curvada</span></button>
+    <button type="button" data-tr="reto">➖<span>Reta</span></button>
+  </div>
+</div>
 <div class="nav">
   <button id="bPrev" type="button" aria-label="Slide anterior">◀<span>Voltar</span></button>
   <button id="bNext" type="button" aria-label="Próximo slide">▶<span>Próximo</span></button>
 </div>
-<div class="ver">versão 2026-11-20c</div>
+<div class="ver">versão 2026-11-20d</div>
 <script>
 (function(){
 'use strict';
@@ -94,6 +103,7 @@ $('bNext').onclick=()=>send('next');
 $('bPrev').onclick=()=>send('prev');
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x===b));send('sigm:tab:'+b.dataset.tab);});
 document.querySelectorAll('[data-sc]').forEach(b=>b.onclick=()=>send('sigm:'+b.dataset.sc));
+document.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tr]').forEach(x=>x.classList.toggle('on',x===b));send('tr:'+b.dataset.tr);});
 
 // recebe o slide atual da apresentação
 if(room){
@@ -106,7 +116,9 @@ if(room){
     $('sigm').hidden=!d.sigm;document.body.classList.toggle('has-sigm',!!d.sigm);
     const sc=d.sc||{top:true,end:true};
     document.querySelectorAll('[data-sc]').forEach(b=>{const k=b.dataset.sc;b.disabled=(k==='up'||k==='top')?sc.top:sc.end;});
-    document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',!!d.sigm&&b.dataset.tab===d.tab));};
+    document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',!!d.sigm&&b.dataset.tab===d.tab));
+    $('est').hidden=!d.est;document.body.classList.toggle('has-est',!!d.est);
+    document.querySelectorAll('[data-tr]').forEach(b=>b.classList.toggle('on',!!d.est&&b.dataset.tr===d.tr));};
   es.onerror=()=>{if($('st').className!=='ok'){$('st').textContent='sem conexão';$('st').className='err';}};
 }
 
