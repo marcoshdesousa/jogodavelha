@@ -13,7 +13,7 @@ body{display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top
 header{display:flex;justify-content:space-between;align-items:center;gap:10px}
 header h1{font-size:1rem;margin:0}header h1 span{color:var(--orange)}
 #st{font-size:.8rem;font-weight:800;padding:4px 10px;border-radius:999px;background:#3a2a00;color:#ffb020;white-space:nowrap}
-#st.ok{background:rgba(46,204,113,.15);color:var(--ok)}#st.err{background:rgba(255,59,48,.15);color:#ff8a80}
+#st.wait{background:#3a2a00;color:#ffb020}#st.ok{background:rgba(46,204,113,.15);color:var(--ok)}#st.err{background:rgba(255,59,48,.15);color:#ff8a80}
 .now{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
 .now .n{font-size:.8rem;color:var(--muted);font-weight:700}
 .now .t{font-size:1.15rem;font-weight:800;margin-top:2px;min-height:1.4em}
@@ -84,20 +84,55 @@ body.has-sigm .nav{min-height:120px}
   <button id="bPrev" type="button" aria-label="Slide anterior">◀<span>Voltar</span></button>
   <button id="bNext" type="button" aria-label="Próximo slide">▶<span>Próximo</span></button>
 </div>
-<div class="ver">versão 2026-11-20d</div>
+<div class="ver">versão 2026-11-20e</div>
+<script src="relay.js?v=2026-11-20e"></script>
 <script>
 (function(){
 'use strict';
-const RELAY='https://ntfy.sh/';
 const room=(new URLSearchParams(location.search).get('sala')||'').replace(/[^a-z0-9]/gi,'');
 const $=id=>document.getElementById(id);
-if(!room){$('tit').textContent='Abra este controle pelo QR Code da apresentação.';$('st').textContent='sem sala';$('st').className='err';}
-const topicC='vanguarda-'+room+'-c',topicS='vanguarda-'+room+'-s';
+function st(cls,txt){$('st').className=cls;$('st').textContent=txt;}
+if(!room){$('tit').textContent='Abra este controle pelo QR Code da apresentação.';st('err','sem sala');}
 
-function send(cmd){
+let rel=null,lastState=0;const pend=new Map();
+function showState(d){
+  lastState=Date.now();
+  $('num').textContent='Slide '+(d.i+1)+' / '+d.n;$('tit').textContent=d.t||'';
+  $('sigm').hidden=!d.sigm;document.body.classList.toggle('has-sigm',!!d.sigm);
+  const sc=d.sc||{top:true,end:true};
+  document.querySelectorAll('[data-sc]').forEach(b=>{const k=b.dataset.sc;b.disabled=(k==='up'||k==='top')?sc.top:sc.end;});
+  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',!!d.sigm&&b.dataset.tab===d.tab));
+  $('est').hidden=!d.est;document.body.classList.toggle('has-est',!!d.est);
+  document.querySelectorAll('[data-tr]').forEach(b=>b.classList.toggle('on',!!d.est&&b.dataset.tr===d.tr));
+}
+function onMsg(m){
+  if(m.k!=='s')return;
+  if(m.ack&&pend.has(m.ack)){clearTimeout(pend.get(m.ack).t);pend.delete(m.ack);}
+  if(typeof m.i==='number')showState(m);
+  refresh();
+}
+// estado da conexão: verde = apresentação respondendo; amarelo = reconectando sozinho
+function refresh(){
   if(!room)return;
+  const now=Date.now(),peerOk=rel&&now-rel.peer<35000;
+  if(pend.size&&[...pend.values()].some(p=>p.n>=2))st('wait','enviando…');
+  else if(peerOk)st('ok','conectado');
+  else if(!navigator.onLine)st('err','sem internet');
+  else st('wait',rel&&rel.peer?'reconectando…':'conectando…');
+}
+// envia o comando e repete até a apresentação confirmar (sem executar duas vezes)
+function send(cmd){
+  if(!rel)return;
   if(navigator.vibrate)navigator.vibrate(25);
-  fetch(RELAY+topicC,{method:'POST',body:cmd}).then(r=>{if(!r.ok)throw 0;}).catch(()=>{$('st').textContent='sem conexão';$('st').className='err';});
+  keepAwake();
+  const msg={k:'c',c:cmd,id:Math.random().toString(36).slice(2,11)};
+  const p={n:0,t:null};pend.set(msg.id,p);
+  const go=()=>{if(!pend.has(msg.id))return;p.n++;
+    if(p.n>6){pend.delete(msg.id);refresh();return;}
+    if(p.n>1)rel.kick();
+    rel.send(msg,{force:p.n>1});refresh();
+    p.t=setTimeout(go,p.n===1?1200:1800);};
+  go();
 }
 $('bNext').onclick=()=>send('next');
 $('bPrev').onclick=()=>send('prev');
@@ -105,21 +140,13 @@ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.query
 document.querySelectorAll('[data-sc]').forEach(b=>b.onclick=()=>send('sigm:'+b.dataset.sc));
 document.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tr]').forEach(x=>x.classList.toggle('on',x===b));send('tr:'+b.dataset.tr);});
 
-// recebe o slide atual da apresentação
-if(room){
-  const es=new EventSource(RELAY+topicS+'/sse');
-  es.onopen=()=>{send('hello');};
-  es.onmessage=ev=>{let m;try{m=JSON.parse(ev.data);}catch(e){return;}if(m.event!=='message')return;
-    let d;try{d=JSON.parse(m.message);}catch(e){return;}
-    $('st').textContent='conectado';$('st').className='ok';
-    $('num').textContent='Slide '+(d.i+1)+' / '+d.n;$('tit').textContent=d.t||'';
-    $('sigm').hidden=!d.sigm;document.body.classList.toggle('has-sigm',!!d.sigm);
-    const sc=d.sc||{top:true,end:true};
-    document.querySelectorAll('[data-sc]').forEach(b=>{const k=b.dataset.sc;b.disabled=(k==='up'||k==='top')?sc.top:sc.end;});
-    document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',!!d.sigm&&b.dataset.tab===d.tab));
-    $('est').hidden=!d.est;document.body.classList.toggle('has-est',!!d.est);
-    document.querySelectorAll('[data-tr]').forEach(b=>b.classList.toggle('on',!!d.est&&b.dataset.tr===d.tr));};
-  es.onerror=()=>{if($('st').className!=='ok'){$('st').textContent='sem conexão';$('st').className='err';}};
+if(room&&typeof VGRelay==='function'){
+  rel=VGRelay(room,'cel',onMsg,refresh);
+  // "oi" logo ao abrir e um sinal de vida a cada 8 s (pede o slide atual)
+  const hello=()=>{try{rel.send({k:'c',c:'hello'},{ntfyEvery:30000});}catch(e){}};
+  setTimeout(hello,800);setTimeout(hello,2500);setInterval(hello,8000);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){rel.kick();setTimeout(hello,500);}});
+  setInterval(refresh,1000);
 }
 
 // cronômetro
