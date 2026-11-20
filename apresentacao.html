@@ -2622,6 +2622,7 @@ var qrcode = function() {
 }));
 
 </script>
+<script src="relay.js?v=2026-11-20e"></script>
 <script>
 (function(){
 'use strict';
@@ -2667,21 +2668,22 @@ document.getElementById('bFull').onclick=full;
 const bar=document.getElementById('bar');let ht;
 addEventListener('mousemove',()=>{bar.classList.add('show');clearTimeout(ht);ht=setTimeout(()=>bar.classList.remove('show'),2000);});
 
-/* ---------- passador de slides pelo celular (mensagens via ntfy.sh) ---------- */
-const RELAY='https://ntfy.sh/';
-const VER='2026-11-20d';
-let room=null,es=null,remoteOn=false;
+/* ---------- passador de slides pelo celular (relay.js: MQTT em 2 servidores + ntfy de reserva) ---------- */
+const VER='2026-11-20e';
+let room=null,rel=null,remoteOn=false,lastPub='',pubT=null;
 try{room=sessionStorage.getItem('vg-room');}catch(e){}
 if(!room){room=Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('vg-room',room);}catch(e){}}
-const topicC='vanguarda-'+room+'-c',topicS='vanguarda-'+room+'-s';
 const titleOf=i=>{const h=slides[i].querySelector('h1,h2');return h?h.textContent.replace(/\s+/g,' ').trim():''};
 const isSigm=i=>/sigm\.html/.test(slides[i].dataset.live||'');
 // posição da rolagem do SIGM dentro do slide (para travar no topo e no fim)
 function sigmScroll(){const f=slides[cur]&&slides[cur].querySelector('.live iframe');if(!f||!sigmReady(f))return{top:true,end:true};
   const el=f.contentDocument.scrollingElement||f.contentDocument.documentElement,max=Math.max(0,el.scrollHeight-el.clientHeight);
   return{top:el.scrollTop<=2,end:el.scrollTop>=max-2};}
-function pubState(){if(!remoteOn)return;const sg=isSigm(cur);
-  fetch(RELAY+topicS,{method:'POST',body:JSON.stringify({i:cur,n:N,t:titleOf(cur),sigm:sg,tab:sg?sigmTab:null,sc:sg?sigmScroll():null,est:isEst(cur),tr:trMode})}).catch(()=>{});}
+function pubState(ack){if(!rel)return;const sg=isSigm(cur);
+  const st={i:cur,n:N,t:titleOf(cur),sigm:sg,tab:sg?sigmTab:null,sc:sg?sigmScroll():null,est:isEst(cur),tr:trMode},key=JSON.stringify(st);
+  if(!ack&&key===lastPub)return; // nada mudou: não manda de novo
+  lastPub=key;st.k='s';if(ack)st.ack=ack;
+  try{rel.send(st,{retain:true,ntfyEvery:ack?0:2500});}catch(e){}}
 // comandos do celular para o SIGM ao vivo (abas e rolagem), só no slide do SIGM
 function sigmReady(f){try{const d=f.contentDocument;return d&&/sigm\.html/.test(d.URL)&&d.readyState==='complete'&&d.querySelector('.tab');}catch(e){return false;}}
 let scAnim=null,scPub=null;
@@ -2708,17 +2710,23 @@ function toSigm(cmd,tries){
   else if(cmd==='bottom')scrollSigm(el,el.scrollHeight);
 }
 function setStatus(cls,txt){const el=document.getElementById('rStatus');el.className=cls;el.textContent=txt;}
-function listen(){
-  if(es)return;
-  es=new EventSource(RELAY+topicC+'/sse');
-  es.onmessage=ev=>{let m;try{m=JSON.parse(ev.data);}catch(e){return;}if(m.event!=='message')return;const c=m.message;
-    if(!remoteOn)setTimeout(()=>document.getElementById('remote').classList.remove('on'),1500);
-    remoteOn=true;setStatus('ok','✓ Celular conectado');
-    if(c==='next')next();else if(c==='prev')prev();else if(/^goto:\d+$/.test(c))go(+c.slice(5));
-    else if(/^sigm:[a-z:]+$/.test(c)){if(isSigm(cur))toSigm(c.slice(5));return;}
+function onCmd(m,dup){
+  if(m.k!=='c'||typeof m.c!=='string')return;
+  if(!remoteOn){remoteOn=true;setTimeout(()=>document.getElementById('remote').classList.remove('on'),1500);}
+  setStatus('ok','✓ Celular conectado');
+  if(dup){pubState(m.id);return;} // comando repetido (reenvio): só confirma, não executa de novo
+  const c=m.c;
+  try{
+    if(c==='next')next();else if(c==='prev')prev();
+    else if(/^sigm:[a-z:]+$/.test(c)){if(isSigm(cur))toSigm(c.slice(5));}
     else if(c==='tr:real'||c==='tr:reto'){if(isEst(cur))setTr(c.slice(3));}
-    pubState();};
-  es.onerror=()=>{if(!remoteOn)setStatus('err','Sem conexão com o serviço de mensagens. Verifique a internet.');};
+  }catch(e){console.error(e);}
+  pubState(m.id);
+}
+function listen(){
+  if(rel||typeof VGRelay!=='function')return;
+  try{sessionStorage.setItem('vg-remote','1');}catch(e){}
+  rel=VGRelay(room,'pc',onCmd,st=>{if(!remoteOn&&!st.open)setStatus('err','Conectando ao serviço de mensagens… verifique a internet.');else if(!remoteOn)setStatus('wait','● Aguardando o celular…');});
 }
 function openRemote(){
   const url=new URL('controle.html?sala='+room+'&v='+VER,location.href).href;
@@ -2741,6 +2749,7 @@ trLabel();
 document.getElementById('rClose').onclick=()=>document.getElementById('remote').classList.remove('on');
 document.getElementById('remote').onclick=e=>{if(e.target.id==='remote')e.target.classList.remove('on');};
 go((parseInt(location.hash.slice(1),10)||1)-1);
+try{if(sessionStorage.getItem('vg-remote')==='1'&&location.protocol!=='file:'){remoteOn=true;listen();}}catch(e){}
 })();
 </script>
 </body>
